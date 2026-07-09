@@ -4,8 +4,8 @@
   "private": true,
   "dependencies": {
     "dotenv": "^16.4.5"
-  }
-  "type": "module",
+   },
+   "type": "module",
   "scripts": {
     "start": "node -r dotenv/config server.mjs",
     "static": "python3 -m http.server 4173"
