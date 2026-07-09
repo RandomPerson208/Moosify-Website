@@ -947,6 +947,15 @@
         font-size: 0.9rem;
       }
 
+      .site-header .button {
+        min-width: 42px;
+        padding: 0 10px;
+      }
+
+      .site-header .button-label {
+        display: none;
+      }
+
       .hero-proof,
       .services-grid {
         grid-template-columns: 1fr;
@@ -981,9 +990,9 @@
       </a>
       <div class="nav-actions">
         <button class="nav-link" type="button" data-scroll-to="services">Services</button>
-        <button class="button secondary" type="button" data-modal-open="login"><i class="icon" data-lucide="user"></i>Login</button>
-        <button class="button" type="button" data-modal-open="chat"><i class="icon" data-lucide="message-circle"></i>Talk</button>
-        <button class="button orange" type="button" data-modal-open="cart"><i class="icon" data-lucide="shopping-cart"></i>Cart <span data-cart-count>0</span></button>
+        <button class="button secondary" type="button" data-modal-open="login"><i class="icon" data-lucide="user"></i><span class="button-label">Login</span></button>
+        <button class="button" type="button" data-modal-open="chat"><i class="icon" data-lucide="message-circle"></i><span class="button-label">Talk</span></button>
+        <button class="button orange" type="button" data-modal-open="cart"><i class="icon" data-lucide="shopping-cart"></i><span class="button-label">Cart</span> <span data-cart-count>0</span></button>
       </div>
     </nav>
   </header>
@@ -1178,8 +1187,9 @@
       </div>
       <div class="modal-body">
         <div class="chat-log" data-chat-log>
-          <div class="message">Moosy: Hi. Ask me about phones, donuts, rockets, flights, plans, or support.</div>
+          <div class="message">Moosy: Hi. Ask me about phones, donuts, rockets, flights, plans, support, or what to add to your cart.</div>
         </div>
+        <p class="form-note" data-ai-status>Moosy brain: local product guide.</p>
         <form data-chat-form>
           <label class="field">Message<input type="text" data-chat-input placeholder="Type your question" autocomplete="off"></label>
           <button class="button orange" type="submit"><i class="icon" data-lucide="send"></i>Send</button>
@@ -1193,32 +1203,62 @@
       phones: {
         title: "Orange Phone Shop",
         copy: "Browse bright orange phones, matching cases, and friendly setup help. Every device is inspected by Moosify's shelf-side technicians before it ships.",
-        image: "url('https://images.pexels.com/photos/11297769/pexels-photo-11297769.jpeg?auto=compress&cs=tinysrgb&w=1400')"
+        image: "url('https://images.pexels.com/photos/11297769/pexels-photo-11297769.jpeg?auto=compress&cs=tinysrgb&w=1400')",
+        products: [
+          { id: "ophone-mini", name: "OPhone Mini", description: "Pocket orange phone with plush-safe setup.", price: 249 },
+          { id: "ophone-pro", name: "OPhone Pro", description: "Bigger screen, brighter orange, free case.", price: 499 },
+          { id: "opad", name: "OPad Drawing Kit", description: "Tablet bundle for games, doodles, and shelf meetings.", price: 399 }
+        ]
       },
       donuts: {
         title: "Ishaan's Donuts",
         copy: "Order glazed classics, rainbow sprinkles, and the Triple Chocolate Shelf Special. The form is intentionally simple because donuts should not require a committee.",
-        image: "url('https://images.pexels.com/photos/1191639/pexels-photo-1191639.jpeg?auto=compress&cs=tinysrgb&w=1400')"
+        image: "url('https://images.pexels.com/photos/1191639/pexels-photo-1191639.jpeg?auto=compress&cs=tinysrgb&w=1400')",
+        products: [
+          { id: "donut-sprinkle", name: "Rainbow Sprinkle Box", description: "Six soft donuts for the whole playarea.", price: 18 },
+          { id: "donut-chocolate", name: "Triple Chocolate Stack", description: "Rich chocolate donuts for serious snack missions.", price: 22 },
+          { id: "donut-party", name: "Shelf Party Dozen", description: "Twelve assorted donuts with extra napkins.", price: 34 }
+        ]
       },
       space: {
         title: "Moosa Rockets & Space",
         copy: "Schedule an imaginary launch, pick an orbit, and get a mission briefing for the bravest plush passengers in the galaxy.",
-        image: "url('https://images.pexels.com/photos/11086520/pexels-photo-11086520.jpeg?auto=compress&cs=tinysrgb&w=1400')"
+        image: "url('https://images.pexels.com/photos/11086520/pexels-photo-11086520.jpeg?auto=compress&cs=tinysrgb&w=1400')",
+        products: [
+          { id: "space-seat", name: "Plush Orbit Seat", description: "One pretend launch seat with mission badge.", price: 79 },
+          { id: "space-family", name: "Family Launch Pack", description: "Four passenger seats and a shelf-side countdown.", price: 249 },
+          { id: "space-mars", name: "Mars Picnic Mission", description: "A full imaginary trip with snack cargo.", price: 399 }
+        ]
       },
       airlines: {
         title: "Moosify Airlines",
         copy: "Book cloud-soft routes with snack service, cozy seats, and a tiny co-pilot for every passenger. Destinations include everywhere the shelf can imagine.",
-        image: "url('https://images.pexels.com/photos/8230826/pexels-photo-8230826.jpeg?auto=compress&cs=tinysrgb&w=1400')"
+        image: "url('https://images.pexels.com/photos/8230826/pexels-photo-8230826.jpeg?auto=compress&cs=tinysrgb&w=1400')",
+        products: [
+          { id: "air-cloud", name: "Cloud Hopper Ticket", description: "One cozy round-trip pretend flight.", price: 59 },
+          { id: "air-snack", name: "Snack Class Upgrade", description: "Extra legroom, juice box, and plush blanket.", price: 29 },
+          { id: "air-world", name: "World Tour Pass", description: "A full playroom itinerary with souvenir sticker.", price: 149 }
+        ]
       },
       cellplans: {
         title: "Moosify Cell Plans",
         copy: "Compare unlimited talk, text, and data options with a plan family that keeps the copy readable and the pricing imaginary.",
-        image: "url('https://images.pexels.com/photos/18379732/pexels-photo-18379732.jpeg?auto=compress&cs=tinysrgb&w=1400')"
+        image: "url('https://images.pexels.com/photos/18379732/pexels-photo-18379732.jpeg?auto=compress&cs=tinysrgb&w=1400')",
+        products: [
+          { id: "cell-tiny", name: "Tiny Text Plan", description: "Calls, texts, and tiny messages for one plush.", price: 12 },
+          { id: "cell-unlimited", name: "Unlimited Moose 5G", description: "Unlimited data for memes, maps, and shelf calls.", price: 35 },
+          { id: "cell-family", name: "Playroom Family Plan", description: "Five lines, shared data, and free setup.", price: 89 }
+        ]
       },
       support: {
         title: "Moosify Support",
         copy: "Get help with orders, account questions, plans, and anything else that needs a calm answer from the friendliest desk in the company.",
-        image: "url('moosy-ceo-cutout.png')"
+        image: "url('moosy-ceo-cutout.png')",
+        products: [
+          { id: "support-quick", name: "Quick Help Ticket", description: "A friendly answer for one small question.", price: 5 },
+          { id: "support-setup", name: "Shelf Setup Session", description: "Help setting up phones, plans, or donut orders.", price: 25 },
+          { id: "support-vip", name: "Moosy VIP Support", description: "Priority support with extra cheerful updates.", price: 49 }
+        ]
       }
     };
 
@@ -1227,7 +1267,20 @@
     const detailTitle = document.querySelector('[data-detail-title]');
     const detailCopy = document.querySelector('[data-detail-copy]');
     const detailVisual = document.querySelector('[data-detail-visual]');
+    const productList = document.querySelector("[data-product-list]");
     const chatLog = document.querySelector('[data-chat-log]');
+    const aiStatus = document.querySelector("[data-ai-status]");
+    const chatHistory = [];
+    const cart = new Map();
+    let activeServiceKey = "phones";
+
+    const moosyPersonality = [
+      "You are Moosy, the stuffed moose CEO and shop helper for Moosify.",
+      "You are playful, kind, short, and useful.",
+      "Help users choose products, understand prices, and move toward the demo cart or checkout.",
+      "Never claim an order or payment is real. Never ask for passwords, card numbers, or private secrets.",
+      "If someone wants to buy, recommend the best product and tell them to use the Add button or checkout preview."
+    ].join(" ");
 
     function refreshIcons() {
       if (window.lucide) {
@@ -1238,13 +1291,177 @@
     function openService(key) {
       const service = services[key];
       if (!service) return;
+      activeServiceKey = key;
       detailTitle.textContent = service.title;
       detailCopy.textContent = service.copy;
       detailVisual.style.setProperty("--detail-image", service.image);
+      renderProducts(service.products);
       homeView.hidden = true;
       detailView.hidden = false;
       window.scrollTo({ top: 0, behavior: "smooth" });
       refreshIcons();
+    }
+
+    function formatMoney(value) {
+      return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
+    }
+
+    function findProduct(id) {
+      for (const [serviceKey, service] of Object.entries(services)) {
+        const product = service.products.find((item) => item.id === id);
+        if (product) return { ...product, serviceKey, serviceTitle: service.title };
+      }
+      return null;
+    }
+
+    function renderProducts(products) {
+      productList.innerHTML = products.map((product) => `
+        <article class="product-row">
+          <div>
+            <h3>${product.name}</h3>
+            <p>${product.description}</p>
+            <span class="product-price">${formatMoney(product.price)}</span>
+          </div>
+          <button class="button orange" type="button" data-add-product="${product.id}">
+            <i class="icon" data-lucide="plus"></i>Add
+          </button>
+        </article>
+      `).join("");
+    }
+
+    function addToCart(id) {
+      const product = findProduct(id);
+      if (!product) return;
+      const current = cart.get(id) || { ...product, quantity: 0 };
+      current.quantity += 1;
+      cart.set(id, current);
+      renderCart();
+    }
+
+    function changeQuantity(id, delta) {
+      const current = cart.get(id);
+      if (!current) return;
+      current.quantity += delta;
+      if (current.quantity <= 0) {
+        cart.delete(id);
+      } else {
+        cart.set(id, current);
+      }
+      renderCart();
+    }
+
+    function getCartTotals() {
+      const items = Array.from(cart.values());
+      const quantity = items.reduce((sum, item) => sum + item.quantity, 0);
+      const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      return { items, quantity, total };
+    }
+
+    function productCatalogText() {
+      return Object.values(services).map((service) => {
+        const products = service.products.map((item) => `${item.name} (${formatMoney(item.price)}): ${item.description}`).join("; ");
+        return `${service.title}: ${products}`;
+      }).join("\n");
+    }
+
+    function localMoosyReply(message) {
+      const text = message.toLowerCase();
+      const { items, quantity, total } = getCartTotals();
+      const allProducts = Object.values(services).flatMap((service) => service.products.map((product) => ({
+        ...product,
+        serviceTitle: service.title
+      })));
+      const matched = allProducts.find((product) => text.includes(product.name.toLowerCase().split(" ")[0]) || text.includes(product.serviceTitle.toLowerCase().split(" ")[0]));
+
+      if (text.includes("cheap") || text.includes("lowest")) {
+        const cheapest = [...allProducts].sort((a, b) => a.price - b.price)[0];
+        return `Moosy found the cheapest option: ${cheapest.name} for ${formatMoney(cheapest.price)}. Tiny price, mighty shelf energy.`;
+      }
+      if (text.includes("checkout") || text.includes("pay") || text.includes("buy")) {
+        return quantity
+          ? `Moosy says your demo cart has ${quantity} item${quantity === 1 ? "" : "s"} for ${formatMoney(total)}. Tap Checkout for the pretend checkout preview. No real payment happens.`
+          : "Moosy says pick a product and tap Add first. Then I can help you review the checkout preview.";
+      }
+      if (text.includes("cart")) {
+        return quantity
+          ? `Moosy sees ${quantity} item${quantity === 1 ? "" : "s"} in your cart: ${items.map((item) => `${item.quantity} x ${item.name}`).join(", ")}. Total: ${formatMoney(total)}.`
+          : "Moosy sees an empty cart. The donut boxes are very persuasive, just saying.";
+      }
+      if (matched) {
+        return `Moosy recommends ${matched.name} from ${matched.serviceTitle}. It costs ${formatMoney(matched.price)} and ${matched.description.toLowerCase()} Tap Add if that sounds good.`;
+      }
+      if (text.includes("best") || text.includes("recommend")) {
+        const service = services[activeServiceKey];
+        const pick = service.products[Math.min(1, service.products.length - 1)];
+        return `Moosy would start with ${pick.name} for ${formatMoney(pick.price)}. It is a good ${service.title} pick without getting too wild.`;
+      }
+      return "Moosy can help compare phones, donuts, rockets, flights, cell plans, support, and your cart. Ask me what is cheapest, best, or ready for checkout.";
+    }
+
+    async function askMoosy(message) {
+      const { items, total } = getCartTotals();
+      const payload = {
+        message,
+        personality: moosyPersonality,
+        activeDepartment: services[activeServiceKey].title,
+        products: productCatalogText(),
+        cart: items.map((item) => ({ name: item.name, quantity: item.quantity, price: item.price })),
+        total,
+        history: chatHistory.slice(-8)
+      };
+
+      try {
+        const response = await fetch("/api/moosy", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!response.ok) throw new Error(`Moosy API returned ${response.status}`);
+        const data = await response.json();
+        if (!data.reply) throw new Error("Moosy API returned no reply");
+        aiStatus.textContent = "Moosy brain: OpenAI API.";
+        return data.reply;
+      } catch (error) {
+        aiStatus.textContent = "Moosy brain: local product guide.";
+        return localMoosyReply(message);
+      }
+    }
+
+    function renderCart() {
+      const { items, quantity, total } = getCartTotals();
+      const empty = "Cart is empty.";
+      const markup = items.length ? items.map((item) => `
+        <div class="cart-line">
+          <div>
+            <strong>${item.name}</strong>
+            <small>${item.serviceTitle} · ${formatMoney(item.price)} each</small>
+          </div>
+          <span class="qty-controls">
+            <button type="button" data-cart-delta="-1" data-cart-product="${item.id}" aria-label="Remove one ${item.name}">-</button>
+            <strong>${item.quantity}</strong>
+            <button type="button" data-cart-delta="1" data-cart-product="${item.id}" aria-label="Add one ${item.name}">+</button>
+          </span>
+        </div>
+      `).join("") : empty;
+
+      document.querySelectorAll("[data-inline-cart], [data-modal-cart]").forEach((node) => {
+        node.innerHTML = markup;
+      });
+      document.querySelectorAll("[data-cart-total]").forEach((node) => {
+        node.textContent = formatMoney(total);
+      });
+      document.querySelector("[data-cart-count]").textContent = quantity;
+      renderCheckoutSummary();
+      refreshIcons();
+    }
+
+    function renderCheckoutSummary() {
+      const { items, total } = getCartTotals();
+      const summary = document.querySelector("[data-checkout-summary]");
+      if (!summary) return;
+      summary.innerHTML = items.length
+        ? `${items.map((item) => `${item.quantity} x ${item.name}`).join("<br>")}<br><strong>Total: ${formatMoney(total)}</strong>`
+        : "Cart is empty. Add something before checking out.";
     }
 
     function showHome() {
@@ -1254,6 +1471,11 @@
     }
 
     function openModal(name) {
+      if (name === "checkout" && getCartTotals().items.length === 0) {
+        name = "cart";
+      }
+      if (name === "checkout") renderCheckoutSummary();
+      closeModals();
       document.getElementById(`${name}-modal`)?.removeAttribute("hidden");
     }
 
@@ -1267,9 +1489,13 @@
       const scrollButton = event.target.closest("[data-scroll-to]");
       const homeButton = event.target.closest("[data-back-home], [data-home-link]");
       const closeButton = event.target.closest("[data-modal-close]");
+      const addButton = event.target.closest("[data-add-product]");
+      const qtyButton = event.target.closest("[data-cart-product]");
 
       if (serviceButton) openService(serviceButton.dataset.openService);
       if (modalButton) openModal(modalButton.dataset.modalOpen);
+      if (addButton) addToCart(addButton.dataset.addProduct);
+      if (qtyButton) changeQuantity(qtyButton.dataset.cartProduct, Number(qtyButton.dataset.cartDelta));
       if (scrollButton) document.getElementById(scrollButton.dataset.scrollTo)?.scrollIntoView({ behavior: "smooth" });
       if (homeButton) {
         event.preventDefault();
@@ -1287,7 +1513,7 @@
       document.querySelector("[data-login-note]").textContent = "Demo login ready. Connect a real auth provider when Moosy approves it.";
     });
 
-    document.querySelector("[data-chat-form]").addEventListener("submit", (event) => {
+    document.querySelector("[data-chat-form]").addEventListener("submit", async (event) => {
       event.preventDefault();
       const input = document.querySelector("[data-chat-input]");
       const message = input.value.trim();
@@ -1300,13 +1526,26 @@
 
       const reply = document.createElement("div");
       reply.className = "message";
-      reply.textContent = "Moosy: I can help with that. Pick a service card or send support a note.";
+      reply.textContent = "Moosy: thinking with antlers...";
       chatLog.appendChild(reply);
 
       input.value = "";
       chatLog.scrollTop = chatLog.scrollHeight;
+
+      const answer = await askMoosy(message);
+      reply.textContent = `Moosy: ${answer}`;
+      chatHistory.push({ role: "user", content: message }, { role: "assistant", content: answer });
+      chatLog.scrollTop = chatLog.scrollHeight;
     });
 
+    document.querySelector("[data-checkout-form]").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const { quantity, total } = getCartTotals();
+      document.querySelector("[data-checkout-note]").textContent = `Demo order ready: ${quantity} item${quantity === 1 ? "" : "s"} for ${formatMoney(total)}. No payment was charged.`;
+    });
+
+    renderProducts(services[activeServiceKey].products);
+    renderCart();
     refreshIcons();
   </script>
 </body>
