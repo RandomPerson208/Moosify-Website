@@ -1280,6 +1280,7 @@
       }
     };
 
+    const CURRENT_CHAT_STATUS = "__CHAT_STATUS_PLACEHOLDER__";
     const homeView = document.querySelector('[data-view="home"]');
     const detailView = document.querySelector('[data-view="detail"]');
     const detailTitle = document.querySelector('[data-detail-title]');
@@ -1291,6 +1292,17 @@
     const chatHistory = [];
     const cart = new Map();
     let activeServiceKey = "phones";
+    // Chat status: if set to "down" disable chat UI
+    if (CURRENT_CHAT_STATUS === "down") {
+        const chatForm = document.querySelector("[data-chat-form]");
+        if (chatForm) {
+            chatForm.querySelectorAll("input, button").forEach(el => el.disabled = true);
+            const note = document.createElement("div");
+            note.textContent = "Our help desk chat is currently offline for testing. Check back soon!";
+            note.className = "text-center text-red-600 mt-4";
+            chatForm.parentElement.appendChild(note);
+        }
+    }
 
     const moosyPersonality = [
       "You are Moosy, the stuffed moose CEO and shop helper for Moosify.",
@@ -1418,8 +1430,13 @@
 
     async function askMoosy(message) {
       const { items, total } = getCartTotals();
+      // If chat is marked down, return maintenance message immediately
+      if (CURRENT_CHAT_STATUS === "down") {
+          aiStatus.textContent = "Moosy brain: offline.";
+          return "Our help desk chat is currently offline for testing. Check back soon!";
+      }
       const payload = {
-        message,
+        message, chatStatus: CURRENT_CHAT_STATUS,
         personality: moosyPersonality,
         activeDepartment: services[activeServiceKey].title,
         products: productCatalogText(),
