@@ -1466,7 +1466,7 @@
     };
 
       try {
-        const endpoint = (API_URL && API_URL.trim() !== "") ? API_URL : "/api/moosy";
+        const endpoint = (API_URL && API_URL.trim() !== "" && !API_URL.includes("__API_URL_PLACEHOLDER__")) ? API_URL : "/api/moosy";
         const response = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
