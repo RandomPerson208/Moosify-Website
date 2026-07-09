@@ -229,6 +229,10 @@
       background: #db7420;
     }
 
+    .button.full {
+      width: 100%;
+    }
+
     .icon {
       width: 18px;
       height: 18px;
@@ -636,6 +640,135 @@
       margin-top: 28px;
     }
 
+    .product-shop {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 18px;
+      margin-top: 28px;
+    }
+
+    .product-list,
+    .cart-panel {
+      border: 1px solid rgba(21, 102, 155, 0.14);
+      border-radius: var(--radius);
+      background: rgba(248, 251, 255, 0.86);
+    }
+
+    .product-list {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+    }
+
+    .product-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 14px;
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: 0 10px 22px rgba(23, 32, 51, 0.06);
+    }
+
+    .product-row h3,
+    .cart-panel h2 {
+      margin: 0;
+      font-size: 1.02rem;
+      line-height: 1.2;
+    }
+
+    .product-row p {
+      margin: 6px 0 0;
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
+    .product-price {
+      display: inline-block;
+      margin-top: 10px;
+      color: var(--blue-dark);
+      font-weight: 900;
+    }
+
+    .cart-panel {
+      position: sticky;
+      top: 92px;
+      align-self: start;
+      padding: 18px;
+    }
+
+    .cart-items {
+      display: grid;
+      gap: 10px;
+      margin: 16px 0;
+      color: var(--muted);
+    }
+
+    .cart-line {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .cart-line small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .qty-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px;
+      border-radius: 999px;
+      background: #edf7ff;
+    }
+
+    .qty-controls button {
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--blue);
+      font-weight: 900;
+    }
+
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 14px 0;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+      font-size: 1.1rem;
+      font-weight: 900;
+    }
+
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 12px;
+    }
+
+    .order-summary {
+      margin: 6px 0 18px;
+      padding: 14px;
+      border-radius: var(--radius);
+      background: #f6fbff;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
     .footer {
       padding: 30px 16px;
       color: #4c5e73;
@@ -782,6 +915,14 @@
       .services-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
+
+      .product-shop {
+        grid-template-columns: 1fr;
+      }
+
+      .cart-panel {
+        position: static;
+      }
     }
 
     @media (max-width: 680px) {
@@ -820,6 +961,11 @@
         bottom: 14px;
         left: 14px;
       }
+
+      .product-row,
+      .checkout-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -837,6 +983,7 @@
         <button class="nav-link" type="button" data-scroll-to="services">Services</button>
         <button class="button secondary" type="button" data-modal-open="login"><i class="icon" data-lucide="user"></i>Login</button>
         <button class="button" type="button" data-modal-open="chat"><i class="icon" data-lucide="message-circle"></i>Talk</button>
+        <button class="button orange" type="button" data-modal-open="cart"><i class="icon" data-lucide="shopping-cart"></i>Cart <span data-cart-count>0</span></button>
       </div>
     </nav>
   </header>
@@ -953,6 +1100,15 @@
         <div class="detail-content">
           <h1 class="brand-font" data-detail-title></h1>
           <p data-detail-copy></p>
+          <div class="product-shop">
+            <div class="product-list" data-product-list></div>
+            <aside class="cart-panel" aria-label="Cart summary">
+              <h2 class="brand-font">Your cart</h2>
+              <div class="cart-items" data-inline-cart>Cart is empty.</div>
+              <div class="cart-total"><span>Total</span><span data-cart-total>$0</span></div>
+              <button class="button full" type="button" data-modal-open="checkout"><i class="icon" data-lucide="credit-card"></i>Checkout</button>
+            </aside>
+          </div>
           <div class="detail-actions">
             <button class="button" type="button" data-modal-open="chat"><i class="icon" data-lucide="message-circle"></i>Ask Moosy</button>
             <button class="button secondary" type="button" data-back-home><i class="icon" data-lucide="grid-2x2"></i>All services</button>
@@ -977,6 +1133,39 @@
         <label class="field">Password<input type="password" autocomplete="current-password" required placeholder="Password"></label>
         <button class="button" type="submit"><i class="icon" data-lucide="log-in"></i>Continue</button>
         <p class="form-note" data-login-note></p>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="cart-modal" hidden role="dialog" aria-modal="true" aria-labelledby="cart-title">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="cart-title" class="brand-font">Cart</h2>
+        <button class="close-button" type="button" data-modal-close aria-label="Close cart"><i class="icon" data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="cart-items" data-modal-cart>Cart is empty.</div>
+        <div class="cart-total"><span>Total</span><span data-cart-total>$0</span></div>
+        <button class="button full" type="button" data-modal-open="checkout"><i class="icon" data-lucide="credit-card"></i>Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="checkout-modal" hidden role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="checkout-title" class="brand-font">Checkout preview</h2>
+        <button class="close-button" type="button" data-modal-close aria-label="Close checkout"><i class="icon" data-lucide="x"></i></button>
+      </div>
+      <form class="modal-body" data-checkout-form>
+        <div class="order-summary" data-checkout-summary>Cart is empty.</div>
+        <div class="checkout-grid">
+          <label class="field">Name<input required placeholder="Moosy Moose" autocomplete="name"></label>
+          <label class="field">Email<input type="email" required placeholder="you@example.com" autocomplete="email"></label>
+        </div>
+        <label class="field">Delivery note<textarea required placeholder="Shelf address, launch pad, donut instructions..."></textarea></label>
+        <button class="button full orange" type="submit"><i class="icon" data-lucide="package-check"></i>Place demo order</button>
+        <p class="form-note" data-checkout-note></p>
       </form>
     </div>
   </div>
