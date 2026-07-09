@@ -64,12 +64,15 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
 
     for (const p of providers) {
       try {
+        // Build the messages array, preserving any prior conversation history
+        const messages = [{ role: "system", content: systemPrompt }];
+        if (Array.isArray(payload.history) && payload.history.length) {
+          messages.push(...payload.history);
+        }
+        messages.push({ role: "user", content: userMessage });
         const body = {
           model: p.model,
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userMessage }
-          ],
+          messages,
           temperature: 0.7
         };
 

@@ -33,7 +33,7 @@ npm start
 ```
 
 The request flow:
-* The client POSTs to `/api/moosy`.
+* The client POSTs to `/api/moosy` **including the recent chat history** so that each provider receives the full conversation context.
 * The server tries the Cerebras model first, then Groq. If either provider returns a 429 rate‑limit or any error, the next provider is tried automatically.
 * If **all** providers fail (or no keys are set), the server now uses a built‑in local fallback, so the chat works **completely free** without any external API calls.
 
