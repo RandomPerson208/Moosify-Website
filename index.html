@@ -14,6 +14,9 @@
     .page-hidden { display: none; }
     .bounce { animation: bounce 2s infinite; }
     @keyframes bounce { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-10px); } }
+    .sun { position: absolute; top: 1rem; left: 1rem; width: 5rem; height: 5rem; background: radial-gradient(circle at center, #FFDD00, #FFAA00); border-radius: 50%; box-shadow: 0 0 20px rgba(255,200,0,0.8); }
+    .cloud { position: absolute; top: 2rem; left: -10%; width: 12rem; height: 4rem; background: white; border-radius: 50%; opacity: 0.7; animation: moveClouds 30s linear infinite; }
+    @keyframes moveClouds { 0% { transform: translateX(0%); } 100% { transform: translateX(120%); } }
   </style>
   <script src="/_sdk/0179d719c431a79e.data_sdk.js" type="text/javascript" integrity="sha512-OsRvJkI5GkC3MJQcgotQYotpzrMSX415GiKKgvYdxQEEkzD/fdchShO2FMSy0PJr/tiINMXOk5Vl2zAgg6bUiA=="></script>
   <script src="/_sdk/9432170dbd2ae0df.resizing_sdk.js" type="text/javascript" integrity="sha512-FeT+58sb1f9ejWPWFjCbJvTT+SDwGV+ngrHUnlO7TWEOoqwOLj6p256kO3vOL7DIWl1cIgrobiof8v2bOigwPg=="></script>
@@ -27,9 +30,24 @@
     </div>
     <p data-template-id="nav-tagline" class="canva-text text-sm hidden md:block" style="color: rgb(161, 161, 170); font-weight: 400; font-style: normal; font-size: 16px;">Stuffed Animals Running Everything 🧸</p>
       <button id="login-btn" class="ml-4 bg-orange-500 hover:bg-orange-600 text-white font-bold py-1 px-3 rounded">Login</button>
+      <button id="talk-btn" class="ml-2 bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded">Talk to Moosy</button>
    </nav>
   </header>
-   <!-- Auth Modal -->
+    <!-- Auth Modal -->
+    <!-- Talk Modal -->
+    <div id="talk-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+      <div class="bg-white rounded-lg p-6 w-80">
+        <h2 class="text-xl font-bold mb-4">Chat with Moosy</h2>
+        <div id="chat-messages" class="h-40 overflow-y-auto mb-2 border p-2"></div>
+        <input id="chat-input" type="text" placeholder="Say something..." class="w-full mb-2 p-2 border rounded"/>
+        <div class="flex justify-between">
+          <button id="chat-send" class="bg-blue-500 text-white px-4 py-2 rounded">Send</button>
+          <button id="chat-close" class="bg-gray-500 text-white px-4 py-2 rounded">Close</button>
+      <div data-template-id="testing-card" class="canva-card service-card rounded-2xl overflow-hidden" onclick="showPage('testing')" style="background: #FFA500;"><img data-template-id="testing-img" class="canva-image w-full h-48 object-cover" loading="lazy" src="https://images.unsplash.com/photo-1511512578047-dfb00e6a850c?auto=format&fit=crop&w=800&q=80" alt="Phone testing"><div class="p-6"><h3 data-template-id="testing-title" class="canva-text font-bold" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 20px;">Phone Testing 🧪</h3><p data-template-id="testing-desc" class="canva-text mt-2" style="color: rgb(161, 161, 170); font-weight: 400; font-style: normal; font-size: 16px;">Test Opads and Ophones before you buy.</p><img src="https://moosify.my.canva.site" class="w-12 h-12 mx-auto mt-2" alt="Moose"></div></div>
+      <div data-template-id="support-card" class="canva-card service-card rounded-2xl overflow-hidden" onclick="showPage('support')" style="background: #87CEEB;"><img data-template-id="support-img" class="canva-image w-full h-48 object-cover" loading="lazy" src="https://images.unsplash.com/photo-1517242023-7ed3d5cf59f7?auto=format&fit=crop&w=800&q=80" alt="Support"><div class="p-6"><h3 data-template-id="support-title" class="canva-text font-bold" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 20px;">Mossify Support 📞</h3><p data-template-id="support-desc" class="canva-text mt-2" style="color: rgb(161, 161, 170); font-weight: 400; font-style: normal; font-size: 16px;">Get help from friendly mooses.</p><img src="https://moosify.my.canva.site" class="w-12 h-12 mx-auto mt-2" alt="Moose"></div></div>
+      </div>
+      </div>
+    </div>
    <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
      <div class="bg-white rounded-lg p-6 w-80">
        <h2 class="text-xl font-bold mb-4">Login</h2>
@@ -44,8 +62,8 @@
    </div>
   <main class="pt-16"><!-- HOME PAGE -->
    <div id="page-home"><!-- Hero -->
-    <section class="relative w-full" style="height: calc(70 * min(var(--vh, 1vh), 1vh))"><img data-template-id="hero-img" class="canva-image absolute inset-0 w-full h-full object-cover" loading="lazy" src="download.png" alt="A bunch of stuffed mooses on a meadow">
-     <div class="absolute inset-0 bg-blue-400/40"></div>
+    <section class="relative w-full" style="height: calc(70 * min(var(--vh, 1vh), 1vh))"><img data-template-id="hero-img" class="canva-image absolute inset-0 w-full h-full object-cover" loading="lazy" src="download.png" alt="A bunch of stuffed mooses on a meadow"><div class="sun"></div>
+      <div class="absolute inset-0 bg-blue-400/40"></div><div class="cloud"></div>
      <div class="relative z-10 flex flex-col items-center justify-center h-full text-center px-4"><img data-template-id="hero-moose" class="canva-image w-32 h-32 mb-6 rounded-full bounce" loading="lazy" src="https://moosify.my.canva.site" alt="Adorable moose mascot">
       <h2 data-template-id="hero-title" class="canva-text brand-font" style="color: #ffffff; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); font-weight: 900; font-style: normal; font-size: 52px;">Welcome to Moosify! 🦌✨</h2>
       <p data-template-id="hero-subtitle" class="canva-text mt-4 max-w-2xl" style="color: #ffffff; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); font-weight: 400; font-style: normal; font-size: 20px;">Come join the fluffiest team in the world! Phones, Donuts, and Space adventures await! 🧸</p>
@@ -62,7 +80,7 @@
         <img src="https://moosify.my.canva.site" class="w-12 h-12 mx-auto mt-2" alt="Moose">
        </div>
       </div>
-      <div data-template-id="donuts-card" class="canva-card service-card rounded-2xl overflow-hidden" onclick="showPage('donuts')" style="background: #B0C4DE;"><img data-template-id="donuts-img" class="canva-image w-full h-48 object-cover" loading="lazy" src="https://images.pexels.com/photos/1191639/pexels-photo-1191639.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="Close-up of assorted donuts with colorful icing and sprinkles">
+      <div data-template-id="donuts-card" class="canva-card service-card rounded-2xl overflow-hidden" onclick="showPage('donut-shop')" style="background: #B0C4DE;"><img data-template-id="donuts-img" class="canva-image w-full h-48 object-cover" loading="lazy" src="https://images.pexels.com/photos/1191639/pexels-photo-1191639.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="Close-up of assorted donuts with colorful icing and sprinkles">
        <div class="p-6">
         <h3 data-template-id="donuts-title" class="canva-text font-bold" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 20px;">Ishaan's Donuts 🍩</h3>
         <p data-template-id="donuts-desc" class="canva-text mt-2" style="color: rgb(161, 161, 170); font-weight: 400; font-style: normal; font-size: 16px;">The most delicious donuts in the universe!</p>
@@ -105,7 +123,8 @@
     <footer data-template-id="footer-section" class="canva-footer border-t border-blue-600/20 py-8 text-center" style="background: #4682B4;">
      <p data-template-id="footer-text" class="canva-text" style="color: rgb(113, 113, 122); font-weight: 400; font-style: normal; font-size: 16px;">© 2026 Moosify. All rights reserved. 🧸</p>
     </footer>
-   </div><!-- DETAIL PAGES -->
+   <div id="page-testing" class="page-hidden max-w-4xl mx-auto px-6 py-12"><button onclick="showHome()" class="flex items-center gap-2 text-white/70 hover:text-white mb-8"><i data-lucide="arrow-left"></i> <span>Back</span></button><h2 data-template-id="testing-detail-title" class="canva-text brand-font mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Phone Testing 🧪</h2><p data-template-id="testing-detail-desc" class="canva-text leading-relaxed" style="color: rgb(212, 212, 212); font-weight: 400; font-style: normal; font-size: 16px;">Try out Opads and Ophones in our virtual testing lab.</p></div>
+</div><!-- DETAIL PAGES -->
    <div id="page-phones" class="page-hidden max-w-4xl mx-auto px-6 py-12"><button onclick="showHome()" class="flex items-center gap-2 text-white/70 hover:text-white mb-8"><i data-lucide="arrow-left"></i> <span>Back</span></button> <img data-template-id="phones-detail-img" class="canva-image w-full h-64 object-cover rounded-2xl mb-8" loading="lazy" src="https://images.pexels.com/photos/11297769/pexels-photo-11297769.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1280" alt="High-tech phone store interior">
     <h2 data-template-id="phones-detail-title" class="canva-text brand-font mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Orange Phone Shop 📱</h2>
     <p data-template-id="phones-detail-desc" class="canva-text leading-relaxed" style="color: rgb(212, 212, 216); font-weight: 400; font-style: normal; font-size: 16px;">Welcome to the Orange Phone Shop! Our stuffed animal technicians hand‑pick orange phones only. Each phone is bright orange, a perfect match for the Moosify vibe. Free orange case with every purchase! 🐾</p>
@@ -114,7 +133,8 @@
     <h2 data-template-id="donuts-detail-title" class="canva-text brand-font mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Ishaan's Donuts 🍩</h2>
     <p data-template-id="donuts-detail-desc" class="canva-text leading-relaxed" style="color: rgb(212, 212, 216); font-weight: 400; font-style: normal; font-size: 16px;">Ishaan's Donuts is the sweetest spot in the Moosify universe! Every donut is glazed with love and sprinkled with joy. Try our famous Triple Chocolate Explosion or the Rainbow Sprinkle Supreme. Open 24/7 because stuffed animals never sleep! 🌈</p>
    </div>
-   <div id="page-space" class="page-hidden max-w-4xl mx-auto px-6 py-12"><button onclick="showHome()" class="flex items-center gap-2 text-white/70 hover:text-white mb-8"><i data-lucide="arrow-left"></i> <span>Back</span></button> <img data-template-id="space-detail-img" class="canva-image w-full h-64 object-cover rounded-2xl mb-8" loading="lazy" src="https://images.pexels.com/photos/11086520/pexels-photo-11086520.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1280" alt="Rocket ascending into the night sky">
+    <div id="page-donut-shop" class="page-hidden max-w-4xl mx-auto px-6 py-12"><button onclick="showHome()" class="flex items-center gap-2 text-white/70 hover:text-white mb-8"><i data-lucide="arrow-left"></i> <span>Back</span></button><h2 class="canva-text brand-font mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Donut Shop 🍩</h2><form id="donut-order-form" class="space-y-4"><input type="text" placeholder="Your name" class="w-full p-2 border rounded"/><input type="number" min="1" placeholder="Quantity" class="w-full p-2 border rounded"/><button type="submit" class="bg-orange-500 text-white py-2 px-4 rounded">Order Donuts</button></form></div>
+    <div id="page-space" class="page-hidden max-w-4xl mx-auto px-6 py-12"><button onclick="showHome()" class="flex items-center gap-2 text-white/70 hover:text-white mb-8"><i data-lucide="arrow-left"></i> <span>Back</span></button> <img data-template-id="space-detail-img" class="canva-image w-full h-64 object-cover rounded-2xl mb-8" loading="lazy" src="https://images.pexels.com/photos/11086520/pexels-photo-11086520.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1280" alt="Rocket ascending into the night sky">
     <h2 data-template-id="space-detail-title" class="canva-text brand-font mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Moosa Rockets &amp; Space 🚀</h2>
     <p data-template-id="space-detail-desc" class="canva-text leading-relaxed" style="color: rgb(212, 212, 216); font-weight: 400; font-style: normal; font-size: 16px;">3... 2... 1... LIFTOFF! Moosa Rockets launches stuffed animals into orbit every Tuesday. Our rockets are powered by imagination and piloted by the bravest plushies in the galaxy. Next stop: Mars! 🌕</p>
    </div>
