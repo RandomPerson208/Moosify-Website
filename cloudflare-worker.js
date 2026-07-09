@@ -59,12 +59,7 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
         model: "llama3.1-8b-instant",
         key: env.GROQ_API_KEY
       },
-      {
-        name: "Together",
-        url: "https://api.together.xyz/v1/chat/completions",
-        model: "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
-        key: env.TOGETHER_API_KEY
-      }
+
     ];
 
     for (const p of providers) {

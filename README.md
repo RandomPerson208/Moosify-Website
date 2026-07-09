@@ -12,7 +12,7 @@ Moosy will answer with the built-in local product guide.
 
 ## Run Moosy with multi‑provider LLM fallback
 
-Set the three provider API keys on the server (they are read from the environment, not the browser). Example using a `.env` file:
+Set the two provider API keys on the server (they are read from the environment, not the browser). Example using a `.env` file:
 
 ```bash
 # .env (do NOT commit this file)
@@ -20,8 +20,8 @@ Set the three provider API keys on the server (they are read from the environmen
 #   npm install
 CEREBRAS_API_KEY="your_cerebras_key"
 GROQ_API_KEY="your_groq_key"
-TOGETHER_API_KEY="your_together_key"
-# You may omit all three keys – the server will then use a built‑in local fallback (completely free).
+# TOGETHER_API_KEY="your_together_key"  # (optional – removed; use only Cerebras & Groq for free fallback)
+# You may omit both keys – the server will then use a built‑in local fallback (completely free).
 # Optional: choose a different model for the OpenAI fallback (if you still keep it)
 OPENAI_MODEL="gpt-5.5"
 ```
@@ -34,7 +34,7 @@ npm start
 
 The request flow:
 * The client POSTs to `/api/moosy`.
-* The server tries the Cerebras model first, then Groq, then Together. If any provider returns a 429 rate‑limit or any error, the next provider is tried automatically.
+* The server tries the Cerebras model first, then Groq. If either provider returns a 429 rate‑limit or any error, the next provider is tried automatically.
 * If **all** providers fail (or no keys are set), the server now uses a built‑in local fallback, so the chat works **completely free** without any external API calls.
 
 The site will call `/api/moosy`. If no provider keys are set, the server falls back to the built‑in local response, so the chat still works (completely free). Checkout remains a demo preview and never charges a payment.
