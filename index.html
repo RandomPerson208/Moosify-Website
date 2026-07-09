@@ -125,7 +125,8 @@
     </footer>
    <div id="page-testing" class="page-hidden max-w-4xl mx-auto px-6 py-12"><button onclick="showHome()" class="flex items-center gap-2 text-white/70 hover:text-white mb-8"><i data-lucide="arrow-left"></i> <span>Back</span></button><h2 data-template-id="testing-detail-title" class="canva-text brand-font mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Phone Testing 🧪</h2><p data-template-id="testing-detail-desc" class="canva-text leading-relaxed" style="color: rgb(212, 212, 212); font-weight: 400; font-style: normal; font-size: 16px;">Try out Opads and Ophones in our virtual testing lab.</p></div>
 </div><!-- DETAIL PAGES -->
-   <div id="page-phones" class="page-hidden max-w-4xl mx-auto px-6 py-12"><button onclick="showHome()" class="flex items-center gap-2 text-white/70 hover:text-white mb-8"><i data-lucide="arrow-left"></i> <span>Back</span></button> <img data-template-id="phones-detail-img" class="canva-image w-full h-64 object-cover rounded-2xl mb-8" loading="lazy" src="https://images.pexels.com/photos/11297769/pexels-photo-11297769.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1280" alt="High-tech phone store interior">
+   <div id="page-support" class="page-hidden max-w-4xl mx-auto px-6 py-12"><button onclick="showHome()" class="flex items-center gap-2 text-white/70 hover:text-white mb-8"><i data-lucide="arrow-left"></i> <span>Back</span></button><h2 class="canva-text brand-font mb-4" style="color: rgb(255,255,255);font-weight:700;font-style:normal;font-size:24px;">Mossify Support 📞</h2><p class="canva-text leading-relaxed" style="color: rgb(212,212,212);font-weight:400;font-style:normal;font-size:16px;">Need help? Fill the form below and our mooses will get back to you.</p><form id="support-form" class="space-y-4"><input type="text" placeholder="Name" class="w-full p-2 border rounded"/><input type="email" placeholder="Email" class="w-full p-2 border rounded"/><textarea placeholder="Message" class="w-full p-2 border rounded"></textarea><button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Submit</button></form></div>
+<div id="page-phones" class="page-hidden max-w-4xl mx-auto px-6 py-12"><button onclick="showHome()" class="flex items-center gap-2 text-white/70 hover:text-white mb-8"><i data-lucide="arrow-left"></i> <span>Back</span></button> <img data-template-id="phones-detail-img" class="canva-image w-full h-64 object-cover rounded-2xl mb-8" loading="lazy" src="https://images.pexels.com/photos/11297769/pexels-photo-11297769.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1280" alt="High-tech phone store interior">
     <h2 data-template-id="phones-detail-title" class="canva-text brand-font mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Orange Phone Shop 📱</h2>
     <p data-template-id="phones-detail-desc" class="canva-text leading-relaxed" style="color: rgb(212, 212, 216); font-weight: 400; font-style: normal; font-size: 16px;">Welcome to the Orange Phone Shop! Our stuffed animal technicians hand‑pick orange phones only. Each phone is bright orange, a perfect match for the Moosify vibe. Free orange case with every purchase! 🐾</p>
    </div>
@@ -196,5 +197,31 @@
       }
     });
 </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a188142747ea70e0',t:'MTc4MzYwNzk3My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a188142747ea70e0',t:'MTc4MzYwNzk3My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+<script>
+    // Talk to Moosy
+    document.getElementById('talk-btn')?.addEventListener('click', () => {
+      document.getElementById('talk-modal').classList.remove('hidden');
+    });
+    document.getElementById('chat-close')?.addEventListener('click', () => {
+      document.getElementById('talk-modal').classList.add('hidden');
+    });
+    document.getElementById('chat-send')?.addEventListener('click', () => {
+      const input = document.getElementById('chat-input');
+      const msg = input.value.trim();
+      if (msg) {
+        const chat = document.getElementById('chat-messages');
+        const userMsg = document.createElement('div');
+        userMsg.textContent = 'You: ' + msg;
+        userMsg.className = 'text-right text-blue-600';
+        chat.appendChild(userMsg);
+        const reply = document.createElement('div');
+        reply.textContent = 'Moosy: Hello! How can I help you?';
+        reply.className = 'text-left text-green-600';
+        chat.appendChild(reply);
+        chat.scrollTop = chat.scrollHeight;
+        input.value = '';
+      }
+    });
+</script>
 </body></html>
