@@ -10,19 +10,32 @@ npm run static
 
 Moosy will answer with the built-in local product guide.
 
-## Run OpenAI-backed Moosy
+## Run Moosy with multi‑provider LLM fallback
 
-Set an API key on the server, not in browser code:
+Set the three provider API keys on the server (they are read from the environment, not the browser). Example using a `.env` file:
 
 ```bash
-export OPENAI_API_KEY="your_api_key_here"
+# .env (do NOT commit this file)
+# Install dependencies first:
+#   npm install
+CEREBRAS_API_KEY="your_cerebras_key"
+GROQ_API_KEY="your_groq_key"
+TOGETHER_API_KEY="your_together_key"
+# Optional: choose a different model for the OpenAI fallback (if you still keep it)
+OPENAI_MODEL="gpt-5.5"
+```
+
+Start the server:
+
+```bash
 npm start
 ```
 
-Optional:
+The request flow:
+* The client POSTs to `/api/moosy`.
+* The server tries the Cerebras model first, then Groq, then Together. If any provider returns a 429 rate‑limit or any error, the next provider is tried automatically.
+* If **all** providers fail (or no keys are set), the server returns a 503 error – you can add a local fallback response if desired.
 
-```bash
-export OPENAI_MODEL="gpt-5.5"
-```
+The site will call `/api/moosy`. If no provider keys are set, the chat will be unavailable (you’ll see an error response). Checkout remains a demo preview and never charges a payment.
 
-The site will call `/api/moosy`. If the key is missing or the API request fails, the browser falls back to the local Moosy guide. Checkout remains a demo preview and never charges payment.
+You can also control chat availability via the `CHAT_STATUS` secret (set to `down` to disable the chat UI).
