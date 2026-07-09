@@ -129,9 +129,12 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
       continue;
     }
   }
-  // All providers failed
-  sendJson(res, 503, { error: "All LLM providers failed or are unavailable." });
+  // All providers failed or none succeeded – use pure local fallback (no API calls, completely free)
+  const fallbackReply = `Moosy: I’m here to help you with phones, donuts, flights, rockets, cell plans, and support. Ask me about any product or tell me what you’re looking for.`;
+  sendJson(res, 200, { reply: fallbackReply });
+  return;
 }
+
 
 async function handleStatic(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
