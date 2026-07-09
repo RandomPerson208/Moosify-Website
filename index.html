@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en"><head><script>window["__codeletBootstrap__"]=JSON.parse('{"A":"A","B":"20260709-05-e5cead5"}');</script><script src="/_sdk/f432b76fb310b513.telemetry_sdk.js" integrity="sha512-9FJQ55EKmmqhyyik8BhrMVfm0+iYYfb8uOlRsjtkxJMEI97qOVEI4PnHohDjQAtvAep0IOEpdQ64eki0sz62ug=="></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moosify</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Fraunces:wght@700;900&amp;display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <style>
+    body { font-family: 'DM Sans', sans-serif; }
+    .brand-font { font-family: 'Fraunces', serif; }
+    .service-card { transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; }
+    .service-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+    .page-hidden { display: none; }
+    .bounce { animation: bounce 2s infinite; }
+    @keyframes bounce { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-10px); } }
+  </style>
+  <script src="/_sdk/0179d719c431a79e.data_sdk.js" type="text/javascript" integrity="sha512-OsRvJkI5GkC3MJQcgotQYotpzrMSX415GiKKgvYdxQEEkzD/fdchShO2FMSy0PJr/tiINMXOk5Vl2zAgg6bUiA=="></script>
+  <script src="/_sdk/9432170dbd2ae0df.resizing_sdk.js" type="text/javascript" integrity="sha512-FeT+58sb1f9ejWPWFjCbJvTT+SDwGV+ngrHUnlO7TWEOoqwOLj6p256kO3vOL7DIWl1cIgrobiof8v2bOigwPg=="></script>
+ </head>
+ <body data-template-id="__page-root" class="min-h-screen" style="background: rgb(10, 10, 15);"><!-- Header -->
+  <header class="fixed top-0 w-full z-50 backdrop-blur-md bg-black/70 border-b border-white/10">
+   <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-2 cursor-pointer" onclick="showHome()"><img data-template-id="logo-moose" class="canva-image w-10 h-10 rounded-full" loading="lazy" src="canva://MAHO5tNQtRc/1" alt="Cute moose mascot logo">
+     <h1 data-template-id="brand-name" class="canva-text brand-font text-2xl" style="color: rgb(255, 255, 255); font-weight: 900; font-style: normal; font-size: 32px;">MOOSIFY</h1>
+    </div>
+    <p data-template-id="nav-tagline" class="canva-text text-sm hidden md:block" style="color: rgb(161, 161, 170); font-weight: 400; font-style: normal; font-size: 16px;">Stuffed Animals Running Everything 🧸</p>
+   </nav>
+  </header>
+  <main class="pt-16"><!-- HOME PAGE -->
+   <div id="page-home"><!-- Hero -->
+    <section class="relative w-full" style="height: calc(70 * min(var(--vh, 1vh), 1vh))"><img data-template-id="hero-img" class="canva-image absolute inset-0 w-full h-full object-cover" loading="lazy" src="https://images.pexels.com/photos/29544211/pexels-photo-29544211.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1920" alt="Vibrant array of plush stuffed toys displayed at a market">
+     <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black"></div>
+     <div class="relative z-10 flex flex-col items-center justify-center h-full text-center px-4"><img data-template-id="hero-moose" class="canva-image w-32 h-32 mb-6 rounded-full bounce" loading="lazy" src="canva://MAHO5tNQtRc/1" alt="Adorable moose mascot">
+      <h2 data-template-id="hero-title" class="canva-text brand-font" style="color: rgb(255, 255, 255); font-weight: 900; font-style: normal; font-size: 52px;">Welcome to Moosify 🦌</h2>
+      <p data-template-id="hero-subtitle" class="canva-text mt-4 max-w-2xl" style="color: rgb(212, 212, 216); font-weight: 400; font-style: normal; font-size: 20px;">Phones. Donuts. Space. Flight. All run by stuffed animals!</p>
+      <p data-template-id="hero-claim" class="canva-text mt-6 text-xl font-bold max-w-2xl" style="color: rgb(251, 191, 36); font-weight: 900; font-style: normal; font-size: 36px;">We Own The World. 🌍</p>
+     </div>
+    </section><!-- Services Grid -->
+    <section class="max-w-7xl mx-auto px-6 py-20">
+     <h2 data-template-id="services-heading" class="canva-text brand-font text-center mb-16" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Click a Service to Explore! 🎉</h2>
+     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div data-template-id="phones-card" class="canva-card service-card rounded-2xl overflow-hidden" onclick="showPage('phones')" style="background: rgb(24, 24, 27);"><img data-template-id="phones-img" class="canva-image w-full h-48 object-cover" loading="lazy" src="https://images.pexels.com/photos/11297769/pexels-photo-11297769.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="Sleek interior of a high-tech store showcasing various mobile devices">
+       <div class="p-6">
+        <h3 data-template-id="phones-title" class="canva-text font-bold" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 20px;">Moosify Phone Shop 📱</h3>
+        <p data-template-id="phones-desc" class="canva-text mt-2" style="color: rgb(161, 161, 170); font-weight: 400; font-style: normal; font-size: 16px;">The latest smartphones at unbeatable prices!</p>
+       </div>
+      </div>
+      <div data-template-id="donuts-card" class="canva-card service-card rounded-2xl overflow-hidden" onclick="showPage('donuts')" style="background: rgb(24, 24, 27);"><img data-template-id="donuts-img" class="canva-image w-full h-48 object-cover" loading="lazy" src="https://images.pexels.com/photos/1191639/pexels-photo-1191639.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="Close-up of assorted donuts with colorful icing and sprinkles">
+       <div class="p-6">
+        <h3 data-template-id="donuts-title" class="canva-text font-bold" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 20px;">Ishaan's Donuts 🍩</h3>
+        <p data-template-id="donuts-desc" class="canva-text mt-2" style="color: rgb(161, 161, 170); font-weight: 400; font-style: normal; font-size: 16px;">The most delicious donuts in the universe!</p>
+       </div>
+      </div>
+      <div data-template-id="space-card" class="canva-card service-card rounded-2xl overflow-hidden" onclick="showPage('space')" style="background: rgb(24, 24, 27);"><img data-template-id="space-img" class="canva-image w-full h-48 object-cover" loading="lazy" src="https://images.pexels.com/photos/11086520/pexels-photo-11086520.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="A rocket leaving a fiery trail as it ascends into the night sky">
+       <div class="p-6">
+        <h3 data-template-id="space-title" class="canva-text font-bold" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 20px;">Moosa Rockets &amp; Space 🚀</h3>
+        <p data-template-id="space-desc" class="canva-text mt-2" style="color: rgb(161, 161, 170); font-weight: 400; font-style: normal; font-size: 16px;">Reaching for the stars with next-gen rocket tech!</p>
+       </div>
+      </div>
+      <div data-template-id="airlines-card" class="canva-card service-card rounded-2xl overflow-hidden" onclick="showPage('airlines')" style="background: rgb(24, 24, 27);"><img data-template-id="airlines-img" class="canva-image w-full h-48 object-cover" loading="lazy" src="https://images.pexels.com/photos/8230826/pexels-photo-8230826.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="A commercial airplane flies across a colorful sunset sky">
+       <div class="p-6">
+        <h3 data-template-id="airlines-title" class="canva-text font-bold" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 20px;">Moosify Airlines ✈️</h3>
+        <p data-template-id="airlines-desc" class="canva-text mt-2" style="color: rgb(161, 161, 170); font-weight: 400; font-style: normal; font-size: 16px;">Fly in comfort and style worldwide!</p>
+       </div>
+      </div>
+      <div data-template-id="cellplans-card" class="canva-card service-card rounded-2xl overflow-hidden" onclick="showPage('cellplans')" style="background: rgb(24, 24, 27);"><img data-template-id="cellplans-img" class="canva-image w-full h-48 object-cover" loading="lazy" src="https://images.pexels.com/photos/18379732/pexels-photo-18379732.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="Telecommunication tower with antennas against a clear blue sky">
+       <div class="p-6">
+        <h3 data-template-id="cellplans-title" class="canva-text font-bold" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 20px;">Moosify Cell Plans 📡</h3>
+        <p data-template-id="cellplans-desc" class="canva-text mt-2" style="color: rgb(161, 161, 170); font-weight: 400; font-style: normal; font-size: 16px;">Unlimited data and 5G everywhere!</p>
+       </div>
+      </div>
+     </div>
+    </section><!-- CEO -->
+    <section class="max-w-7xl mx-auto px-6 py-20 border-t border-white/10">
+     <div class="flex flex-col md:flex-row items-center gap-12">
+      <div class="flex-1">
+       <h2 data-template-id="ceo-heading" class="canva-text brand-font mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Meet Our CEO 🦌</h2>
+       <p data-template-id="ceo-bio" class="canva-text leading-relaxed" style="color: rgb(212, 212, 216); font-weight: 400; font-style: normal; font-size: 16px;">Moosy, the fluffiest CEO in the world, runs Moosify from his cozy shelf. With antlers held high, this stuffed moose is revolutionizing everything from phones to donuts!</p>
+      </div>
+      <div class="flex-1"><img data-template-id="ceo-photo" class="canva-image w-full rounded-2xl" loading="lazy" src="canva://MAHO5tNQtRc/1" alt="CEO moose stuffed animal">
+      </div>
+     </div>
+    </section>
+    <footer data-template-id="footer-section" class="canva-footer border-t border-white/10 py-8 text-center" style="background: rgb(10, 10, 15);">
+     <p data-template-id="footer-text" class="canva-text" style="color: rgb(113, 113, 122); font-weight: 400; font-style: normal; font-size: 16px;">© 2026 Moosify. All rights reserved. 🧸</p>
+    </footer>
+   </div><!-- DETAIL PAGES -->
+   <div id="page-phones" class="page-hidden max-w-4xl mx-auto px-6 py-12"><button onclick="showHome()" class="flex items-center gap-2 text-white/70 hover:text-white mb-8"><i data-lucide="arrow-left"></i> <span>Back</span></button> <img data-template-id="phones-detail-img" class="canva-image w-full h-64 object-cover rounded-2xl mb-8" loading="lazy" src="https://images.pexels.com/photos/11297769/pexels-photo-11297769.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1280" alt="High-tech phone store interior">
+    <h2 data-template-id="phones-detail-title" class="canva-text brand-font mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Moosify Phone Shop 📱</h2>
+    <p data-template-id="phones-detail-desc" class="canva-text leading-relaxed" style="color: rgb(212, 212, 216); font-weight: 400; font-style: normal; font-size: 16px;">Welcome to the Moosify Phone Shop! Our stuffed animal technicians hand-pick every device. We carry the latest iPhones, Samsungs, and Pixels — all tested by tiny paws. Free screen protector with every purchase! 🐾</p>
+   </div>
+   <div id="page-donuts" class="page-hidden max-w-4xl mx-auto px-6 py-12"><button onclick="showHome()" class="flex items-center gap-2 text-white/70 hover:text-white mb-8"><i data-lucide="arrow-left"></i> <span>Back</span></button> <img data-template-id="donuts-detail-img" class="canva-image w-full h-64 object-cover rounded-2xl mb-8" loading="lazy" src="https://images.pexels.com/photos/1191639/pexels-photo-1191639.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1280" alt="Assorted colorful donuts with sprinkles">
+    <h2 data-template-id="donuts-detail-title" class="canva-text brand-font mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Ishaan's Donuts 🍩</h2>
+    <p data-template-id="donuts-detail-desc" class="canva-text leading-relaxed" style="color: rgb(212, 212, 216); font-weight: 400; font-style: normal; font-size: 16px;">Ishaan's Donuts is the sweetest spot in the Moosify universe! Every donut is glazed with love and sprinkled with joy. Try our famous Triple Chocolate Explosion or the Rainbow Sprinkle Supreme. Open 24/7 because stuffed animals never sleep! 🌈</p>
+   </div>
+   <div id="page-space" class="page-hidden max-w-4xl mx-auto px-6 py-12"><button onclick="showHome()" class="flex items-center gap-2 text-white/70 hover:text-white mb-8"><i data-lucide="arrow-left"></i> <span>Back</span></button> <img data-template-id="space-detail-img" class="canva-image w-full h-64 object-cover rounded-2xl mb-8" loading="lazy" src="https://images.pexels.com/photos/11086520/pexels-photo-11086520.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1280" alt="Rocket ascending into the night sky">
+    <h2 data-template-id="space-detail-title" class="canva-text brand-font mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Moosa Rockets &amp; Space 🚀</h2>
+    <p data-template-id="space-detail-desc" class="canva-text leading-relaxed" style="color: rgb(212, 212, 216); font-weight: 400; font-style: normal; font-size: 16px;">3... 2... 1... LIFTOFF! Moosa Rockets launches stuffed animals into orbit every Tuesday. Our rockets are powered by imagination and piloted by the bravest plushies in the galaxy. Next stop: Mars! 🌕</p>
+   </div>
+   <div id="page-airlines" class="page-hidden max-w-4xl mx-auto px-6 py-12"><button onclick="showHome()" class="flex items-center gap-2 text-white/70 hover:text-white mb-8"><i data-lucide="arrow-left"></i> <span>Back</span></button> <img data-template-id="airlines-detail-img" class="canva-image w-full h-64 object-cover rounded-2xl mb-8" loading="lazy" src="https://images.pexels.com/photos/8230826/pexels-photo-8230826.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1280" alt="Airplane flying across sunset sky">
+    <h2 data-template-id="airlines-detail-title" class="canva-text brand-font mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Moosify Airlines ✈️</h2>
+    <p data-template-id="airlines-detail-desc" class="canva-text leading-relaxed" style="color: rgb(212, 212, 216); font-weight: 400; font-style: normal; font-size: 16px;">Fly with the fluffiest crew in the sky! Moosify Airlines offers cloud-soft seats, unlimited snacks, and in-flight cuddles. Every passenger gets a mini stuffed animal co-pilot. Destinations: Everywhere! ☁️</p>
+   </div>
+   <div id="page-cellplans" class="page-hidden max-w-4xl mx-auto px-6 py-12"><button onclick="showHome()" class="flex items-center gap-2 text-white/70 hover:text-white mb-8"><i data-lucide="arrow-left"></i> <span>Back</span></button> <img data-template-id="cellplans-detail-img" class="canva-image w-full h-64 object-cover rounded-2xl mb-8" loading="lazy" src="https://images.pexels.com/photos/18379732/pexels-photo-18379732.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1280" alt="Telecommunication tower against blue sky">
+    <h2 data-template-id="cellplans-detail-title" class="canva-text brand-font mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Moosify Cell Plans 📡</h2>
+    <p data-template-id="cellplans-detail-desc" class="canva-text leading-relaxed" style="color: rgb(212, 212, 216); font-weight: 400; font-style: normal; font-size: 16px;">Stay connected with Moosify's unlimited plans! Our stuffed animal engineers built towers on every mountain and rooftop. Unlimited texts, calls, and memes. 5G so fast your plushies can video chat! 📶</p>
+   </div>
+  </main>
+  <script src="/_sdk/719055fef2a85d14.editing_sdk.js" integrity="sha512-kFqrdGgIiTOsu307feB5Cy3JVP9IayftsmCIZ0csxYBGuBmJQPhyvcnmKR8F0fTW97h5s1gAvz3SumI8zJ6OxQ=="></script>
+  <script>
+    lucide.createIcons();
+
+    function showPage(name) {
+      document.getElementById('page-home').classList.add('page-hidden');
+      document.getElementById('page-' + name).classList.remove('page-hidden');
+      window.scrollTo(0, 0);
+    }
+
+    function showHome() {
+      document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('page-hidden'));
+      document.getElementById('page-home').classList.remove('page-hidden');
+      window.scrollTo(0, 0);
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a188142747ea70e0',t:'MTc4MzYwNzk3My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body></html>
