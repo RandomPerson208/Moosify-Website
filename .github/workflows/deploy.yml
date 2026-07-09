@@ -15,7 +15,7 @@ jobs:
           sed -i "s/__CHAT_STATUS_PLACEHOLDER__/${{ secrets.CHAT_STATUS }}/g" index.html
       - name: Inject API URL placeholder
         run: |
-          sed -i "s/__API_URL_PLACEHOLDER__/${{ secrets.API_URL }}/g" index.html
+          sed -i "s|__API_URL_PLACEHOLDER__|${{ secrets.API_URL }}|g" index.html
 
       # Example deployment step – replace with your existing pipeline if different
       - name: Deploy to GitHub Pages
