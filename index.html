@@ -43,10 +43,7 @@
       min-height: 100vh;
       font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--ink);
-      background:
-        radial-gradient(circle at 12% 8%, rgba(244, 139, 42, 0.22), transparent 26rem),
-        radial-gradient(circle at 86% 18%, rgba(79, 157, 120, 0.16), transparent 22rem),
-        linear-gradient(180deg, #bfeeff 0%, #eaf8ff 42%, #fff8e9 100%);
+       background: url('https://images.unsplash.com/photo-1580815190182-22e030b2c4b0?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat, linear-gradient(180deg, #bfeeff 0%, #eaf8ff 42%, #fff8e9 100%);
       overflow-x: hidden;
     }
 
@@ -993,6 +990,7 @@
         <button class="button secondary" type="button" data-modal-open="login"><i class="icon" data-lucide="user"></i><span class="button-label">Login</span></button>
         <button class="button" type="button" data-modal-open="chat"><i class="icon" data-lucide="message-circle"></i><span class="button-label">Talk</span></button>
         <button class="button orange" type="button" data-modal-open="cart"><i class="icon" data-lucide="shopping-cart"></i><span class="button-label">Cart</span> <span data-cart-count>0</span></button>
+        <button class="button" type="button" data-modal-open="device-tester"><i class="icon" data-lucide="smartphone"></i><span class="button-label">Device Test</span></button>
       </div>
     </nav>
   </header>
@@ -1196,9 +1194,29 @@
         </form>
       </div>
     </div>
-  </div>
+</div>
 
-  <script>
+<div id="device-tester-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+  <div class="bg-white rounded-lg p-6 max-w-md w-full">
+    <h2 class="text-xl font-bold mb-4">Device Tester</h2>
+    <form id="device-tester-form" class="space-y-4">
+      <label class="block">Device
+        <select id="tester-device" class="w-full p-2 border rounded">
+          <option value="Opad">Opad Tablet</option>
+          <option value="Ophone">Ophone Mobile</option>
+        </select>
+      </label>
+      <label class="block">OS Version
+        <input type="text" id="tester-os" placeholder="e.g., 1.0.3" class="w-full p-2 border rounded">
+      </label>
+      <button type="submit" class="button orange">Run Test</button>
+      <button type="button" class="button" data-modal-close>Close</button>
+    </form>
+    <div id="tester-result" class="mt-4 text-green-600"></div>
+  </div>
+</div>
+
+<script>
     const services = {
       phones: {
         title: "Orange Phone Shop",
@@ -1293,7 +1311,7 @@
       if (!service) return;
       activeServiceKey = key;
       detailTitle.textContent = service.title;
-      detailCopy.textContent = service.copy;
+      detailCopy.innerHTML = service.copy;
       detailVisual.style.setProperty("--detail-image", service.image);
       renderProducts(service.products);
       homeView.hidden = true;
@@ -1408,7 +1426,26 @@
         cart: items.map((item) => ({ name: item.name, quantity: item.quantity, price: item.price })),
         total,
         history: chatHistory.slice(-8)
-      };
+    };
+    // Add Device Tester service
+    services.deviceTester = {
+      title: "Opad & Ophone Tester",
+      copy: `<form id="device-tester-form" class="space-y-4">
+        <label class="block">Device
+          <select id="tester-device" class="w-full p-2 border rounded">
+            <option value="Opad">Opad Tablet</option>
+            <option value="Ophone">Ophone Mobile</option>
+          </select>
+        </label>
+        <label class="block">OS Version
+          <input type="text" id="tester-os" placeholder="e.g., 1.0.3" class="w-full p-2 border rounded">
+        </label>
+        <button type="submit" class="button orange">Run Test</button>
+      </form>
+      <div id="tester-result" class="mt-4 text-green-600"></div>`,
+      image: "url('https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=1400&q=80')",
+      products: []
+    };
 
       try {
         const response = await fetch("/api/moosy", {
