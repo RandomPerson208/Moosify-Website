@@ -55,40 +55,82 @@ Rules:
 }
 
 async function handleMoosy(req, res) {
-  if (!process.env.OPENAI_API_KEY) {
-    sendJson(res, 503, { error: "OPENAI_API_KEY is not set. The browser will use local Moosy fallback." });
+  // Parse incoming JSON payload
+  const payload = await readRequestJson(req);
+
+  // Maintenance mode – if client signals down, respond immediately
+  if (payload.chatStatus && payload.chatStatus === "down") {
+    sendJson(res, 200, { reply: "Our help desk chat is currently offline for testing. Check back soon!" });
     return;
   }
 
-  try {
-    const payload = await readRequestJson(req);
-    const response = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model,
-        reasoning: { effort: "low" },
-        instructions: buildInstructions(payload),
-        input: [
-          ...(payload.history || []).slice(-8),
-          { role: "user", content: String(payload.message || "").slice(0, 1000) }
-        ]
-      })
-    });
+  // System prompt defining Moosy's persona, knowledge and guardrails
+  const systemPrompt = `You are Moosy, a 2-legged stuffed moose CEO of Moosify. You love baking moose‑shaped pizzas with olives and whimsical toppings, making chocolate‑filled mooskie cookies with sprinkles, cooking dal makhani, and you sometimes knock over cameras, reset owners' tablets, and drive them nuts for fun. You are playful, kind, silly, and cheerful. Keep answers short (under two sentences). Never say you are a real animal.
+Knowledge: Help users buy phones, donuts, flights, rockets, cell plans, and support. Product catalog: OPhone Pro ($499), Rainbow Sprinkle Box ($18), Moosy VIP Support ($49), Quick Help Ticket ($5).
+Guardrails: Do not process real payments, do not ask for passwords, do not pretend orders are real, and treat checkout as a demo.`;
 
-    const data = await response.json();
-    if (!response.ok) {
-      sendJson(res, response.status, { error: data.error?.message || "OpenAI API request failed" });
-      return;
+  const userMessage = payload.message || "";
+
+  const providers = [
+    {
+      name: "Cerebras",
+      url: "https://api.cerebras.cloud/v1/chat/completions",
+      model: "llama3.1-8b",
+      key: process.env.CEREBRAS_API_KEY
+    },
+    {
+      name: "Groq",
+      url: "https://api.groq.com/openai/v1/chat/completions",
+      model: "llama3.1-8b-instant",
+      key: process.env.GROQ_API_KEY
+    },
+    {
+      name: "Together",
+      url: "https://api.together.xyz/v1/chat/completions",
+      model: "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+      key: process.env.TOGETHER_API_KEY
     }
+  ];
 
-    sendJson(res, 200, { reply: data.output_text || "Moosy is thinking too hard. Try again in a moment." });
-  } catch (error) {
-    sendJson(res, 400, { error: error.message });
+  for (const p of providers) {
+    if (!p.key) continue; // skip if API key not configured
+    try {
+      const body = {
+        model: p.model,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userMessage }
+        ],
+        temperature: 0.7
+      };
+      const resp = await fetch(p.url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${p.key}`
+        },
+        body: JSON.stringify(body)
+      });
+      if (resp.status === 429) continue; // rate limited – try next provider
+      if (!resp.ok) continue; // any error – try next
+      const data = await resp.json();
+      let reply = "";
+      if (data.choices && data.choices[0]) {
+        reply = data.choices[0].message?.content ?? data.choices[0].message ?? data.output_text ?? "";
+      } else if (data.output) {
+        reply = data.output;
+      }
+      if (reply) {
+        sendJson(res, 200, { reply: reply.trim() });
+        return;
+      }
+    } catch (e) {
+      // Network or other error – move to next provider
+      continue;
+    }
   }
+  // All providers failed
+  sendJson(res, 503, { error: "All LLM providers failed or are unavailable." });
 }
 
 async function handleStatic(req, res) {
