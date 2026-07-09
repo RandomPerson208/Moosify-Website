@@ -20,7 +20,8 @@ Set the two provider API keys on the server (they are read from the environment,
 #   npm install
 CEREBRAS_API_KEY="your_cerebras_key"
 GROQ_API_KEY="your_groq_key"
-# TOGETHER_API_KEY="your_together_key"  # (optional – removed; use only Cerebras & Groq for free fallback)
+# API_URL is the full endpoint for the Moosy backend (e.g., https://my-backend.workers.dev). Omit if you want to use the built‑in local fallback.
+API_URL="https://my-backend.workers.dev"
 # You may omit both keys – the server will then use a built‑in local fallback (completely free).
 # Optional: choose a different model for the OpenAI fallback (if you still keep it)
 OPENAI_MODEL="gpt-5.5"
@@ -39,4 +40,4 @@ The request flow:
 
 The site will call `/api/moosy`. If no provider keys are set, the server falls back to the built‑in local response, so the chat still works (completely free). Checkout remains a demo preview and never charges a payment.
 
-You can also control chat availability via the `CHAT_STATUS` secret (set to `down` to disable the chat UI).
+You can also control chat availability via the `CHAT_STATUS` secret (set to `down` to disable the chat UI). Additionally, set an `API_URL` secret to point the front‑end at your external backend (e.g., a Cloudflare Worker or Render service). If omitted, the site will use the built‑in local fallback.

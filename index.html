@@ -1281,6 +1281,7 @@
     };
 
     const CURRENT_CHAT_STATUS = "__CHAT_STATUS_PLACEHOLDER__";
+    const API_URL = "__API_URL_PLACEHOLDER__";
     const homeView = document.querySelector('[data-view="home"]');
     const detailView = document.querySelector('[data-view="detail"]');
     const detailTitle = document.querySelector('[data-detail-title]');
@@ -1465,7 +1466,8 @@
     };
 
       try {
-        const response = await fetch("/api/moosy", {
+        const endpoint = API_URL.includes("__API_URL_PLACEHOLDER__") ? "/api/moosy" : API_URL;
+        const response = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
