@@ -13,6 +13,9 @@ jobs:
       - name: Inject chat status placeholder
         run: |
           sed -i "s/__CHAT_STATUS_PLACEHOLDER__/${{ secrets.CHAT_STATUS }}/g" index.html
+      - name: Inject API URL placeholder
+        run: |
+          sed -i "s/__API_URL_PLACEHOLDER__/${{ secrets.API_URL }}/g" index.html
 
       # Example deployment step – replace with your existing pipeline if different
       - name: Deploy to GitHub Pages
@@ -23,3 +26,4 @@ jobs:
     env:
       CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      API_URL: ${{ secrets.API_URL }}
