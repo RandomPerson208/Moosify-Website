@@ -447,6 +447,14 @@
       background: #a7ddfb;
     }
 
+    .service-photo.mascot-photo {
+      object-fit: contain;
+      padding: 18px;
+      background:
+        radial-gradient(circle at 38% 30%, rgba(255, 255, 255, 0.94), transparent 5rem),
+        linear-gradient(180deg, #bfeeff 0%, #f8fbff 100%);
+    }
+
     .service-content {
       display: grid;
       grid-template-rows: auto auto 1fr;
@@ -865,7 +873,7 @@
         </div>
         <div class="services-grid">
           <button class="service-card" type="button" data-open-service="phones">
-            <img class="service-photo" src="https://images.unsplash.com/photo-1581154490675-43c9a7926f0a?auto=format&fit=crop&w=900&q=80" alt="Smartphone shop display">
+            <img class="service-photo" src="https://images.pexels.com/photos/11297769/pexels-photo-11297769.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Smartphone shop display">
             <span class="service-content">
               <span class="service-icon"><i class="icon" data-lucide="smartphone"></i></span>
               <h3>Moosify Phone Shop</h3>
@@ -910,7 +918,7 @@
             </span>
           </button>
           <button class="service-card" type="button" data-open-service="support">
-            <img class="service-photo" src="https://images.unsplash.com/photo-1517242023-7ed3d5cf59f7?auto=format&fit=crop&w=900&q=80" alt="Friendly support workspace">
+            <img class="service-photo mascot-photo" src="moosy-ceo-cutout.png" alt="Moosy support mascot">
             <span class="service-content">
               <span class="service-icon"><i class="icon" data-lucide="headphones"></i></span>
               <h3>Moosify Support</h3>
@@ -996,7 +1004,7 @@
       phones: {
         title: "Orange Phone Shop",
         copy: "Browse bright orange phones, matching cases, and friendly setup help. Every device is inspected by Moosify's shelf-side technicians before it ships.",
-        image: "url('https://images.unsplash.com/photo-1581154490675-43c9a7926f0a?auto=format&fit=crop&w=1400&q=80')"
+        image: "url('https://images.pexels.com/photos/11297769/pexels-photo-11297769.jpeg?auto=compress&cs=tinysrgb&w=1400')"
       },
       donuts: {
         title: "Ishaan's Donuts",
@@ -1021,7 +1029,7 @@
       support: {
         title: "Moosify Support",
         copy: "Get help with orders, account questions, plans, and anything else that needs a calm answer from the friendliest desk in the company.",
-        image: "url('https://images.unsplash.com/photo-1517242023-7ed3d5cf59f7?auto=format&fit=crop&w=1400&q=80')"
+        image: "url('moosy-ceo-cutout.png')"
       }
     };
 
