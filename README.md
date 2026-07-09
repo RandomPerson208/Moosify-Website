@@ -21,6 +21,7 @@ Set the three provider API keys on the server (they are read from the environmen
 CEREBRAS_API_KEY="your_cerebras_key"
 GROQ_API_KEY="your_groq_key"
 TOGETHER_API_KEY="your_together_key"
+# You may omit all three keys – the server will then use a built‑in local fallback (completely free).
 # Optional: choose a different model for the OpenAI fallback (if you still keep it)
 OPENAI_MODEL="gpt-5.5"
 ```
@@ -34,8 +35,8 @@ npm start
 The request flow:
 * The client POSTs to `/api/moosy`.
 * The server tries the Cerebras model first, then Groq, then Together. If any provider returns a 429 rate‑limit or any error, the next provider is tried automatically.
-* If **all** providers fail (or no keys are set), the server returns a 503 error – you can add a local fallback response if desired.
+* If **all** providers fail (or no keys are set), the server now uses a built‑in local fallback, so the chat works **completely free** without any external API calls.
 
-The site will call `/api/moosy`. If no provider keys are set, the chat will be unavailable (you’ll see an error response). Checkout remains a demo preview and never charges a payment.
+The site will call `/api/moosy`. If no provider keys are set, the server falls back to the built‑in local response, so the chat still works (completely free). Checkout remains a demo preview and never charges a payment.
 
 You can also control chat availability via the `CHAT_STATUS` secret (set to `down` to disable the chat UI).
