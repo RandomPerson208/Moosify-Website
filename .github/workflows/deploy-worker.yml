@@ -19,6 +19,8 @@ jobs:
           command: deploy cloudflare-worker.js
 
       - name: Set Worker secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
         run: |
           # Use npx to ensure the locally installed Wrangler binary is used
           echo "${{ secrets.CEREBRAS_API_KEY }}" | npx wrangler secret put CEREBRAS_API_KEY
