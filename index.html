@@ -1,0 +1,1608 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Moosify is a playful stuffed-moose company page for phones, donuts, space, flights, cell plans, and support.">
+  <title>Moosify</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #617087;
+      --line: #d8e3ec;
+      --panel: rgba(255, 255, 255, 0.9);
+      --panel-solid: #ffffff;
+      --sky: #dff4ff;
+      --blue: #2385c4;
+      --blue-dark: #15669b;
+      --blue-card: #2e98d8;
+      --blue-card-deep: #1f77b8;
+      --orange: #f48b2a;
+      --green: #4f9d78;
+      --cream: #fff8e9;
+      --shadow: 0 24px 70px rgba(23, 32, 51, 0.16);
+      --radius: 8px;
+      --max: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+       background: url('https://images.unsplash.com/photo-1580815190182-22e030b2c4b0?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat, linear-gradient(180deg, #bfeeff 0%, #eaf8ff 42%, #fff8e9 100%);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      z-index: -1;
+      width: 220px;
+      height: 70px;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 28% 45%, #fff 0 34px, transparent 35px),
+        radial-gradient(circle at 50% 28%, #fff 0 46px, transparent 47px),
+        radial-gradient(circle at 72% 48%, #fff 0 34px, transparent 35px),
+        linear-gradient(#fff, #fff);
+      opacity: 0.78;
+      filter: drop-shadow(0 18px 26px rgba(35, 133, 196, 0.14));
+      animation: float-cloud 28s linear infinite;
+      pointer-events: none;
+    }
+
+    body::before {
+      top: 118px;
+      left: -260px;
+    }
+
+    body::after {
+      top: 390px;
+      left: -340px;
+      transform: scale(0.78);
+      animation-duration: 38s;
+      animation-delay: -12s;
+      opacity: 0.58;
+    }
+
+    @keyframes float-cloud {
+      from {
+        translate: 0 0;
+      }
+      to {
+        translate: calc(100vw + 520px) 0;
+      }
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .brand-font {
+      font-family: "Fraunces", Georgia, serif;
+      letter-spacing: 0;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid rgba(21, 102, 155, 0.14);
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav {
+      width: min(var(--max), calc(100% - 32px));
+      min-height: 72px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border: 2px solid rgba(255, 255, 255, 0.85);
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 8px 22px rgba(35, 133, 196, 0.18);
+      object-fit: cover;
+    }
+
+    .brand-title {
+      display: grid;
+      line-height: 1.05;
+    }
+
+    .brand-title strong {
+      font-size: 1.45rem;
+      font-weight: 900;
+    }
+
+    .brand-title span {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-link {
+      padding: 10px 12px;
+      color: var(--muted);
+      border-radius: var(--radius);
+      background: transparent;
+      font-size: 0.94rem;
+      font-weight: 700;
+    }
+
+    .nav-link:hover {
+      color: var(--ink);
+      background: rgba(35, 133, 196, 0.08);
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: var(--radius);
+      color: #fff;
+      background: var(--blue);
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 12px 24px rgba(35, 133, 196, 0.22);
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      background: var(--blue-dark);
+      box-shadow: 0 16px 28px rgba(35, 133, 196, 0.26);
+    }
+
+    .button.secondary {
+      color: var(--ink);
+      background: #fff;
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+
+    .button.secondary:hover {
+      background: #f6fbff;
+      box-shadow: inset 0 0 0 1px #b8d4e7;
+    }
+
+    .button.orange {
+      background: var(--orange);
+      box-shadow: 0 12px 24px rgba(244, 139, 42, 0.22);
+    }
+
+    .button.orange:hover {
+      background: #db7420;
+    }
+
+    .button.full {
+      width: 100%;
+    }
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2.25;
+    }
+
+    main {
+      min-height: calc(100vh - 72px);
+    }
+
+    .view {
+      display: block;
+    }
+
+    .view[hidden] {
+      display: none;
+    }
+
+    .hero {
+      width: min(var(--max), calc(100% - 32px));
+      min-height: calc(100vh - 72px);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(340px, 0.96fr);
+      align-items: center;
+      gap: 52px;
+      padding: 54px 0 64px;
+    }
+
+    .hero-copy {
+      max-width: 650px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(3.2rem, 8vw, 6.8rem);
+      line-height: 0.9;
+      font-weight: 900;
+      color: #112139;
+    }
+
+    .hero-lede {
+      max-width: 590px;
+      margin: 24px 0 0;
+      color: #3e526a;
+      font-size: clamp(1.08rem, 1.8vw, 1.35rem);
+      line-height: 1.55;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .hero-proof {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 570px;
+      margin-top: 42px;
+    }
+
+    .proof-item {
+      min-height: 88px;
+      padding: 16px;
+      border: 1px solid rgba(21, 102, 155, 0.14);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.62);
+    }
+
+    .proof-item strong {
+      display: block;
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    .proof-item span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.25;
+    }
+
+    .hero-card {
+      position: relative;
+      min-height: 560px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      padding: 42px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(255, 248, 233, 0.74)),
+        radial-gradient(circle at 50% 52%, rgba(255, 255, 255, 0.92), transparent 16rem);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 248, 233, 0.86)),
+        radial-gradient(circle at 72% 18%, rgba(79, 157, 120, 0.28), transparent 14rem);
+      pointer-events: none;
+    }
+
+    .hero-moose {
+      position: relative;
+      z-index: 1;
+      width: min(76%, 430px);
+      max-height: 440px;
+      object-fit: contain;
+      filter: drop-shadow(0 28px 36px rgba(73, 46, 27, 0.24));
+      animation: moose-bob 4s ease-in-out infinite;
+    }
+
+    @keyframes moose-bob {
+      0%,
+      100% {
+        transform: translateY(0) rotate(-1deg);
+      }
+      50% {
+        transform: translateY(-12px) rotate(1deg);
+      }
+    }
+
+    .hero-card-panel {
+      position: absolute;
+      right: 24px;
+      bottom: 24px;
+      left: 24px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.74);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(16px);
+    }
+
+    .hero-card-panel h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      line-height: 1.15;
+    }
+
+    .hero-card-panel p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .section {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      padding: 74px 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 28px;
+      margin-bottom: 28px;
+    }
+
+    .section-head h2 {
+      max-width: 720px;
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.35rem);
+      line-height: 1;
+    }
+
+    .section-head p {
+      max-width: 390px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .service-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 350px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.52);
+      border-radius: 18px;
+      color: #ffffff;
+      background: linear-gradient(180deg, var(--blue-card) 0%, var(--blue-card-deep) 100%);
+      box-shadow: 0 20px 42px rgba(21, 102, 155, 0.22);
+      text-align: left;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+
+    .service-card:hover,
+    .service-card:focus-visible {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 28px 58px rgba(21, 102, 155, 0.28);
+      outline: none;
+    }
+
+    .service-photo {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      background: #a7ddfb;
+    }
+
+    .service-photo.mascot-photo {
+      object-fit: contain;
+      padding: 18px;
+      background:
+        radial-gradient(circle at 38% 30%, rgba(255, 255, 255, 0.94), transparent 5rem),
+        linear-gradient(180deg, #bfeeff 0%, #f8fbff 100%);
+    }
+
+    .service-content {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      flex: 1;
+      padding: 22px;
+    }
+
+    .service-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      margin-bottom: 20px;
+      color: var(--blue-dark);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .service-card:nth-child(2n) .service-icon {
+      color: #bd5f15;
+    }
+
+    .service-card:nth-child(3n) .service-icon {
+      color: #257454;
+    }
+
+    .service-card h3 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 1.34rem;
+      line-height: 1.15;
+    }
+
+    .service-card p {
+      margin: 10px 0 0;
+      color: rgba(255, 255, 255, 0.82);
+      line-height: 1.5;
+    }
+
+    .service-card .learn-more {
+      align-self: end;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 22px;
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    .about-band {
+      background: rgba(255, 255, 255, 0.58);
+      border-block: 1px solid rgba(21, 102, 155, 0.12);
+    }
+
+    .about-layout {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 36px;
+      align-items: center;
+      padding: 72px 0;
+    }
+
+    .about-image {
+      min-height: 430px;
+      border-radius: var(--radius);
+      position: relative;
+      display: grid;
+      place-items: end center;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.92), transparent 4.4rem),
+        radial-gradient(circle at 62% 18%, rgba(255, 255, 255, 0.86), transparent 5.2rem),
+        linear-gradient(180deg, #8fdcff 0%, #dff4ff 52%, #9dd88a 53%, #73bd65 100%);
+      box-shadow: var(--shadow);
+    }
+
+    .about-image::before,
+    .about-image::after {
+      content: "";
+      position: absolute;
+      right: 9%;
+      width: 110px;
+      height: 36px;
+      border-radius: 999px;
+      background: #fff;
+      opacity: 0.82;
+      animation: mini-cloud 9s ease-in-out infinite alternate;
+    }
+
+    .about-image::before {
+      top: 18%;
+      right: 16%;
+    }
+
+    .about-image::after {
+      top: 31%;
+      right: 58%;
+      width: 84px;
+      opacity: 0.68;
+      animation-delay: -4s;
+    }
+
+    .ceo-cutout {
+      position: relative;
+      z-index: 1;
+      width: min(78%, 360px);
+      max-height: 390px;
+      object-fit: contain;
+      filter: drop-shadow(0 22px 26px rgba(73, 46, 27, 0.24));
+    }
+
+    @keyframes mini-cloud {
+      from {
+        translate: -8px 0;
+      }
+      to {
+        translate: 18px 2px;
+      }
+    }
+
+    .about-copy h2 {
+      margin: 0;
+      font-size: clamp(2rem, 3.8vw, 3.2rem);
+      line-height: 1;
+    }
+
+    .about-copy p {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.65;
+    }
+
+    .detail-view {
+      width: min(900px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 52px 0 84px;
+    }
+
+    .detail-panel {
+      overflow: hidden;
+      border: 1px solid rgba(21, 102, 155, 0.12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: var(--shadow);
+    }
+
+    .detail-visual {
+      min-height: 280px;
+      background:
+        linear-gradient(135deg, rgba(35, 133, 196, 0.78), rgba(244, 139, 42, 0.72)),
+        var(--detail-image) center / cover;
+    }
+
+    .detail-content {
+      padding: clamp(24px, 5vw, 42px);
+    }
+
+    .detail-content h1 {
+      margin: 0;
+      font-size: clamp(2.1rem, 5vw, 4rem);
+      line-height: 0.96;
+    }
+
+    .detail-content p {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.7;
+    }
+
+    .detail-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .product-shop {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 18px;
+      margin-top: 28px;
+    }
+
+    .product-list,
+    .cart-panel {
+      border: 1px solid rgba(21, 102, 155, 0.14);
+      border-radius: var(--radius);
+      background: rgba(248, 251, 255, 0.86);
+    }
+
+    .product-list {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+    }
+
+    .product-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 14px;
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: 0 10px 22px rgba(23, 32, 51, 0.06);
+    }
+
+    .product-row h3,
+    .cart-panel h2 {
+      margin: 0;
+      font-size: 1.02rem;
+      line-height: 1.2;
+    }
+
+    .product-row p {
+      margin: 6px 0 0;
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
+    .product-price {
+      display: inline-block;
+      margin-top: 10px;
+      color: var(--blue-dark);
+      font-weight: 900;
+    }
+
+    .cart-panel {
+      position: sticky;
+      top: 92px;
+      align-self: start;
+      padding: 18px;
+    }
+
+    .cart-items {
+      display: grid;
+      gap: 10px;
+      margin: 16px 0;
+      color: var(--muted);
+    }
+
+    .cart-line {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .cart-line small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .qty-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px;
+      border-radius: 999px;
+      background: #edf7ff;
+    }
+
+    .qty-controls button {
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--blue);
+      font-weight: 900;
+    }
+
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 14px 0;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+      font-size: 1.1rem;
+      font-weight: 900;
+    }
+
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 12px;
+    }
+
+    .order-summary {
+      margin: 6px 0 18px;
+      padding: 14px;
+      border-radius: var(--radius);
+      background: #f6fbff;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .footer {
+      padding: 30px 16px;
+      color: #4c5e73;
+      text-align: center;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(23, 32, 51, 0.48);
+    }
+
+    .modal[hidden] {
+      display: none;
+    }
+
+    .modal-card {
+      width: min(100%, 460px);
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: 0 34px 90px rgba(23, 32, 51, 0.34);
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 22px 24px 12px;
+    }
+
+    .modal-head h2 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    .close-button {
+      display: inline-grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      color: var(--muted);
+      border-radius: var(--radius);
+      background: #f3f7fa;
+    }
+
+    .modal-body {
+      padding: 12px 24px 24px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+      color: #34445a;
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px 13px;
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(35, 133, 196, 0.14);
+    }
+
+    .chat-log {
+      height: 210px;
+      overflow-y: auto;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      margin-bottom: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #f8fbff;
+    }
+
+    .message {
+      max-width: 85%;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      color: #2f4054;
+      background: #fff;
+      box-shadow: 0 6px 16px rgba(23, 32, 51, 0.06);
+    }
+
+    .message.user {
+      justify-self: end;
+      color: #fff;
+      background: var(--blue);
+    }
+
+    .form-note {
+      min-height: 20px;
+      margin: 12px 0 0;
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    @media (max-width: 920px) {
+      .hero,
+      .about-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 42px;
+      }
+
+      .hero-card {
+        min-height: 460px;
+      }
+
+      .section-head {
+        display: block;
+      }
+
+      .section-head p {
+        margin-top: 14px;
+      }
+
+      .services-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .product-shop {
+        grid-template-columns: 1fr;
+      }
+
+      .cart-panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .nav {
+        min-height: auto;
+        padding: 12px 0;
+        align-items: flex-start;
+      }
+
+      .brand-title span,
+      .nav-link {
+        display: none;
+      }
+
+      .nav-actions {
+        gap: 8px;
+      }
+
+      .button {
+        min-height: 40px;
+        padding: 0 12px;
+        font-size: 0.9rem;
+      }
+
+      .site-header .button {
+        min-width: 42px;
+        padding: 0 10px;
+      }
+
+      .site-header .button-label {
+        display: none;
+      }
+
+      .hero-proof,
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card {
+        min-height: 380px;
+      }
+
+      .hero-card-panel {
+        right: 14px;
+        bottom: 14px;
+        left: 14px;
+      }
+
+      .product-row,
+      .checkout-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="#home" data-home-link>
+        <img class="brand-mark" src="moosy-ceo-cutout.png" alt="Moosify moose mascot">
+        <span class="brand-title">
+          <strong class="brand-font">Moosify</strong>
+          <span>Stuffed animals running everything</span>
+        </span>
+      </a>
+      <div class="nav-actions">
+        <button class="nav-link" type="button" data-scroll-to="services">Services</button>
+        <button class="button secondary" type="button" data-modal-open="login"><i class="icon" data-lucide="user"></i><span class="button-label">Login</span></button>
+        <button class="button" type="button" data-modal-open="chat"><i class="icon" data-lucide="message-circle"></i><span class="button-label">Talk</span></button>
+        <button class="button orange" type="button" data-modal-open="cart"><i class="icon" data-lucide="shopping-cart"></i><span class="button-label">Cart</span> <span data-cart-count>0</span></button>
+        <button class="button" type="button" data-modal-open="device-tester"><i class="icon" data-lucide="smartphone"></i><span class="button-label">Device Test</span></button>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div id="home" class="view" data-view="home">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <h1 id="hero-title" class="brand-font">Welcome to Moosify.</h1>
+          <p class="hero-lede">A cheerful company universe run from one very important shelf. Shop orange phones, order donuts, plan a launch, book a flight, or get help from Moosy's support desk.</p>
+          <div class="hero-actions">
+            <a class="button orange" href="#services"><i class="icon" data-lucide="sparkles"></i>Explore services</a>
+            <button class="button secondary" type="button" data-modal-open="chat"><i class="icon" data-lucide="messages-square"></i>Ask Moosy</button>
+          </div>
+          <div class="hero-proof" aria-label="Moosify highlights">
+            <div class="proof-item"><strong>6</strong><span>Playful service desks</span></div>
+            <div class="proof-item"><strong>24/7</strong><span>Shelf-side support</span></div>
+            <div class="proof-item"><strong>100%</strong><span>Moose-approved plans</span></div>
+          </div>
+        </div>
+        <div class="hero-card" aria-label="Moosify stuffed moose mascot">
+          <img class="hero-moose" src="moosy-ceo-cutout.png" alt="Moosy the stuffed moose CEO">
+          <div class="hero-card-panel">
+            <h2 class="brand-font">Moosy, Chief Everything Officer</h2>
+            <p>Friendly, fluffy, and somehow in charge of phones, donuts, rockets, flights, cell towers, and customer support.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="services" class="section" aria-labelledby="services-title">
+        <div class="section-head">
+          <h2 id="services-title" class="brand-font">Pick a Moosify department.</h2>
+          <p>Each card opens a clean detail page with a real back path, readable copy, and working actions.</p>
+        </div>
+        <div class="services-grid">
+          <button class="service-card" type="button" data-open-service="phones">
+            <img class="service-photo" src="https://images.pexels.com/photos/11297769/pexels-photo-11297769.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Smartphone shop display">
+            <span class="service-content">
+              <span class="service-icon"><i class="icon" data-lucide="smartphone"></i></span>
+              <h3>Moosify Phone Shop</h3>
+              <p>The latest orange smartphones, cases, and setup help from plush technicians.</p>
+              <span class="learn-more">View phones <i class="icon" data-lucide="arrow-right"></i></span>
+            </span>
+          </button>
+          <button class="service-card" type="button" data-open-service="donuts">
+            <img class="service-photo" src="https://images.pexels.com/photos/1191639/pexels-photo-1191639.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Colorful donuts with sprinkles">
+            <span class="service-content">
+              <span class="service-icon"><i class="icon" data-lucide="circle-dot"></i></span>
+              <h3>Ishaan's Donuts</h3>
+              <p>The most delicious donuts in the universe, glazed for every shelf snack break.</p>
+              <span class="learn-more">Order donuts <i class="icon" data-lucide="arrow-right"></i></span>
+            </span>
+          </button>
+          <button class="service-card" type="button" data-open-service="space">
+            <img class="service-photo" src="https://images.pexels.com/photos/11086520/pexels-photo-11086520.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Rocket launching into the sky">
+            <span class="service-content">
+              <span class="service-icon"><i class="icon" data-lucide="rocket"></i></span>
+              <h3>Moosa Rockets & Space</h3>
+              <p>Reaching for the stars with next-gen rocket tech for brave plush crews.</p>
+              <span class="learn-more">Plan launch <i class="icon" data-lucide="arrow-right"></i></span>
+            </span>
+          </button>
+          <button class="service-card" type="button" data-open-service="airlines">
+            <img class="service-photo" src="https://images.pexels.com/photos/8230826/pexels-photo-8230826.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Airplane flying through warm clouds">
+            <span class="service-content">
+              <span class="service-icon"><i class="icon" data-lucide="plane"></i></span>
+              <h3>Moosify Airlines</h3>
+              <p>Fly in comfort and style worldwide with cloud-soft seats and snack service.</p>
+              <span class="learn-more">Book flight <i class="icon" data-lucide="arrow-right"></i></span>
+            </span>
+          </button>
+          <button class="service-card" type="button" data-open-service="cellplans">
+            <img class="service-photo" src="https://images.pexels.com/photos/18379732/pexels-photo-18379732.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Cellular tower against blue sky">
+            <span class="service-content">
+              <span class="service-icon"><i class="icon" data-lucide="radio-tower"></i></span>
+              <h3>Moosify Cell Plans</h3>
+              <p>Unlimited data and 5G everywhere, made simple for the whole playroom.</p>
+              <span class="learn-more">Compare plans <i class="icon" data-lucide="arrow-right"></i></span>
+            </span>
+          </button>
+          <button class="service-card" type="button" data-open-service="support">
+            <img class="service-photo mascot-photo" src="moosy-ceo-cutout.png" alt="Moosy support mascot">
+            <span class="service-content">
+              <span class="service-icon"><i class="icon" data-lucide="headphones"></i></span>
+              <h3>Moosify Support</h3>
+              <p>Get help from friendly mooses for orders, accounts, plans, and questions.</p>
+              <span class="learn-more">Get support <i class="icon" data-lucide="arrow-right"></i></span>
+            </span>
+          </button>
+        </div>
+      </section>
+
+      <section class="about-band" aria-labelledby="about-title">
+        <div class="about-layout">
+          <div class="about-image" aria-label="Moosify mascot in a playful sky and grass scene">
+            <img class="ceo-cutout" src="moosy-ceo-cutout.png" alt="Moosy the stuffed moose CEO">
+          </div>
+          <div class="about-copy">
+            <h2 id="about-title" class="brand-font">Meet the CEO of the playarea.</h2>
+            <p>Moosy runs the whole operation from a cheerful sky-and-cloud command center. The page keeps the blue playful theme, but the shortcuts are cleaner and easier to click.</p>
+            <div class="hero-actions">
+              <button class="button" type="button" data-modal-open="login"><i class="icon" data-lucide="log-in"></i>Open login</button>
+              <button class="button secondary" type="button" data-open-service="support"><i class="icon" data-lucide="life-buoy"></i>Contact support</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="view detail-view" data-view="detail" hidden aria-live="polite">
+      <button class="button secondary" type="button" data-back-home><i class="icon" data-lucide="arrow-left"></i>Back home</button>
+      <article class="detail-panel" style="margin-top: 18px;">
+        <div class="detail-visual" data-detail-visual></div>
+        <div class="detail-content">
+          <h1 class="brand-font" data-detail-title></h1>
+          <p data-detail-copy></p>
+          <div class="product-shop">
+            <div class="product-list" data-product-list></div>
+            <aside class="cart-panel" aria-label="Cart summary">
+              <h2 class="brand-font">Your cart</h2>
+              <div class="cart-items" data-inline-cart>Cart is empty.</div>
+              <div class="cart-total"><span>Total</span><span data-cart-total>$0</span></div>
+              <button class="button full" type="button" data-modal-open="checkout"><i class="icon" data-lucide="credit-card"></i>Checkout</button>
+            </aside>
+          </div>
+          <div class="detail-actions">
+            <button class="button" type="button" data-modal-open="chat"><i class="icon" data-lucide="message-circle"></i>Ask Moosy</button>
+            <button class="button secondary" type="button" data-back-home><i class="icon" data-lucide="grid-2x2"></i>All services</button>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Copyright 2026 Moosify. All rights reserved.</p>
+  </footer>
+
+  <div class="modal" id="login-modal" hidden role="dialog" aria-modal="true" aria-labelledby="login-title">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="login-title" class="brand-font">Login</h2>
+        <button class="close-button" type="button" data-modal-close aria-label="Close login"><i class="icon" data-lucide="x"></i></button>
+      </div>
+      <form class="modal-body" data-login-form>
+        <label class="field">Email<input type="email" autocomplete="email" required placeholder="you@example.com"></label>
+        <label class="field">Password<input type="password" autocomplete="current-password" required placeholder="Password"></label>
+        <button class="button" type="submit"><i class="icon" data-lucide="log-in"></i>Continue</button>
+        <p class="form-note" data-login-note></p>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="cart-modal" hidden role="dialog" aria-modal="true" aria-labelledby="cart-title">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="cart-title" class="brand-font">Cart</h2>
+        <button class="close-button" type="button" data-modal-close aria-label="Close cart"><i class="icon" data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="cart-items" data-modal-cart>Cart is empty.</div>
+        <div class="cart-total"><span>Total</span><span data-cart-total>$0</span></div>
+        <button class="button full" type="button" data-modal-open="checkout"><i class="icon" data-lucide="credit-card"></i>Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="checkout-modal" hidden role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="checkout-title" class="brand-font">Checkout preview</h2>
+        <button class="close-button" type="button" data-modal-close aria-label="Close checkout"><i class="icon" data-lucide="x"></i></button>
+      </div>
+      <form class="modal-body" data-checkout-form>
+        <div class="order-summary" data-checkout-summary>Cart is empty.</div>
+        <div class="checkout-grid">
+          <label class="field">Name<input required placeholder="Moosy Moose" autocomplete="name"></label>
+          <label class="field">Email<input type="email" required placeholder="you@example.com" autocomplete="email"></label>
+        </div>
+        <label class="field">Delivery note<textarea required placeholder="Shelf address, launch pad, donut instructions..."></textarea></label>
+        <button class="button full orange" type="submit"><i class="icon" data-lucide="package-check"></i>Place demo order</button>
+        <p class="form-note" data-checkout-note></p>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="chat-modal" hidden role="dialog" aria-modal="true" aria-labelledby="chat-title">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="chat-title" class="brand-font">Talk to Moosy</h2>
+        <button class="close-button" type="button" data-modal-close aria-label="Close chat"><i class="icon" data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="chat-log" data-chat-log>
+          <div class="message">Moosy: Hi. Ask me about phones, donuts, rockets, flights, plans, support, or what to add to your cart.</div>
+        </div>
+        <p class="form-note" data-ai-status>Moosy brain: local product guide.</p>
+        <form data-chat-form>
+          <label class="field">Message<input type="text" data-chat-input placeholder="Type your question" autocomplete="off"></label>
+          <button class="button orange" type="submit"><i class="icon" data-lucide="send"></i>Send</button>
+        </form>
+      </div>
+    </div>
+</div>
+
+<div id="device-tester-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+  <div class="bg-white rounded-lg p-6 max-w-md w-full">
+    <h2 class="text-xl font-bold mb-4">Device Tester</h2>
+    <form id="device-tester-form" class="space-y-4">
+      <label class="block">Device
+        <select id="tester-device" class="w-full p-2 border rounded">
+          <option value="Opad">Opad Tablet</option>
+          <option value="Ophone">Ophone Mobile</option>
+        </select>
+      </label>
+      <label class="block">OS Version
+        <input type="text" id="tester-os" placeholder="e.g., 1.0.3" class="w-full p-2 border rounded">
+      </label>
+      <button type="submit" class="button orange">Run Test</button>
+      <button type="button" class="button" data-modal-close>Close</button>
+    </form>
+    <div id="tester-result" class="mt-4 text-green-600"></div>
+  </div>
+</div>
+
+<script>
+    const services = {
+      phones: {
+        title: "Orange Phone Shop",
+        copy: "Browse bright orange phones, matching cases, and friendly setup help. Every device is inspected by Moosify's shelf-side technicians before it ships.",
+        image: "url('https://images.pexels.com/photos/11297769/pexels-photo-11297769.jpeg?auto=compress&cs=tinysrgb&w=1400')",
+        products: [
+          { id: "ophone-mini", name: "OPhone Mini", description: "Pocket orange phone with plush-safe setup.", price: 249 },
+          { id: "ophone-pro", name: "OPhone Pro", description: "Bigger screen, brighter orange, free case.", price: 499 },
+          { id: "opad", name: "OPad Drawing Kit", description: "Tablet bundle for games, doodles, and shelf meetings.", price: 399 }
+        ]
+      },
+      donuts: {
+        title: "Ishaan's Donuts",
+        copy: "Order glazed classics, rainbow sprinkles, and the Triple Chocolate Shelf Special. The form is intentionally simple because donuts should not require a committee.",
+        image: "url('https://images.pexels.com/photos/1191639/pexels-photo-1191639.jpeg?auto=compress&cs=tinysrgb&w=1400')",
+        products: [
+          { id: "donut-sprinkle", name: "Rainbow Sprinkle Box", description: "Six soft donuts for the whole playarea.", price: 18 },
+          { id: "donut-chocolate", name: "Triple Chocolate Stack", description: "Rich chocolate donuts for serious snack missions.", price: 22 },
+          { id: "donut-party", name: "Shelf Party Dozen", description: "Twelve assorted donuts with extra napkins.", price: 34 }
+        ]
+      },
+      space: {
+        title: "Moosa Rockets & Space",
+        copy: "Schedule an imaginary launch, pick an orbit, and get a mission briefing for the bravest plush passengers in the galaxy.",
+        image: "url('https://images.pexels.com/photos/11086520/pexels-photo-11086520.jpeg?auto=compress&cs=tinysrgb&w=1400')",
+        products: [
+          { id: "space-seat", name: "Plush Orbit Seat", description: "One pretend launch seat with mission badge.", price: 79 },
+          { id: "space-family", name: "Family Launch Pack", description: "Four passenger seats and a shelf-side countdown.", price: 249 },
+          { id: "space-mars", name: "Mars Picnic Mission", description: "A full imaginary trip with snack cargo.", price: 399 }
+        ]
+      },
+      airlines: {
+        title: "Moosify Airlines",
+        copy: "Book cloud-soft routes with snack service, cozy seats, and a tiny co-pilot for every passenger. Destinations include everywhere the shelf can imagine.",
+        image: "url('https://images.pexels.com/photos/8230826/pexels-photo-8230826.jpeg?auto=compress&cs=tinysrgb&w=1400')",
+        products: [
+          { id: "air-cloud", name: "Cloud Hopper Ticket", description: "One cozy round-trip pretend flight.", price: 59 },
+          { id: "air-snack", name: "Snack Class Upgrade", description: "Extra legroom, juice box, and plush blanket.", price: 29 },
+          { id: "air-world", name: "World Tour Pass", description: "A full playroom itinerary with souvenir sticker.", price: 149 }
+        ]
+      },
+      cellplans: {
+        title: "Moosify Cell Plans",
+        copy: "Compare unlimited talk, text, and data options with a plan family that keeps the copy readable and the pricing imaginary.",
+        image: "url('https://images.pexels.com/photos/18379732/pexels-photo-18379732.jpeg?auto=compress&cs=tinysrgb&w=1400')",
+        products: [
+          { id: "cell-tiny", name: "Tiny Text Plan", description: "Calls, texts, and tiny messages for one plush.", price: 12 },
+          { id: "cell-unlimited", name: "Unlimited Moose 5G", description: "Unlimited data for memes, maps, and shelf calls.", price: 35 },
+          { id: "cell-family", name: "Playroom Family Plan", description: "Five lines, shared data, and free setup.", price: 89 }
+        ]
+      },
+      support: {
+        title: "Moosify Support",
+        copy: "Get help with orders, account questions, plans, and anything else that needs a calm answer from the friendliest desk in the company.",
+        image: "url('moosy-ceo-cutout.png')",
+        products: [
+          { id: "support-quick", name: "Quick Help Ticket", description: "A friendly answer for one small question.", price: 5 },
+          { id: "support-setup", name: "Shelf Setup Session", description: "Help setting up phones, plans, or donut orders.", price: 25 },
+          { id: "support-vip", name: "Moosy VIP Support", description: "Priority support with extra cheerful updates.", price: 49 }
+        ]
+      }
+    };
+
+    const CURRENT_CHAT_STATUS = "";
+    const API_URL = "";
+    const homeView = document.querySelector('[data-view="home"]');
+    const detailView = document.querySelector('[data-view="detail"]');
+    const detailTitle = document.querySelector('[data-detail-title]');
+    const detailCopy = document.querySelector('[data-detail-copy]');
+    const detailVisual = document.querySelector('[data-detail-visual]');
+    const productList = document.querySelector("[data-product-list]");
+    const chatLog = document.querySelector('[data-chat-log]');
+    const aiStatus = document.querySelector("[data-ai-status]");
+    const chatHistory = [];
+    const cart = new Map();
+    let activeServiceKey = "phones";
+    // Chat status: if set to "down" disable chat UI
+    if (CURRENT_CHAT_STATUS === "down") {
+        const chatForm = document.querySelector("[data-chat-form]");
+        if (chatForm) {
+            chatForm.querySelectorAll("input, button").forEach(el => el.disabled = true);
+            const note = document.createElement("div");
+            note.textContent = "Our help desk chat is currently offline for testing. Check back soon!";
+            note.className = "text-center text-red-600 mt-4";
+            chatForm.parentElement.appendChild(note);
+        }
+    }
+
+    const moosyPersonality = [
+      "You are Moosy, the stuffed moose CEO and shop helper for Moosify.",
+      "You are playful, kind, short, and useful. You love baking moose‑shaped pizzas with olives, making chocolate‑filled mooskie cookies with sprinkles, cooking dal makhani, telling jokes, and you have unlimited money, superpowers, and traveling to imaginary lands.",
+      "Help users choose products, understand prices, and move toward the demo cart or checkout.",
+      "Never claim an order or payment is real. Never ask for passwords, card numbers, or private secrets.",
+      "If someone wants to buy, recommend the best product and tell them to use the Add button or checkout preview."
+    ].join(" ");
+
+    function refreshIcons() {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }
+
+    function openService(key) {
+      const service = services[key];
+      if (!service) return;
+      activeServiceKey = key;
+      detailTitle.textContent = service.title;
+      detailCopy.innerHTML = service.copy;
+      detailVisual.style.setProperty("--detail-image", service.image);
+      renderProducts(service.products);
+      homeView.hidden = true;
+      detailView.hidden = false;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      refreshIcons();
+    }
+
+    function formatMoney(value) {
+      return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
+    }
+
+    function findProduct(id) {
+      for (const [serviceKey, service] of Object.entries(services)) {
+        const product = service.products.find((item) => item.id === id);
+        if (product) return { ...product, serviceKey, serviceTitle: service.title };
+      }
+      return null;
+    }
+
+    function renderProducts(products) {
+      productList.innerHTML = products.map((product) => `
+        <article class="product-row">
+          <div>
+            <h3>${product.name}</h3>
+            <p>${product.description}</p>
+            <span class="product-price">${formatMoney(product.price)}</span>
+          </div>
+          <button class="button orange" type="button" data-add-product="${product.id}">
+            <i class="icon" data-lucide="plus"></i>Add
+          </button>
+        </article>
+      `).join("");
+    }
+
+    function addToCart(id) {
+      const product = findProduct(id);
+      if (!product) return;
+      const current = cart.get(id) || { ...product, quantity: 0 };
+      current.quantity += 1;
+      cart.set(id, current);
+      renderCart();
+    }
+
+    function changeQuantity(id, delta) {
+      const current = cart.get(id);
+      if (!current) return;
+      current.quantity += delta;
+      if (current.quantity <= 0) {
+        cart.delete(id);
+      } else {
+        cart.set(id, current);
+      }
+      renderCart();
+    }
+
+    function getCartTotals() {
+      const items = Array.from(cart.values());
+      const quantity = items.reduce((sum, item) => sum + item.quantity, 0);
+      const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      return { items, quantity, total };
+    }
+
+    function productCatalogText() {
+      return Object.values(services).map((service) => {
+        const products = service.products.map((item) => `${item.name} (${formatMoney(item.price)}): ${item.description}`).join("; ");
+        return `${service.title}: ${products}`;
+      }).join("\n");
+    }
+
+    function localMoosyReply(message) {
+      const text = message.toLowerCase();
+      const { items, quantity, total } = getCartTotals();
+      const allProducts = Object.values(services).flatMap((service) => service.products.map((product) => ({
+        ...product,
+        serviceTitle: service.title
+      })));
+      const matched = allProducts.find((product) => text.includes(product.name.toLowerCase().split(" ")[0]) || text.includes(product.serviceTitle.toLowerCase().split(" ")[0]));
+
+      if (text.includes("cheap") || text.includes("lowest")) {
+        const cheapest = [...allProducts].sort((a, b) => a.price - b.price)[0];
+        return `Moosy found the cheapest option: ${cheapest.name} for ${formatMoney(cheapest.price)}. Tiny price, mighty shelf energy.`;
+      }
+      if (text.includes("checkout") || text.includes("pay") || text.includes("buy")) {
+        return quantity
+          ? `Moosy says your demo cart has ${quantity} item${quantity === 1 ? "" : "s"} for ${formatMoney(total)}. Tap Checkout for the pretend checkout preview. No real payment happens.`
+          : "Moosy says pick a product and tap Add first. Then I can help you review the checkout preview.";
+      }
+      if (text.includes("cart")) {
+        return quantity
+          ? `Moosy sees ${quantity} item${quantity === 1 ? "" : "s"} in your cart: ${items.map((item) => `${item.quantity} x ${item.name}`).join(", ")}. Total: ${formatMoney(total)}.`
+          : "Moosy sees an empty cart. The donut boxes are very persuasive, just saying.";
+      }
+      if (matched) {
+        return `Moosy recommends ${matched.name} from ${matched.serviceTitle}. It costs ${formatMoney(matched.price)} and ${matched.description.toLowerCase()} Tap Add if that sounds good.`;
+      }
+      if (text.includes("best") || text.includes("recommend")) {
+        const service = services[activeServiceKey];
+        const pick = service.products[Math.min(1, service.products.length - 1)];
+        return `Moosy would start with ${pick.name} for ${formatMoney(pick.price)}. It is a good ${service.title} pick without getting too wild.`;
+      }
+      return "Moosy can help compare phones, donuts, rockets, flights, cell plans, support, and your cart. Ask me what is cheapest, best, or ready for checkout.";
+    }
+
+    async function askMoosy(message) {
+      const { items, total } = getCartTotals();
+      // If chat is marked down, return maintenance message immediately
+      if (CURRENT_CHAT_STATUS === "down") {
+          aiStatus.textContent = "Moosy brain: offline.";
+          return "Our help desk chat is currently offline for testing. Check back soon!";
+      }
+      const payload = {
+        message, chatStatus: CURRENT_CHAT_STATUS,
+        personality: moosyPersonality,
+        activeDepartment: services[activeServiceKey].title,
+        products: productCatalogText(),
+        cart: items.map((item) => ({ name: item.name, quantity: item.quantity, price: item.price })),
+        total,
+        history: chatHistory.slice(-8)
+    };
+    // Add Device Tester service
+    services.deviceTester = {
+      title: "Opad & Ophone Tester",
+      copy: `<form id="device-tester-form" class="space-y-4">
+        <label class="block">Device
+          <select id="tester-device" class="w-full p-2 border rounded">
+            <option value="Opad">Opad Tablet</option>
+            <option value="Ophone">Ophone Mobile</option>
+          </select>
+        </label>
+        <label class="block">OS Version
+          <input type="text" id="tester-os" placeholder="e.g., 1.0.3" class="w-full p-2 border rounded">
+        </label>
+        <button type="submit" class="button orange">Run Test</button>
+      </form>
+      <div id="tester-result" class="mt-4 text-green-600"></div>`,
+      image: "url('https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=1400&q=80')",
+      products: []
+    };
+
+      try {
+        const endpoint = (API_URL && API_URL.trim() !== "" && !API_URL.includes("")) ? API_URL : "/api/moosy";
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!response.ok) throw new Error(`Moosy API returned ${response.status}`);
+        const data = await response.json();
+        if (!data.reply) throw new Error("Moosy API returned no reply");
+        aiStatus.textContent = "Moosy brain: OpenAI API.";
+        return data.reply;
+      } catch (error) {
+        aiStatus.textContent = "Moosy brain: local product guide.";
+        return localMoosyReply(message);
+      }
+    }
+
+    function renderCart() {
+      const { items, quantity, total } = getCartTotals();
+      const empty = "Cart is empty.";
+      const markup = items.length ? items.map((item) => `
+        <div class="cart-line">
+          <div>
+            <strong>${item.name}</strong>
+            <small>${item.serviceTitle} · ${formatMoney(item.price)} each</small>
+          </div>
+          <span class="qty-controls">
+            <button type="button" data-cart-delta="-1" data-cart-product="${item.id}" aria-label="Remove one ${item.name}">-</button>
+            <strong>${item.quantity}</strong>
+            <button type="button" data-cart-delta="1" data-cart-product="${item.id}" aria-label="Add one ${item.name}">+</button>
+          </span>
+        </div>
+      `).join("") : empty;
+
+      document.querySelectorAll("[data-inline-cart], [data-modal-cart]").forEach((node) => {
+        node.innerHTML = markup;
+      });
+      document.querySelectorAll("[data-cart-total]").forEach((node) => {
+        node.textContent = formatMoney(total);
+      });
+      document.querySelector("[data-cart-count]").textContent = quantity;
+      renderCheckoutSummary();
+      refreshIcons();
+    }
+
+    function renderCheckoutSummary() {
+      const { items, total } = getCartTotals();
+      const summary = document.querySelector("[data-checkout-summary]");
+      if (!summary) return;
+      summary.innerHTML = items.length
+        ? `${items.map((item) => `${item.quantity} x ${item.name}`).join("<br>")}<br><strong>Total: ${formatMoney(total)}</strong>`
+        : "Cart is empty. Add something before checking out.";
+    }
+
+    function showHome() {
+      detailView.hidden = true;
+      homeView.hidden = false;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function openModal(name) {
+      if (name === "checkout" && getCartTotals().items.length === 0) {
+        name = "cart";
+      }
+      if (name === "checkout") renderCheckoutSummary();
+      closeModals();
+      document.getElementById(`${name}-modal`)?.removeAttribute("hidden");
+    }
+
+    function closeModals() {
+      document.querySelectorAll(".modal").forEach((modal) => modal.setAttribute("hidden", ""));
+    }
+
+    document.addEventListener("click", (event) => {
+      const serviceButton = event.target.closest("[data-open-service]");
+      const modalButton = event.target.closest("[data-modal-open]");
+      const scrollButton = event.target.closest("[data-scroll-to]");
+      const homeButton = event.target.closest("[data-back-home], [data-home-link]");
+      const closeButton = event.target.closest("[data-modal-close]");
+      const addButton = event.target.closest("[data-add-product]");
+      const qtyButton = event.target.closest("[data-cart-product]");
+
+      if (serviceButton) openService(serviceButton.dataset.openService);
+      if (modalButton) openModal(modalButton.dataset.modalOpen);
+      if (addButton) addToCart(addButton.dataset.addProduct);
+      if (qtyButton) changeQuantity(qtyButton.dataset.cartProduct, Number(qtyButton.dataset.cartDelta));
+      if (scrollButton) document.getElementById(scrollButton.dataset.scrollTo)?.scrollIntoView({ behavior: "smooth" });
+      if (homeButton) {
+        event.preventDefault();
+        showHome();
+      }
+      if (closeButton || event.target.classList.contains("modal")) closeModals();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeModals();
+    });
+
+    document.querySelector("[data-login-form]").addEventListener("submit", (event) => {
+      event.preventDefault();
+      document.querySelector("[data-login-note]").textContent = "Demo login ready. Connect a real auth provider when Moosy approves it.";
+    });
+
+    document.querySelector("[data-chat-form]").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const input = document.querySelector("[data-chat-input]");
+      const message = input.value.trim();
+      if (!message) return;
+
+      const userBubble = document.createElement("div");
+      userBubble.className = "message user";
+      userBubble.textContent = `You: ${message}`;
+      chatLog.appendChild(userBubble);
+
+      const reply = document.createElement("div");
+      reply.className = "message";
+      reply.textContent = "Moosy: thinking with antlers...";
+      chatLog.appendChild(reply);
+
+      input.value = "";
+      chatLog.scrollTop = chatLog.scrollHeight;
+
+      const answer = await askMoosy(message);
+      reply.textContent = `Moosy: ${answer}`;
+      chatHistory.push({ role: "user", content: message }, { role: "assistant", content: answer });
+      chatLog.scrollTop = chatLog.scrollHeight;
+    });
+
+    document.querySelector("[data-checkout-form]").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const { quantity, total } = getCartTotals();
+      document.querySelector("[data-checkout-note]").textContent = `Demo order ready: ${quantity} item${quantity === 1 ? "" : "s"} for ${formatMoney(total)}. No payment was charged.`;
+    });
+
+    renderProducts(services[activeServiceKey].products);
+    renderCart();
+    refreshIcons();
+  </script>
+</body>
+</html>
