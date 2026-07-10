@@ -5,7 +5,7 @@ export default {
   async fetch(request, env, ctx) {
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization"
     };
 
@@ -14,6 +14,54 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders });
     }
 
+    const url = new URL(request.url);
+    const pathname = url.pathname;
+
+    // ---------------------------------------------------------------------
+    // 1️⃣ Health‑check endpoint – useful for CI/CD and monitoring
+    // ---------------------------------------------------------------------
+    if (request.method === "GET" && pathname === "/api/health") {
+      return new Response(JSON.stringify({ status: "ok", timestamp: Date.now() }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders }
+      });
+    }
+
+    // ---------------------------------------------------------------------
+    // 2️⃣ Prompt endpoint – demonstrates secret handling & permission check
+    // ---------------------------------------------------------------------
+    if (request.method === "POST" && pathname === "/api/prompt") {
+      // Expect a secret named MY_SECRET to be set via Wrangler
+      const secret = await env.MY_SECRET;
+      if (!secret) {
+        return new Response(JSON.stringify({ error: "Missing required secret" }), {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+      let payload;
+      try {
+        payload = await request.json();
+      } catch (e) {
+        return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+      // Echo back a mock reply – replace with real LLM logic later
+      const result = {
+        prompt: payload.prompt,
+        reply: `You sent: "${payload.prompt}" – (mock reply)`
+      };
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders }
+      });
+    }
+
+    // ---------------------------------------------------------------------
+    // Existing chat endpoint – keep original behaviour for any other POST
+    // ---------------------------------------------------------------------
     if (request.method !== "POST") {
       return new Response(JSON.stringify({ error: "Method not allowed" }), {
         status: 405,
@@ -59,7 +107,6 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
         model: "llama3.1-8b-instant",
         key: env.GROQ_API_KEY
       },
-
     ];
 
     for (const p of providers) {
