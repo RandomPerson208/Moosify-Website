@@ -20,6 +20,7 @@ jobs:
 
       - name: Set Worker secrets
         run: |
-          echo "${{ secrets.CEREBRAS_API_KEY }}" | wrangler secret put CEREBRAS_API_KEY
-          echo "${{ secrets.GROQ_API_KEY }}" | wrangler secret put GROQ_API_KEY
-          echo "${{ secrets.CHAT_STATUS }}" | wrangler secret put CHAT_STATUS
+          # Use npx to ensure the locally installed Wrangler binary is used
+          echo "${{ secrets.CEREBRAS_API_KEY }}" | npx wrangler secret put CEREBRAS_API_KEY
+          echo "${{ secrets.GROQ_API_KEY }}" | npx wrangler secret put GROQ_API_KEY
+          echo "${{ secrets.CHAT_STATUS }}" | npx wrangler secret put CHAT_STATUS
