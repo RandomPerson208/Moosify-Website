@@ -1,6 +1,9 @@
 name = "moosy-api"
 type = "javascript"
-account_id = ""
+account_id = "0d88ec410e04d6b7b705064405e8824a"
+# Serve static files (e.g., index.html) from the project root
+site = { bucket = ".", entry-point = "cloudflare-worker.js" }
+main = "cloudflare-worker.js"
 workers_dev = true
 compatibility_date = "2024-01-01"
 
