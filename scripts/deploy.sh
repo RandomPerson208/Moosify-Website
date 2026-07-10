@@ -33,8 +33,8 @@ if [[ ${#missing[@]} -gt 0 ]]; then
   exit 1
 fi
 
-# Deploy the worker
+# Deploy the worker using the current Wrangler command
 echo "Deploying Cloudflare Worker..."
-npx wrangler publish
+npx wrangler deploy
 
 echo "✅ Deployment succeeded."
