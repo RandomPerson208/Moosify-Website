@@ -16,7 +16,7 @@ if ! command -v npx >/dev/null 2>&1; then
 fi
 
 # Check that required Cloudflare secrets are present
-required_secrets=("MY_SECRET")
+required_secrets=("CF_API_TOKEN" "CF_ACCOUNT_ID")
 missing=()
 for secret in "${required_secrets[@]}"; do
   if ! npx wrangler secret list | grep -q "$secret"; then

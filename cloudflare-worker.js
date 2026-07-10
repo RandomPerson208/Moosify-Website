@@ -160,9 +160,10 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
       }
     }
 
-    // All providers exhausted
-    return new Response(JSON.stringify({ error: "All LLM providers failed" }), {
-      status: 503,
+    // All providers exhausted – return a friendly fallback
+    const fallbackReply = "Moosy: I’m here to help you with phones, donuts, rockets, flights, cell plans, and support. Ask me about any product or tell me what you’re looking for.";
+    return new Response(JSON.stringify({ reply: fallbackReply }), {
+      status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders }
     });
   }
