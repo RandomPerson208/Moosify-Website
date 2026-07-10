@@ -8,6 +8,9 @@
    "type": "module",
   "scripts": {
     "start": "node -r dotenv/config server.mjs",
-    "static": "python3 -m http.server 4173"
+    "static": "python3 -m http.server 4173",
+    "dev": "npx wrangler dev",
+    "publish": "npx wrangler publish",
+    "deploy": "./scripts/deploy.sh"
   }
 }
