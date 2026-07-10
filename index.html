@@ -1604,5 +1604,35 @@
     renderCart();
     refreshIcons();
   </script>
-</body>
-</html>
+  <!-- New Prompt Demo Section -->
+  <section class="section" id="prompt-demo">
+    <h2 class="section-head"><span>Prompt Demo</span></h2>
+    <form id="promptForm" style="margin-top: 1rem;">
+      <label for="promptInput">Enter a prompt:</label><br />
+      <input type="text" id="promptInput" name="prompt" required style="width: 300px; margin-top: 0.5rem;" />
+      <button type="submit" class="button" style="margin-left: 0.5rem;">Send</button>
+    </form>
+    <div id="promptResult" class="response" style="margin-top: 1rem; padding: .5rem; background:#f0f0f0;"></div>
+    <script>
+      const promptForm = document.getElementById('promptForm');
+      const promptResult = document.getElementById('promptResult');
+      promptForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        const prompt = document.getElementById('promptInput').value;
+        try {
+          const resp = await fetch('/api/prompt', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt })
+          });
+          const data = await resp.json();
+          if (!resp.ok) throw new Error(data.error || 'Request failed');
+          promptResult.textContent = `Reply: ${data.reply}`;
+        } catch (err) {
+          promptResult.textContent = `Error: ${err.message}`;
+        }
+      });
+    </script>
+  </section>
+  </body>
+  </html>
