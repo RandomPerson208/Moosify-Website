@@ -16,7 +16,7 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           workingDirectory: .
-          command: publish cloudflare-worker.js
+          command: deploy cloudflare-worker.js
 
       - name: Set Worker secrets
         run: |
