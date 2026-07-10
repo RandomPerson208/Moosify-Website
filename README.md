@@ -1,5 +1,7 @@
 # Moosify Website
 
+<!-- Trigger CI after workflow fixes -->
+
 Playful static storefront with a Moosy chat assistant.
 
 ## Run local fallback mode
