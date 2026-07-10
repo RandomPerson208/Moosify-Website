@@ -59,7 +59,9 @@ The front‑end needs a live HTTP endpoint for `/api/moosy`. We provide a ready�
 4. After the workflow finishes, the `API_URL` secret should point at the worker’s URL (the workflow prints the URL in the logs).
 
 If you prefer a traditional VPS or a PaaS (Render, Railway, Fly.io), you can also run `server.mjs` there and set the same `API_URL` secret to that service’s address.
-
+   
 ---
 
 After configuring the secrets and pushing a commit, the site will automatically use your backend and the free LLM providers without falling back to the local placeholder.
+
+<!-- Trigger CI after workflow fixes -->
