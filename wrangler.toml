@@ -1,4 +1,4 @@
-name = "moosy-api"
+name = "moosify-website"
 account_id = "0d88ec410e04d6b7b705064405e8824a"
 # Serve static files (e.g., index.html) from the project root
 site = { bucket = "." }
