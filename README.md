@@ -2,6 +2,67 @@
 
 <!-- Trigger CI after workflow fixes -->
 
+---
+
+## Deploy to Cloudflare Pages (new CI/CD)
+
+A new GitHub Actions workflow (`.github/workflows/pages.yml`) deploys the static site and Pages Functions to Cloudflare Pages.
+
+### Secrets to add in GitHub
+
+- `CF_API_TOKEN` – Cloudflare API token with **Pages** and **Workers** permissions.
+- `CF_ACCOUNT_ID` – Your Cloudflare account ID (`0d88ec410e04d6b7b705064405e8824a`).
+
+### How it works
+
+1. Push to `main` → workflow runs.
+2. `wrangler-action` publishes the site and the `/functions/api/[[path]].js` function.
+3. Your API is available at `https://moosify-website.pages.dev/api`.
+
+---
+
+## Pages Function (`/functions/api/[[path]].js`)
+
+```js
+export async function onRequest(context) {
+   const { request, env, params } = context;
+   const url = new URL(request.url);
+   const path = params?.path || [];
+
+   // Example routes — expand as needed
+   if (url.pathname === "/api") {
+      return new Response(JSON.stringify({
+         status: "ok",
+         message: "Moosify API is running",
+         version: "1.0.0"
+      }), {
+         headers: { "Content-Type": "application/json" }
+      });
+   }
+
+   // Add your API routes here
+   // Example: if (url.pathname === "/api/users") { ... }
+
+   return new Response(JSON.stringify({
+      error: "Not found",
+      path: url.pathname
+   }), {
+      status: 404,
+      headers: { "Content-Type": "application/json" }
+   });
+}
+```
+
+---
+
+## URLs
+- **Pages site:** https://moosify-website.pages.dev
+- **Custom domain:** pending DNS setup (e.g., `moosify.eu.org`).
+- **API:** https://moosify-website.pages.dev/api
+
+---
+
+
 Playful static storefront with a Moosy chat assistant.
 
 ## Run local fallback mode
