@@ -15,9 +15,9 @@ A new GitHub Actions workflow (`.github/workflows/pages.yml`) deploys the static
 
 ### How it works
 
-1. Push to `main` → workflow runs.
-2. `wrangler-action` publishes the site and the `/functions/api/[[path]].js` function.
-3. Your API is available at `https://moosify-website.pages.dev/api`.
+1. Push to `main` → GitHub Pages workflow runs.
+2. The site is published to GitHub Pages at `https://moosify.pizzamonster.org` and the API function is deployed (if using Cloudflare Functions) or served via the static site.
+3. Your API (if applicable) is available at `https://moosify.pizzamonster.org/api`.
 
 ---
 
@@ -56,9 +56,9 @@ export async function onRequest(context) {
 ---
 
 ## URLs
-- **Pages site:** https://moosify-website.pages.dev
-- **Custom domain:** pending DNS setup (e.g., `moosify.eu.org`).
-- **API:** https://moosify-website.pages.dev/api
+- **GitHub Pages site:** https://moosify.pizzamonster.org
+- **Custom domain:** pending DNS setup (e.g., `moosify.pizzamonster.org`).
+- **API (if applicable):** https://moosify.pizzamonster.org/api
 
 ---
 
