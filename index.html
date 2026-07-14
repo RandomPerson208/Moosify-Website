@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Moosify is a playful stuffed-moose company page for phones, donuts, space, flights, cell plans, and support.">
   <title>Moosify</title>
+  <link rel="icon" href="download.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
@@ -323,8 +324,10 @@
       border: 1px solid rgba(255, 255, 255, 0.72);
       border-radius: var(--radius);
       display: grid;
-      place-items: center;
-      padding: 42px;
+      grid-template-rows: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 20px;
+      padding: 42px 42px 24px;
       background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(255, 248, 233, 0.74)),
         radial-gradient(circle at 50% 52%, rgba(255, 255, 255, 0.92), transparent 16rem);
@@ -344,8 +347,9 @@
     .hero-moose {
       position: relative;
       z-index: 1;
-      width: min(76%, 430px);
-      max-height: 440px;
+      justify-self: center;
+      width: min(70%, 360px);
+      max-height: 330px;
       object-fit: contain;
       filter: drop-shadow(0 28px 36px rgba(73, 46, 27, 0.24));
       animation: moose-bob 4s ease-in-out infinite;
@@ -362,10 +366,9 @@
     }
 
     .hero-card-panel {
-      position: absolute;
-      right: 24px;
-      bottom: 24px;
-      left: 24px;
+      position: relative;
+      z-index: 2;
+      width: 100%;
       padding: 20px;
       border: 1px solid rgba(255, 255, 255, 0.74);
       border-radius: var(--radius);
@@ -899,6 +902,7 @@
 
       .hero-card {
         min-height: 460px;
+        padding-top: 34px;
       }
 
       .section-head {
@@ -960,12 +964,12 @@
 
       .hero-card {
         min-height: 380px;
+        padding: 28px 14px 14px;
       }
 
-      .hero-card-panel {
-        right: 14px;
-        bottom: 14px;
-        left: 14px;
+      .hero-moose {
+        width: min(68%, 250px);
+        max-height: 210px;
       }
 
       .product-row,
