@@ -994,7 +994,7 @@
         <button class="button secondary" type="button" data-modal-open="login"><i class="icon" data-lucide="user"></i><span class="button-label">Login</span></button>
         <button class="button" type="button" data-modal-open="chat"><i class="icon" data-lucide="message-circle"></i><span class="button-label">Talk</span></button>
         <button class="button orange" type="button" data-modal-open="cart"><i class="icon" data-lucide="shopping-cart"></i><span class="button-label">Cart</span> <span data-cart-count>0</span></button>
-        <button class="button" type="button" data-modal-open="device-tester"><i class="icon" data-lucide="smartphone"></i><span class="button-label">Device Test</span></button>
+        <!-- Device Test button moved to footer -->
       </div>
     </nav>
   </header>
@@ -1130,6 +1130,7 @@
   </main>
 
   <footer class="footer">
+    <button class="button" type="button" data-modal-open="device-tester"><i class="icon" data-lucide="smartphone"></i><span class="button-label">Device Test</span></button>
     <p>Copyright 2026 Moosify. All rights reserved.</p>
   </footer>
 
@@ -1200,23 +1201,40 @@
     </div>
 </div>
 
-<div id="device-tester-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-  <div class="bg-white rounded-lg p-6 max-w-md w-full">
-    <h2 class="text-xl font-bold mb-4">Device Tester</h2>
-    <form id="device-tester-form" class="space-y-4">
-      <label class="block">Device
-        <select id="tester-device" class="w-full p-2 border rounded">
-          <option value="Opad">Opad Tablet</option>
-          <option value="Ophone">Ophone Mobile</option>
-        </select>
-      </label>
-      <label class="block">OS Version
-        <input type="text" id="tester-os" placeholder="e.g., 1.0.3" class="w-full p-2 border rounded">
-      </label>
-      <button type="submit" class="button orange">Run Test</button>
-      <button type="button" class="button" data-modal-close>Close</button>
-    </form>
-    <div id="tester-result" class="mt-4 text-green-600"></div>
+<div id="device-tester-modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="tester-title">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="tester-title" class="brand-font">Device Tester</h2>
+      <button class="close-button" type="button" data-modal-close aria-label="Close tester"><i class="icon" data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="device-tester-form" class="space-y-4">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <label class="field">Device
+            <select id="tester-device" style="width: 100%; border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; outline: none;">
+              <option value="Ophone">Ophone Mobile</option>
+              <option value="Opad">Opad Tablet</option>
+            </select>
+          </label>
+          <label class="field">OS Version
+            <input type="text" id="tester-os" placeholder="e.g., 1.0.3" style="width: 100%; border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; outline: none;">
+          </label>
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <button type="submit" class="button orange" style="flex: 1;">Run Test</button>
+          <button type="button" class="button secondary" data-modal-close style="flex: 1;">Close</button>
+        </div>
+      </form>
+      <div id="tester-preview-container" style="display: none; margin-top: 24px; flex-direction: column; align-items: center; gap: 16px;">
+        <div id="device-preview" style="position: relative; transition: all 0.5s ease-in-out; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 8px solid #172033; border-radius: 2rem; background: #000; overflow: hidden; width: 200px; height: 400px;">
+          <div id="device-screen" style="width: 100%; height: 100%; background: #fff; display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px; font-size: 12px; font-weight: bold; color: #172033;">
+            Loading OS...
+          </div>
+          <div style="position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 40px; height: 4px; background: #172033; border-radius: 2px;"></div>
+        </div>
+        <div id="tester-result" style="color: var(--green); font-weight: 800; text-align: center;"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1572,6 +1590,44 @@
       event.preventDefault();
       document.querySelector("[data-login-note]").textContent = "Demo login ready. Connect a real auth provider when Moosy approves it.";
     });
+
+    const deviceForm = document.getElementById("device-tester-form");
+    const devicePreview = document.getElementById("device-preview");
+    const deviceScreen = document.getElementById("device-screen");
+    const previewContainer = document.getElementById("tester-preview-container");
+    const testerResult = document.getElementById("tester-result");
+
+    if (deviceForm) {
+      deviceForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const device = document.getElementById("tester-device").value;
+        const os = document.getElementById("tester-os").value || "1.0.0";
+        
+        previewContainer.style.display = "flex";
+        testerResult.textContent = `Initializing ${device} on OS ${os}...`;
+        
+        // Simulate 3D/Device Preview
+        if (device === "Opad") {
+          devicePreview.style.width = "300px";
+          devicePreview.style.height = "220px";
+          devicePreview.style.borderRadius = "1rem";
+        } else {
+          devicePreview.style.width = "200px";
+          devicePreview.style.height = "400px";
+          devicePreview.style.borderRadius = "2rem";
+        }
+
+        // Animation effect
+        devicePreview.style.transform = "scale(0.8) rotateY(20deg)";
+        deviceScreen.innerHTML = `<div style="animation: pulse 1.5s infinite;">Booting Moosify OS ${os}...</div>`;
+
+        setTimeout(() => {
+          devicePreview.style.transform = "scale(1) rotateY(0deg)";
+          deviceScreen.innerHTML = `<div style="text-align: center;"><div style="font-size: 2rem; margin-bottom: 8px;">🫎</div><div>${device} v${os}<br>Status: <span style="color: var(--green)">Optimal</span></div></div>`;
+          testerResult.textContent = `Test Complete: ${device} is running Moosify OS ${os} perfectly!`;
+        }, 1500);
+      });
+    }
 
     document.querySelector("[data-chat-form]").addEventListener("submit", async (event) => {
       event.preventDefault();
