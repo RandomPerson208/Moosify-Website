@@ -796,6 +796,12 @@
       box-shadow: 0 34px 90px rgba(23, 32, 51, 0.34);
     }
 
+    .modal-card.tester-card {
+      width: min(100%, 1040px);
+      max-height: min(92vh, 900px);
+      overflow: auto;
+    }
+
     .modal-head {
       display: flex;
       align-items: center;
@@ -823,6 +829,143 @@
       padding: 12px 24px 24px;
     }
 
+    .tester-layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.95fr) minmax(320px, 1.35fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .tester-controls,
+    .tester-stage,
+    .test-results {
+      border: 1px solid rgba(21, 102, 155, 0.14);
+      border-radius: var(--radius);
+      background: #f8fbff;
+    }
+
+    .tester-controls {
+      padding: 16px;
+    }
+
+    .tester-partner {
+      margin: 0 0 16px;
+      padding: 12px;
+      border-radius: var(--radius);
+      color: #7b3f0d;
+      background: #fff0da;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .tester-stage {
+      min-height: 520px;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow: hidden;
+      perspective: 1200px;
+      background:
+        radial-gradient(circle at 30% 16%, rgba(255, 255, 255, 0.86), transparent 8rem),
+        linear-gradient(160deg, #a9e5ff 0%, #ecf9ff 52%, #fff6dc 100%);
+    }
+
+    .phone-rig {
+      position: relative;
+      width: min(100%, 500px);
+      min-height: 430px;
+      transform-style: preserve-3d;
+      animation: phone-float 5s ease-in-out infinite;
+    }
+
+    .phone-face {
+      position: absolute;
+      top: 30px;
+      width: 220px;
+      min-height: 360px;
+      margin: 0;
+      padding: 12px;
+      border: 10px solid #172033;
+      border-radius: 32px;
+      background: #172033;
+      box-shadow: 0 26px 54px rgba(23, 32, 51, 0.28);
+      transform-style: preserve-3d;
+    }
+
+    .phone-face img {
+      width: 100%;
+      height: 318px;
+      object-fit: contain;
+      border-radius: 20px;
+      background: #fff;
+    }
+
+    .phone-face.front {
+      left: 48px;
+      transform: rotateY(-18deg) rotateX(5deg) translateZ(32px);
+      z-index: 2;
+    }
+
+    .phone-face.back {
+      right: 48px;
+      transform: rotateY(22deg) rotateX(5deg) translateZ(-6px);
+      opacity: 0.94;
+    }
+
+    .phone-label {
+      position: absolute;
+      right: 16px;
+      top: 16px;
+      bottom: auto;
+      left: 16px;
+      z-index: 5;
+      padding: 12px;
+      border-radius: var(--radius);
+      color: #fff;
+      background: rgba(21, 102, 155, 0.92);
+      box-shadow: 0 16px 28px rgba(21, 102, 155, 0.25);
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .test-results {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+      padding: 14px;
+    }
+
+    .test-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .test-chip.pass {
+      color: #257454;
+    }
+
+    .test-chip.running {
+      color: #bd5f15;
+    }
+
+    @keyframes phone-float {
+      0%,
+      100% {
+        transform: translateY(0) rotateZ(-1deg);
+      }
+      50% {
+        transform: translateY(-10px) rotateZ(1deg);
+      }
+    }
+
     .field {
       display: grid;
       gap: 8px;
@@ -833,6 +976,7 @@
     }
 
     .field input,
+    .field select,
     .field textarea {
       width: 100%;
       border: 1px solid var(--line);
@@ -849,6 +993,7 @@
     }
 
     .field input:focus,
+    .field select:focus,
     .field textarea:focus {
       border-color: var(--blue);
       box-shadow: 0 0 0 3px rgba(35, 133, 196, 0.14);
@@ -924,6 +1069,10 @@
       .cart-panel {
         position: static;
       }
+
+      .tester-layout {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 680px) {
@@ -974,6 +1123,36 @@
 
       .product-row,
       .checkout-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tester-stage {
+        min-height: 420px;
+        padding: 18px 8px;
+      }
+
+      .phone-rig {
+        min-height: 360px;
+      }
+
+      .phone-face {
+        width: 160px;
+        min-height: 286px;
+      }
+
+      .phone-face img {
+        height: 244px;
+      }
+
+      .phone-face.front {
+        left: 18px;
+      }
+
+      .phone-face.back {
+        right: 18px;
+      }
+
+      .test-results {
         grid-template-columns: 1fr;
       }
     }
@@ -1035,7 +1214,7 @@
             <span class="service-content">
               <span class="service-icon"><i class="icon" data-lucide="smartphone"></i></span>
               <h3>Moosify Phone Shop</h3>
-              <p>The latest orange smartphones, cases, and setup help from plush technicians.</p>
+              <p>Orange-partnered OPhones, cases, setup help, and device testing from plush technicians.</p>
               <span class="learn-more">View phones <i class="icon" data-lucide="arrow-right"></i></span>
             </span>
           </button>
@@ -1121,6 +1300,7 @@
             </aside>
           </div>
           <div class="detail-actions">
+            <button class="button orange" type="button" data-modal-open="device-tester" data-device-test-action hidden><i class="icon" data-lucide="smartphone"></i>Test OPhones</button>
             <button class="button" type="button" data-modal-open="chat"><i class="icon" data-lucide="message-circle"></i>Ask Moosy</button>
             <button class="button secondary" type="button" data-back-home><i class="icon" data-lucide="grid-2x2"></i>All services</button>
           </div>
@@ -1201,53 +1381,56 @@
     </div>
 </div>
 
-<div id="device-tester-modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="tester-title">
-  <div class="modal-card">
-    <div class="modal-head">
-      <h2 id="tester-title" class="brand-font">Device Tester</h2>
-      <button class="close-button" type="button" data-modal-close aria-label="Close tester"><i class="icon" data-lucide="x"></i></button>
-    </div>
-    <div class="modal-body">
-      <form id="device-tester-form" class="space-y-4">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <label class="field">Device
-            <select id="tester-device" style="width: 100%; border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; outline: none;">
-              <option value="Ophone">Ophone Mobile</option>
-              <option value="Opad">Opad Tablet</option>
-            </select>
-          </label>
-          <label class="field">OS Version
-            <input type="text" id="tester-os" placeholder="e.g., 1.0.3" style="width: 100%; border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; outline: none;">
-          </label>
-        </div>
-        <div style="display: flex; gap: 12px;">
-          <button type="submit" class="button orange" style="flex: 1;">Run Test</button>
-          <button type="button" class="button secondary" data-modal-close style="flex: 1;">Close</button>
-        </div>
-      </form>
-      <div id="tester-preview-container" style="display: none; margin-top: 24px; flex-direction: column; align-items: center; gap: 16px;">
-        <div id="device-preview" style="position: relative; transition: all 0.5s ease-in-out; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 8px solid #172033; border-radius: 2rem; background: #000; overflow: hidden; width: 200px; height: 400px;">
-          <div id="device-screen" style="width: 100%; height: 100%; background: #fff; display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px; font-size: 12px; font-weight: bold; color: #172033;">
-            Loading OS...
+  <div id="device-tester-modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="tester-title">
+    <div class="modal-card tester-card">
+      <div class="modal-head">
+        <h2 id="tester-title" class="brand-font">OPhone 3D Test Lab</h2>
+        <button class="close-button" type="button" data-modal-close aria-label="Close tester"><i class="icon" data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="tester-layout">
+          <form id="device-tester-form" class="tester-controls">
+            <p class="tester-partner">Moosify partnered with Orange to certify every OPhone model before it reaches the playarea.</p>
+            <label class="field">OPhone model
+              <select id="tester-device"></select>
+            </label>
+            <label class="field">Operating system
+              <select id="tester-os"></select>
+            </label>
+            <button type="submit" class="button orange full"><i class="icon" data-lucide="flask-conical"></i>Run all tests</button>
+            <p class="form-note" id="tester-result">Choose a model and OS to start the Orange x Moosify test suite.</p>
+            <div class="test-results" id="tester-results"></div>
+          </form>
+
+          <div class="tester-stage" aria-label="3D OPhone model preview">
+            <div class="phone-rig" id="phone-rig">
+              <figure class="phone-face front">
+                <img id="tester-front" src="Ophones/O1/O1%20Front.jpg" alt="OPhone front">
+              </figure>
+              <figure class="phone-face back">
+                <img id="tester-back" src="Ophones/O1/O1%20Back.jpg" alt="OPhone back">
+              </figure>
+              <div class="phone-label" id="tester-device-label">O1 running OrangeOS 18</div>
+            </div>
           </div>
-          <div style="position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 40px; height: 4px; background: #172033; border-radius: 2px;"></div>
         </div>
-        <div id="tester-result" style="color: var(--green); font-weight: 800; text-align: center;"></div>
       </div>
     </div>
   </div>
-</div>
 
 <script>
     const services = {
       phones: {
         title: "Orange Phone Shop",
-        copy: "Browse bright orange phones, matching cases, and friendly setup help. Every device is inspected by Moosify's shelf-side technicians before it ships.",
+        copy: "Browse bright orange phones, matching cases, and friendly setup help. Moosify has partnered with Orange, and every OPhone can be tested in the Orange x Moosify 3D device lab before it ships.",
         image: "url('https://images.pexels.com/photos/11297769/pexels-photo-11297769.jpeg?auto=compress&cs=tinysrgb&w=1400')",
         products: [
-          { id: "ophone-mini", name: "OPhone Mini", description: "Pocket orange phone with plush-safe setup.", price: 249 },
-          { id: "ophone-pro", name: "OPhone Pro", description: "Bigger screen, brighter orange, free case.", price: 499 },
-          { id: "opad", name: "OPad Drawing Kit", description: "Tablet bundle for games, doodles, and shelf meetings.", price: 399 }
+          { id: "ophone-o1", name: "OPhone O1", description: "Classic Orange-partnered test device with front/back lab scans.", price: 199 },
+          { id: "ophone-o2", name: "OPhone O2", description: "Compact OPhone with Orange setup and pocket-sized power.", price: 249 },
+          { id: "ophone-o3", name: "OPhone O3", description: "Daily driver OPhone with full camera and app checks.", price: 299 },
+          { id: "ophone-o4", name: "OPhone O4", description: "Wide-screen OPhone certified in the Orange x Moosify test suite.", price: 349 },
+          { id: "ophone-o5", name: "OPhone O5", description: "Creator OPhone tuned for photos, video, and cloud sync.", price: 449 },
+          { id: "ophone-o6", name: "OPhone O6", description: "Top OPhone model with full OS compatibility testing.", price: 599 }
         ]
       },
       donuts: {
@@ -1310,11 +1493,43 @@
     const detailCopy = document.querySelector('[data-detail-copy]');
     const detailVisual = document.querySelector('[data-detail-visual]');
     const productList = document.querySelector("[data-product-list]");
+    const deviceTestAction = document.querySelector("[data-device-test-action]");
     const chatLog = document.querySelector('[data-chat-log]');
     const aiStatus = document.querySelector("[data-ai-status]");
     const chatHistory = [];
     const cart = new Map();
     let activeServiceKey = "phones";
+    const ophoneModels = [
+      { id: "O1", name: "OPhone O1", front: "Ophones/O1/O1 Front.jpg", back: "Ophones/O1/O1 Back.jpg", note: "starter model" },
+      { id: "O2", name: "OPhone O2", front: "Ophones/O2/O2 Front.jpg", back: "Ophones/O2/O2 Back.jpg", note: "compact model" },
+      { id: "O3", name: "OPhone O3", front: "Ophones/O3/O3 Front.jpg", back: "Ophones/O3/O3 Back.jpg", note: "daily driver" },
+      { id: "O4", name: "OPhone O4", front: "Ophones/O4/O4 Front.jpg", back: "Ophones/O4/SCN20250513171658543.jpg", note: "wide-screen lab model" },
+      { id: "O5", name: "OPhone O5", front: "Ophones/O5/O5 Front.jpg", back: "Ophones/O5/O5 Back.jpg", note: "creator model" },
+      { id: "O6", name: "OPhone O6", front: "Ophones/O6/O6 Front.jpg", back: "Ophones/O6/O6 Back.jpg", note: "flagship model" }
+    ];
+    const ophoneOSes = [
+      { id: "android-15", name: "Android 15", kind: "phone certification" },
+      { id: "android-14", name: "Android 14", kind: "legacy compatibility" },
+      { id: "ios-18", name: "iOS 18", kind: "accessory and web compatibility" },
+      { id: "harmonyos-next", name: "HarmonyOS NEXT", kind: "international compatibility" },
+      { id: "kaios-3", name: "KaiOS 3", kind: "lightweight compatibility" },
+      { id: "ubuntu-touch-20", name: "Ubuntu Touch 20.04", kind: "developer compatibility" },
+      { id: "grapheneos", name: "GrapheneOS", kind: "privacy compatibility" }
+    ];
+    const ophoneTests = [
+      "Model scan",
+      "3D front/back render",
+      "Boot profile",
+      "Touch screen",
+      "Camera front/back",
+      "Orange network",
+      "Wi-Fi and Bluetooth",
+      "Moosify Store",
+      "Browser checkout",
+      "Battery",
+      "Speaker/mic",
+      "Case fit"
+    ];
     // Chat status: if set to "down" disable chat UI
     if (CURRENT_CHAT_STATUS === "down") {
         const chatForm = document.querySelector("[data-chat-form]");
@@ -1349,6 +1564,9 @@
       detailCopy.innerHTML = service.copy;
       detailVisual.style.setProperty("--detail-image", service.image);
       renderProducts(service.products);
+      if (deviceTestAction) {
+        deviceTestAction.hidden = key !== "phones";
+      }
       homeView.hidden = true;
       detailView.hidden = false;
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1467,26 +1685,6 @@
         total,
         history: chatHistory.slice(-8)
     };
-    // Add Device Tester service
-    services.deviceTester = {
-      title: "Opad & Ophone Tester",
-      copy: `<form id="device-tester-form" class="space-y-4">
-        <label class="block">Device
-          <select id="tester-device" class="w-full p-2 border rounded">
-            <option value="Opad">Opad Tablet</option>
-            <option value="Ophone">Ophone Mobile</option>
-          </select>
-        </label>
-        <label class="block">OS Version
-          <input type="text" id="tester-os" placeholder="e.g., 1.0.3" class="w-full p-2 border rounded">
-        </label>
-        <button type="submit" class="button orange">Run Test</button>
-      </form>
-      <div id="tester-result" class="mt-4 text-green-600"></div>`,
-      image: "url('https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=1400&q=80')",
-      products: []
-    };
-
       try {
         const endpoint = (API_URL && API_URL.trim() !== "" && !API_URL.includes("__API_URL_PLACEHOLDER__")) ? API_URL : "/api/moosy";
         const response = await fetch(endpoint, {
@@ -1553,8 +1751,13 @@
         name = "cart";
       }
       if (name === "checkout") renderCheckoutSummary();
+      if (name === "device-tester") {
+        renderTesterPreview();
+        renderTestList("ready");
+      }
       closeModals();
       document.getElementById(`${name}-modal`)?.removeAttribute("hidden");
+      refreshIcons();
     }
 
     function closeModals() {
@@ -1592,40 +1795,66 @@
     });
 
     const deviceForm = document.getElementById("device-tester-form");
-    const devicePreview = document.getElementById("device-preview");
-    const deviceScreen = document.getElementById("device-screen");
-    const previewContainer = document.getElementById("tester-preview-container");
+    const testerDevice = document.getElementById("tester-device");
+    const testerOS = document.getElementById("tester-os");
+    const testerFront = document.getElementById("tester-front");
+    const testerBack = document.getElementById("tester-back");
+    const testerLabel = document.getElementById("tester-device-label");
     const testerResult = document.getElementById("tester-result");
+    const testerResults = document.getElementById("tester-results");
+    const phoneRig = document.getElementById("phone-rig");
+
+    function populateTester() {
+      if (!testerDevice || !testerOS) return;
+      testerDevice.innerHTML = ophoneModels.map((model) => `<option value="${model.id}">${model.name} - ${model.note}</option>`).join("");
+      testerOS.innerHTML = ophoneOSes.map((os) => `<option value="${os.id}">${os.name} (${os.kind})</option>`).join("");
+      renderTesterPreview();
+      renderTestList("ready");
+    }
+
+    function selectedOPhone() {
+      return ophoneModels.find((model) => model.id === testerDevice.value) || ophoneModels[0];
+    }
+
+    function selectedOS() {
+      return ophoneOSes.find((os) => os.id === testerOS.value) || ophoneOSes[0];
+    }
+
+    function renderTesterPreview() {
+      const model = selectedOPhone();
+      const os = selectedOS();
+      testerFront.src = model.front;
+      testerBack.src = model.back;
+      testerFront.alt = `${model.name} front`;
+      testerBack.alt = `${model.name} back`;
+      testerLabel.textContent = `${model.name} testing ${os.name}`;
+      testerResult.textContent = `${model.name} ready for ${os.name}. Orange x Moosify lab checks are standing by.`;
+    }
+
+    function renderTestList(state) {
+      testerResults.innerHTML = ophoneTests.map((test) => {
+        const cls = state === "pass" ? "pass" : state === "running" ? "running" : "";
+        const icon = state === "pass" ? "PASS" : state === "running" ? "RUN" : "READY";
+        return `<div class="test-chip ${cls}"><span>${test}</span><strong>${icon}</strong></div>`;
+      }).join("");
+    }
 
     if (deviceForm) {
+      populateTester();
+      testerDevice.addEventListener("change", renderTesterPreview);
+      testerOS.addEventListener("change", renderTesterPreview);
       deviceForm.addEventListener("submit", (e) => {
         e.preventDefault();
-        const device = document.getElementById("tester-device").value;
-        const os = document.getElementById("tester-os").value || "1.0.0";
-        
-        previewContainer.style.display = "flex";
-        testerResult.textContent = `Initializing ${device} on OS ${os}...`;
-        
-        // Simulate 3D/Device Preview
-        if (device === "Opad") {
-          devicePreview.style.width = "300px";
-          devicePreview.style.height = "220px";
-          devicePreview.style.borderRadius = "1rem";
-        } else {
-          devicePreview.style.width = "200px";
-          devicePreview.style.height = "400px";
-          devicePreview.style.borderRadius = "2rem";
-        }
-
-        // Animation effect
-        devicePreview.style.transform = "scale(0.8) rotateY(20deg)";
-        deviceScreen.innerHTML = `<div style="animation: pulse 1.5s infinite;">Booting Moosify OS ${os}...</div>`;
-
-        setTimeout(() => {
-          devicePreview.style.transform = "scale(1) rotateY(0deg)";
-          deviceScreen.innerHTML = `<div style="text-align: center;"><div style="font-size: 2rem; margin-bottom: 8px;">🫎</div><div>${device} v${os}<br>Status: <span style="color: var(--green)">Optimal</span></div></div>`;
-          testerResult.textContent = `Test Complete: ${device} is running Moosify OS ${os} perfectly!`;
-        }, 1500);
+        const model = selectedOPhone();
+        const os = selectedOS();
+        phoneRig.style.animationDuration = "1.25s";
+        renderTestList("running");
+        testerResult.textContent = `Running every lab test on ${model.name} for ${os.name}...`;
+        window.setTimeout(() => {
+          phoneRig.style.animationDuration = "5s";
+          renderTestList("pass");
+          testerResult.textContent = `All tests passed: ${model.name} is certified for ${os.name} through the Orange x Moosify partnership.`;
+        }, 900);
       });
     }
 
