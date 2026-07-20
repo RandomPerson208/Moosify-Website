@@ -942,19 +942,57 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
+      width: 100%;
       padding: 10px 12px;
+      border: 1px solid transparent;
       border-radius: var(--radius);
       background: #fff;
       color: var(--muted);
+      font: inherit;
       font-weight: 800;
+      text-align: left;
+      cursor: pointer;
     }
 
-    .test-chip.pass {
-      color: #257454;
+    .test-chip:hover,
+    .test-chip:focus-visible {
+      border-color: rgba(21, 102, 155, 0.34);
+      color: var(--blue-dark);
+      outline: none;
     }
 
-    .test-chip.running {
-      color: #bd5f15;
+    .test-chip.active {
+      border-color: var(--blue);
+      color: var(--blue-dark);
+      background: #e7f5ff;
+      box-shadow: 0 8px 18px rgba(21, 102, 155, 0.12);
+    }
+
+    .test-chip strong {
+      color: var(--blue-dark);
+      font-size: 0.72rem;
+      letter-spacing: 0;
+    }
+
+    .trial-note {
+      min-height: 76px;
+      padding: 12px;
+      border: 1px solid rgba(21, 102, 155, 0.14);
+      border-radius: var(--radius);
+      background: #fff;
+      line-height: 1.45;
+    }
+
+    .trial-note[data-trial-tone="watch"] {
+      border-color: rgba(215, 111, 30, 0.34);
+      color: #85440f;
+      background: #fff7ec;
+    }
+
+    .trial-note[data-trial-tone="limited"] {
+      border-color: rgba(189, 58, 58, 0.28);
+      color: #8b2d2d;
+      background: #fff2f2;
     }
 
     @keyframes phone-float {
@@ -1215,7 +1253,7 @@
             <span class="service-content">
               <span class="service-icon"><i class="icon" data-lucide="smartphone"></i></span>
               <h3>Moosify Phone Shop</h3>
-              <p>Orange-partnered OPhones, cases, setup help, and PineappleOS compatibility checks.</p>
+              <p>Orange-partnered OPhones, cases, setup help, and an online app trial before you buy.</p>
               <span class="learn-more">View phones <i class="icon" data-lucide="arrow-right"></i></span>
             </span>
           </button>
@@ -1383,22 +1421,22 @@
   <div id="device-tester-modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="tester-title">
     <div class="modal-card tester-card">
       <div class="modal-head">
-        <h2 id="tester-title" class="brand-font">OPhone 3D Test Lab</h2>
+        <h2 id="tester-title" class="brand-font">Try an OPhone Online</h2>
         <button class="close-button" type="button" data-modal-close aria-label="Close tester"><i class="icon" data-lucide="x"></i></button>
       </div>
       <div class="modal-body">
         <div class="tester-layout">
           <form id="device-tester-form" class="tester-controls">
-            <p class="tester-partner">Moosify partnered with Orange for OPhone sales, setup, and service. Pick a model, pick a supported PineappleOS, then try the phone hardware.</p>
+            <p class="tester-partner">Moosify partnered with Orange for OPhone sales, setup, and service. Pick a model and supported PineappleOS, then open apps to see how that phone behaves.</p>
             <label class="field">OPhone model
               <select id="tester-device"></select>
             </label>
             <label class="field">Operating system
               <select id="tester-os"></select>
             </label>
-            <button type="submit" class="button orange full"><i class="icon" data-lucide="flask-conical"></i>Try phone hardware</button>
-            <p class="form-note" id="tester-result">Choose a model and supported PineappleOS version to try the OPhone.</p>
-            <div class="test-results" id="tester-results"></div>
+            <button type="submit" class="button orange full"><i class="icon" data-lucide="play"></i>Start phone trial</button>
+            <p class="form-note trial-note" id="tester-result" aria-live="polite">Choose a model and supported PineappleOS version, then open an app below.</p>
+            <div class="test-results" id="tester-results" aria-label="Apps to try"></div>
           </form>
 
           <div class="tester-stage" aria-label="3D OPhone model preview">
@@ -1421,15 +1459,15 @@
     const services = {
       phones: {
         title: "Orange Phone Shop",
-        copy: "Browse bright orange phones, matching cases, and friendly setup help. Moosify has partnered with Orange for OPhone sales, setup, and service, with a 3D PineappleOS compatibility lab before checkout.",
+        copy: "Browse bright orange phones, matching cases, and friendly setup help. Moosify partnered with Orange for OPhone sales, setup, and service. Open the online phone trial before checkout to try apps and see each model's real limitations.",
         image: "url('https://images.pexels.com/photos/11297769/pexels-photo-11297769.jpeg?auto=compress&cs=tinysrgb&w=1400')",
         products: [
-          { id: "ophone-o1", name: "OPhone O1", description: "Classic Orange-partnered test device with front/back lab scans.", price: 199 },
+          { id: "ophone-o1", name: "OPhone O1", description: "Classic Orange-partnered phone supporting PineappleOS 1 through 3.", price: 199 },
           { id: "ophone-o2", name: "OPhone O2", description: "Compact OPhone with Orange setup and pocket-sized power.", price: 249 },
-          { id: "ophone-o3", name: "OPhone O3", description: "Daily driver OPhone with full camera and app checks.", price: 299 },
-          { id: "ophone-o4", name: "OPhone O4", description: "Wide-screen OPhone with Orange setup and PineappleOS compatibility checks.", price: 349 },
+          { id: "ophone-o3", name: "OPhone O3", description: "Daily driver OPhone with an online camera and app trial.", price: 299 },
+          { id: "ophone-o4", name: "OPhone O4", description: "Wide-screen OPhone with Orange setup and three PineappleOS releases.", price: 349 },
           { id: "ophone-o5", name: "OPhone O5", description: "Creator OPhone tuned for photos, video, and cloud sync.", price: 449 },
-          { id: "ophone-o6", name: "OPhone O6", description: "Top OPhone model with full OS compatibility testing.", price: 599 }
+          { id: "ophone-o6", name: "OPhone O6", description: "Top OPhone model supporting PineappleOS 6 through 8.", price: 599 }
         ]
       },
       donuts: {
@@ -1498,37 +1536,64 @@
     const cart = new Map();
     let activeServiceKey = "phones";
     const ophoneModels = [
-      { id: "O1", name: "OPhone O1", front: "Ophones/O1/O1 Front.jpg", back: "Ophones/O1/O1 Back.jpg", note: "starter model", osIds: ["pineappleos-10", "pineappleos-11", "pineappleos-12"] },
-      { id: "O2", name: "OPhone O2", front: "Ophones/O2/O2 Front.jpg", back: "Ophones/O2/O2 Back.jpg", note: "compact model", osIds: ["pineappleos-11", "pineappleos-12", "pineappleos-13"] },
-      { id: "O3", name: "OPhone O3", front: "Ophones/O3/O3 Front.jpg", back: "Ophones/O3/O3 Back.jpg", note: "daily driver", osIds: ["pineappleos-12", "pineappleos-13", "pineappleos-14"] },
-      { id: "O4", name: "OPhone O4", front: "Ophones/O4/O4 Front.jpg", back: "Ophones/O4/SCN20250513171658543.jpg", note: "wide-screen lab model", osIds: ["pineappleos-13", "pineappleos-14", "pineappleos-15"] },
-      { id: "O5", name: "OPhone O5", front: "Ophones/O5/O5 Front.jpg", back: "Ophones/O5/O5 Back.jpg", note: "creator model", osIds: ["pineappleos-14", "pineappleos-15", "pineappleos-16"] },
-      { id: "O6", name: "OPhone O6", front: "Ophones/O6/O6 Front.jpg", back: "Ophones/O6/O6 Back.jpg", note: "flagship model", osIds: ["pineappleos-15", "pineappleos-16", "pineappleos-17"] }
+      { id: "O1", name: "OPhone O1", front: "Ophones/O1/O1 Front.jpg", back: "Ophones/O1/O1 Back.jpg", note: "starter model", osIds: ["pineappleos-1", "pineappleos-2", "pineappleos-3"] },
+      { id: "O2", name: "OPhone O2", front: "Ophones/O2/O2 Front.jpg", back: "Ophones/O2/O2 Back.jpg", note: "compact model", osIds: ["pineappleos-2", "pineappleos-3", "pineappleos-4"] },
+      { id: "O3", name: "OPhone O3", front: "Ophones/O3/O3 Front.jpg", back: "Ophones/O3/O3 Back.jpg", note: "daily driver", osIds: ["pineappleos-3", "pineappleos-4", "pineappleos-5"] },
+      { id: "O4", name: "OPhone O4", front: "Ophones/O4/O4 Front.jpg", back: "Ophones/O4/SCN20250513171658543.jpg", note: "wide-screen model", osIds: ["pineappleos-4", "pineappleos-5", "pineappleos-6"] },
+      { id: "O5", name: "OPhone O5", front: "Ophones/O5/O5 Front.jpg", back: "Ophones/O5/O5 Back.jpg", note: "creator model", osIds: ["pineappleos-5", "pineappleos-6", "pineappleos-7"] },
+      { id: "O6", name: "OPhone O6", front: "Ophones/O6/O6 Front.jpg", back: "Ophones/O6/O6 Back.jpg", note: "flagship model", osIds: ["pineappleos-6", "pineappleos-7", "pineappleos-8"] }
     ];
     const ophoneOSes = [
-      { id: "pineappleos-10", name: "PineappleOS 10", kind: "classic OPhone build" },
-      { id: "pineappleos-11", name: "PineappleOS 11", kind: "older OPhone build" },
-      { id: "pineappleos-12", name: "PineappleOS 12", kind: "starter support" },
-      { id: "pineappleos-13", name: "PineappleOS 13", kind: "compact support" },
-      { id: "pineappleos-14", name: "PineappleOS 14", kind: "daily support" },
-      { id: "pineappleos-15", name: "PineappleOS 15", kind: "wide-screen support" },
-      { id: "pineappleos-16", name: "PineappleOS 16", kind: "creator support" },
-      { id: "pineappleos-17", name: "PineappleOS 17", kind: "flagship support" }
+      { id: "pineappleos-1", name: "PineappleOS 1" },
+      { id: "pineappleos-2", name: "PineappleOS 2" },
+      { id: "pineappleos-3", name: "PineappleOS 3" },
+      { id: "pineappleos-4", name: "PineappleOS 4" },
+      { id: "pineappleos-5", name: "PineappleOS 5" },
+      { id: "pineappleos-6", name: "PineappleOS 6" },
+      { id: "pineappleos-7", name: "PineappleOS 7" },
+      { id: "pineappleos-8", name: "PineappleOS 8" }
     ];
-    const ophoneTests = [
-      "Model scan",
-      "3D front/back render",
-      "Boot profile",
-      "Touch screen",
-      "Camera front/back",
-      "Orange network",
-      "Wi-Fi and Bluetooth",
-      "Moosify Store",
-      "Browser checkout",
-      "Battery",
-      "Speaker/mic",
-      "Case fit"
+    const ophoneTrialApps = [
+      { id: "home", name: "Home screen", badge: "HOME" },
+      { id: "camera", name: "Camera", badge: "CAM" },
+      { id: "calls", name: "Orange Calls", badge: "CALL" },
+      { id: "store", name: "Moosify Store", badge: "SHOP" },
+      { id: "game", name: "Cloud Game", badge: "PLAY" },
+      { id: "settings", name: "Settings", badge: "OS" }
     ];
+    const ophoneTrialProblems = {
+      O1: {
+        camera: ["watch", "The camera works, but low-light photos look grainy."],
+        calls: ["limited", "Calls work on Orange 4G. This model does not have 5G hardware."],
+        game: ["limited", "Cloud Game runs only on low graphics and may stutter in busy scenes."],
+        settings: ["watch", "Storage settings take a few seconds to open on PineappleOS 3."]
+      },
+      O2: {
+        camera: ["watch", "The camera opens slowly on PineappleOS 4, then works normally."],
+        game: ["watch", "Cloud Game is playable on medium graphics, but frame rate can dip."],
+        settings: ["watch", "The battery page can briefly freeze after an OS update."]
+      },
+      O3: {
+        calls: ["watch", "Orange 5G may need one airplane-mode toggle after changing SIMs."],
+        store: ["watch", "The Store may need a refresh after updating to PineappleOS 5."],
+        game: ["watch", "Long game sessions drain the battery quickly."]
+      },
+      O4: {
+        home: ["watch", "Home animations are less smooth on PineappleOS 6."],
+        camera: ["watch", "The wide camera preview crops a little near the edges."],
+        settings: ["watch", "The storage chart takes a moment to draw."]
+      },
+      O5: {
+        calls: ["watch", "Orange eSIM setup needs one restart before 5G appears."],
+        game: ["watch", "Cloud Game runs smoothly, but the phone gets warm during long sessions."],
+        settings: ["watch", "PineappleOS 7 uses more battery with the always-on display enabled."]
+      },
+      O6: {
+        camera: ["watch", "Portrait preview can blur fine hair against a bright background."],
+        store: ["watch", "Large app downloads pause when battery saver is on."],
+        settings: ["watch", "The battery graph may load slowly on PineappleOS 8."]
+      }
+    };
     // Chat status: if set to "down" disable chat UI
     if (CURRENT_CHAT_STATUS === "down") {
         const chatForm = document.querySelector("[data-chat-form]");
@@ -1749,7 +1814,7 @@
       if (name === "checkout") renderCheckoutSummary();
       if (name === "device-tester") {
         renderTesterPreview();
-        renderTestList("ready");
+        renderTrialApps("home");
       }
       closeModals();
       document.getElementById(`${name}-modal`)?.removeAttribute("hidden");
@@ -1805,7 +1870,7 @@
       testerDevice.innerHTML = ophoneModels.map((model) => `<option value="${model.id}">${model.name} - ${model.note}</option>`).join("");
       populateOSOptions(selectedOPhone());
       renderTesterPreview();
-      renderTestList("ready");
+      renderTrialApps("home");
     }
 
     function selectedOPhone() {
@@ -1819,7 +1884,7 @@
     function populateOSOptions(model) {
       const previous = testerOS.value;
       const compatible = compatibleOSes(model);
-      testerOS.innerHTML = compatible.map((os) => `<option value="${os.id}">${os.name} (${os.kind})</option>`).join("");
+      testerOS.innerHTML = compatible.map((os) => `<option value="${os.id}">${os.name}</option>`).join("");
       testerOS.value = compatible.some((os) => os.id === previous) ? previous : compatible[0].id;
     }
 
@@ -1835,16 +1900,49 @@
       testerBack.src = model.back;
       testerFront.alt = `${model.name} front`;
       testerBack.alt = `${model.name} back`;
-      testerLabel.textContent = `${model.name} checking ${os.name}`;
-      testerResult.textContent = `${model.name} ready for ${os.name}. Older models stay limited to compatible PineappleOS versions.`;
+      testerLabel.textContent = `${model.name} on ${os.name}`;
     }
 
-    function renderTestList(state) {
-      testerResults.innerHTML = ophoneTests.map((test) => {
-        const cls = state === "pass" ? "pass" : state === "running" ? "running" : "";
-        const icon = state === "pass" ? "PASS" : state === "running" ? "RUN" : "READY";
-        return `<div class="test-chip ${cls}"><span>${test}</span><strong>${icon}</strong></div>`;
+    function trialExperience(model, os, appId) {
+      const problem = ophoneTrialProblems[model.id]?.[appId];
+      if (problem) return { tone: problem[0], message: problem[1] };
+
+      const osNumber = Number(os.id.replace("pineappleos-", ""));
+      const modelNumber = Number(model.id.replace("O", ""));
+      if (appId === "home" && osNumber === modelNumber + 2) {
+        return { tone: "watch", message: "This newest supported OS works, but opening apps feels a little slower than the release OS." };
+      }
+
+      const smoothMessages = {
+        home: "Swipe between the home pages: icons and widgets respond smoothly.",
+        camera: "The shutter, zoom, and front-camera switch respond normally.",
+        calls: "Orange calling and mobile data connect normally.",
+        store: "Browse apps, open product pages, and start downloads normally.",
+        game: "Cloud Game opens and the touch controls respond normally.",
+        settings: "Display, sound, battery, and privacy options open normally."
+      };
+      return { tone: "smooth", message: smoothMessages[appId] };
+    }
+
+    function showTrialApp(appId) {
+      const model = selectedOPhone();
+      const os = selectedOS();
+      const app = ophoneTrialApps.find((item) => item.id === appId) || ophoneTrialApps[0];
+      const experience = trialExperience(model, os, app.id);
+      testerResult.dataset.trialTone = experience.tone;
+      testerResult.textContent = `${app.name} on ${model.name} with ${os.name}: ${experience.message}`;
+      testerResults.querySelectorAll("[data-trial-app]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.trialApp === app.id);
+        button.setAttribute("aria-pressed", String(button.dataset.trialApp === app.id));
+      });
+    }
+
+    function renderTrialApps(activeId = "home") {
+      testerResults.innerHTML = ophoneTrialApps.map((app) => {
+        const active = app.id === activeId ? " active" : "";
+        return `<button type="button" class="test-chip${active}" data-trial-app="${app.id}" aria-pressed="${app.id === activeId}"><span>${app.name}</span><strong>${app.badge}</strong></button>`;
       }).join("");
+      showTrialApp(activeId);
     }
 
     if (deviceForm) {
@@ -1852,21 +1950,23 @@
       testerDevice.addEventListener("change", () => {
         populateOSOptions(selectedOPhone());
         renderTesterPreview();
-        renderTestList("ready");
+        renderTrialApps("home");
       });
-      testerOS.addEventListener("change", renderTesterPreview);
+      testerOS.addEventListener("change", () => {
+        renderTesterPreview();
+        renderTrialApps("home");
+      });
+      testerResults.addEventListener("click", (event) => {
+        const appButton = event.target.closest("[data-trial-app]");
+        if (appButton) showTrialApp(appButton.dataset.trialApp);
+      });
       deviceForm.addEventListener("submit", (e) => {
         e.preventDefault();
-        const model = selectedOPhone();
-        const os = selectedOS();
         phoneRig.style.animationDuration = "1.25s";
-        renderTestList("running");
-        testerResult.textContent = `Running every lab test on ${model.name} for ${os.name}...`;
+        renderTrialApps("home");
         window.setTimeout(() => {
           phoneRig.style.animationDuration = "5s";
-          renderTestList("pass");
-          testerResult.textContent = `All tests passed: ${model.name} is compatible with ${os.name}. Moosify and Orange handle the phone partnership.`;
-        }, 900);
+        }, 700);
       });
     }
 
