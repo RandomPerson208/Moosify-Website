@@ -1263,13 +1263,13 @@
         </span>
       </a>
       <div class="nav-actions">
-        <a class="nav-link" href="#products" data-scroll-to="services">Products</a>
-        <a class="nav-link" href="#shop" data-scroll-to="services">Shop</a>
-        <a class="nav-link" href="#features" data-scroll-to="features">Features</a>
-        <button class="button secondary" type="button" data-modal-open="login"><i class="icon" data-lucide="user"></i><span class="button-label">Login</span></button>
-        <a class="button" href="#moosy-chat" data-chat-page><i class="icon" data-lucide="message-circle"></i><span class="button-label">Moosy Chat</span></a>
-        <button class="button secondary" type="button" data-modal-open="device-tester"><i class="icon" data-lucide="smartphone"></i><span class="button-label">OPhone Lab</span></button>
-        <button class="button orange" type="button" data-modal-open="cart"><i class="icon" data-lucide="shopping-cart"></i><span class="button-label">Cart</span> <span data-cart-count>0</span></button>
+        <a class="nav-link" href="/products" data-route="products">Products</a>
+        <a class="nav-link" href="/shop" data-route="shop">Shop</a>
+        <a class="nav-link" href="/features" data-route="features">Features</a>
+        <a class="button secondary" href="/login" data-route="login"><i class="icon" data-lucide="user"></i><span class="button-label">Login</span></a>
+        <a class="button" href="/chat" data-route="chat"><i class="icon" data-lucide="message-circle"></i><span class="button-label">Moosy Chat</span></a>
+        <a class="button secondary" href="/mobile-lab" data-route="mobile-lab"><i class="icon" data-lucide="smartphone"></i><span class="button-label">OPhone Lab</span></a>
+        <a class="button orange" href="/cart" data-route="cart"><i class="icon" data-lucide="shopping-cart"></i><span class="button-label">Cart</span> <span data-cart-count>0</span></a>
       </div>
     </nav>
   </header>
@@ -1909,7 +1909,21 @@
       refreshIcons();
     }
 
-    function openModal(name) {
+    function showPath(path, replace = false) {
+      const route = path.replace(/^\/+|\/+$/g, "");
+      if (route === "chat") return showChat();
+      if (route === "shop" || route === "products") return openService("phones");
+      if (route === "features") {
+        showHome();
+        document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
+        return;
+      }
+      const modalRoutes = { login: "login", cart: "cart", checkout: "checkout", "mobile-lab": "device-tester" };
+      if (modalRoutes[route]) return openModal(modalRoutes[route], true);
+      showHome();
+    }
+
+    function openModal(name, keepPath = false) {
       if (name === "checkout" && getCartTotals().items.length === 0) {
         name = "cart";
       }
@@ -1923,6 +1937,10 @@
       detailView.hidden = true;
       chatView.hidden = true;
       document.getElementById(`${name}-modal`)?.removeAttribute("hidden");
+      if (!keepPath) {
+        const path = name === "device-tester" ? "mobile-lab" : name;
+        history.pushState({}, "", `/${path}`);
+      }
       window.scrollTo({ top: 0, behavior: "smooth" });
       refreshIcons();
     }
@@ -1936,6 +1954,7 @@
     document.addEventListener("click", (event) => {
       const serviceButton = event.target.closest("[data-open-service]");
       const chatPageButton = event.target.closest("[data-chat-page]");
+      const routeButton = event.target.closest("[data-route]");
       const modalButton = event.target.closest("[data-modal-open]");
       const scrollButton = event.target.closest("[data-scroll-to]");
       const homeButton = event.target.closest("[data-back-home], [data-home-link]");
@@ -1944,6 +1963,11 @@
       const qtyButton = event.target.closest("[data-cart-product]");
 
       if (serviceButton) openService(serviceButton.dataset.openService);
+      if (routeButton) {
+        event.preventDefault();
+        showPath(routeButton.getAttribute("href"));
+        history.pushState({}, "", routeButton.getAttribute("href"));
+      }
       if (chatPageButton) {
         event.preventDefault();
         showChat();
@@ -1962,6 +1986,8 @@
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") closeModals();
     });
+
+    window.addEventListener("popstate", () => showPath(window.location.pathname));
 
     document.querySelector("[data-login-form]").addEventListener("submit", (event) => {
       event.preventDefault();
@@ -2108,7 +2134,7 @@
       pageChatLog.scrollTop = pageChatLog.scrollHeight;
     });
 
-    if (window.location.hash === "#moosy-chat") showChat();
+    showPath(window.location.pathname);
 
     document.querySelector("[data-checkout-form]").addEventListener("submit", (event) => {
       event.preventDefault();
