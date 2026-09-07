@@ -108,8 +108,13 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
         key: env.GROQ_API_KEY
       },
     ];
+    const providerAttempts = [];
 
     for (const p of providers) {
+      if (!p.key) {
+        providerAttempts.push(`${p.name}:missing-key`);
+        continue;
+      }
       try {
         // Build the messages array, preserving any prior conversation history
         const messages = [{ role: "system", content: systemPrompt }];
@@ -133,11 +138,13 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
         });
 
         if (resp.status === 429) {
-          // Rate‑limit – try next provider immediately
+          // Rate-limit – try next provider immediately
+          providerAttempts.push(`${p.name}:429`);
           continue;
         }
         if (!resp.ok) {
-          // Any non‑OK response – fall back
+          // Any non-OK response – fall back
+          providerAttempts.push(`${p.name}:${resp.status}`);
           continue;
         }
 
@@ -154,15 +161,17 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
             headers: { "Content-Type": "application/json", ...corsHeaders }
           });
         }
+        providerAttempts.push(`${p.name}:empty-reply`);
       } catch (e) {
         // Network or other error – try the next provider
+        providerAttempts.push(`${p.name}:network-error`);
         continue;
       }
     }
 
     // All providers exhausted – return a friendly fallback
     const fallbackReply = "Moosy: I’m here to help you with phones, donuts, rockets, flights, cell plans, and support. Ask me about any product or tell me what you’re looking for.";
-    return new Response(JSON.stringify({ reply: fallbackReply }), {
+    return new Response(JSON.stringify({ reply: fallbackReply, providerAttempts }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders }
     });
