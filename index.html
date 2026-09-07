@@ -791,6 +791,27 @@
       display: none;
     }
 
+    /* Tool screens use the same route-style layout as Moosy Chat. */
+    .modal.route-page {
+      position: static;
+      inset: auto;
+      z-index: auto;
+      display: block;
+      min-height: 620px;
+      padding: 34px 20px 70px;
+      background: transparent;
+    }
+
+    .route-page .modal-card {
+      width: min(100%, 1040px);
+      margin: 0 auto;
+      box-shadow: 0 18px 44px rgba(47, 124, 180, 0.14);
+    }
+
+    .route-page .modal-head {
+      padding-top: 28px;
+    }
+
     .modal-card {
       width: min(100%, 460px);
       border-radius: var(--radius);
@@ -1408,7 +1429,7 @@
     <p>Copyright 2026 Moosify. All rights reserved.</p>
   </footer>
 
-  <div class="modal" id="login-modal" hidden role="dialog" aria-modal="true" aria-labelledby="login-title">
+  <div class="modal route-page" id="login-modal" hidden role="region" aria-labelledby="login-title">
     <div class="modal-card">
       <div class="modal-head">
         <h2 id="login-title" class="brand-font">Login</h2>
@@ -1423,7 +1444,7 @@
     </div>
   </div>
 
-  <div class="modal" id="cart-modal" hidden role="dialog" aria-modal="true" aria-labelledby="cart-title">
+  <div class="modal route-page" id="cart-modal" hidden role="region" aria-labelledby="cart-title">
     <div class="modal-card">
       <div class="modal-head">
         <h2 id="cart-title" class="brand-font">Cart</h2>
@@ -1437,7 +1458,7 @@
     </div>
   </div>
 
-  <div class="modal" id="checkout-modal" hidden role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+  <div class="modal route-page" id="checkout-modal" hidden role="region" aria-labelledby="checkout-title">
     <div class="modal-card">
       <div class="modal-head">
         <h2 id="checkout-title" class="brand-font">Checkout preview</h2>
@@ -1456,7 +1477,7 @@
     </div>
   </div>
 
-  <div class="modal" id="chat-modal" hidden role="dialog" aria-modal="true" aria-labelledby="chat-title">
+  <div class="modal route-page" id="chat-modal" hidden role="region" aria-labelledby="chat-title">
     <div class="modal-card">
       <div class="modal-head">
         <h2 id="chat-title" class="brand-font">Talk to Moosy</h2>
@@ -1475,7 +1496,7 @@
     </div>
 </div>
 
-  <div id="device-tester-modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="tester-title">
+  <div id="device-tester-modal" class="modal route-page" hidden role="region" aria-labelledby="tester-title">
     <div class="modal-card tester-card">
       <div class="modal-head">
         <h2 id="tester-title" class="brand-font">Try an OPhone Online</h2>
@@ -1872,6 +1893,7 @@
     }
 
     function showHome() {
+      closeModals();
       detailView.hidden = true;
       chatView.hidden = true;
       homeView.hidden = false;
@@ -1879,10 +1901,10 @@
     }
 
     function showChat() {
+      closeModals();
       homeView.hidden = true;
       detailView.hidden = true;
       chatView.hidden = false;
-      closeModals();
       window.scrollTo({ top: 0, behavior: "smooth" });
       refreshIcons();
     }
@@ -1897,12 +1919,18 @@
         renderTrialApps("home");
       }
       closeModals();
+      homeView.hidden = true;
+      detailView.hidden = true;
+      chatView.hidden = true;
       document.getElementById(`${name}-modal`)?.removeAttribute("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
       refreshIcons();
     }
 
     function closeModals() {
       document.querySelectorAll(".modal").forEach((modal) => modal.setAttribute("hidden", ""));
+      if (!homeView.hidden && !detailView.hidden && !chatView.hidden) return;
+      if (homeView.hidden && detailView.hidden && chatView.hidden) homeView.hidden = false;
     }
 
     document.addEventListener("click", (event) => {
