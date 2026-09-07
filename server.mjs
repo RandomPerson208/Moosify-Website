@@ -74,7 +74,7 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
   const providers = [
     {
       name: "Cerebras",
-      url: "https://api.cerebras.cloud/v1/chat/completions",
+      url: "https://api.cerebras.ai/v1/chat/completions",
       model: "qwen-3.8-27b",
       key: process.env.CEREBRAS_API_KEY
     },
