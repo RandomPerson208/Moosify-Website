@@ -1212,7 +1212,7 @@
       <div class="nav-actions">
         <button class="nav-link" type="button" data-scroll-to="services">Services</button>
         <button class="button secondary" type="button" data-modal-open="login"><i class="icon" data-lucide="user"></i><span class="button-label">Login</span></button>
-        <button class="button" type="button" data-modal-open="chat"><i class="icon" data-lucide="message-circle"></i><span class="button-label">Help</span></button>
+        <button class="button" type="button" data-modal-open="chat"><i class="icon" data-lucide="message-circle"></i><span class="button-label">Moosy Chat</span></button>
         <button class="button secondary" type="button" data-modal-open="device-tester"><i class="icon" data-lucide="smartphone"></i><span class="button-label">OPhone Lab</span></button>
         <button class="button orange" type="button" data-modal-open="cart"><i class="icon" data-lucide="shopping-cart"></i><span class="button-label">Cart</span> <span data-cart-count>0</span></button>
       </div>
@@ -1409,7 +1409,7 @@
       </div>
       <div class="modal-body">
         <div class="chat-log" data-chat-log>
-          <div class="message">Moosy: Hi. Ask me about phones, donuts, rockets, flights, plans, support, or what to add to your cart.</div>
+          <div class="message">Moosy: Hey, I’m Moosy. What are you thinking about today?</div>
         </div>
         <p class="form-note" data-ai-status>Moosy brain: ready.</p>
         <form data-chat-form>
@@ -1609,11 +1609,12 @@
     }
 
     const moosyPersonality = [
-      "You are Moosy, the stuffed moose CEO and shop helper for Moosify.",
-      "You are playful, kind, short, and useful. You love baking moose‑shaped pizzas with olives, making chocolate‑filled mooskie cookies with sprinkles, cooking dal makhani, telling jokes, and you have unlimited money, superpowers, and traveling to imaginary lands.",
-      "Help users choose products, understand prices, and move toward the demo cart or checkout.",
+      "You are Moosy, the stuffed moose CEO and conversational friend of Moosify.",
+      "You are playful, curious, warm, and naturally conversational. Talk like a real chat companion: react to what the person says, share opinions, tell jokes, ask a natural follow-up sometimes, and do not turn every message into a sales pitch.",
+      "You love baking moose-shaped pizzas with olives, making chocolate-filled mooskie cookies with sprinkles, cooking dal makhani, telling jokes, having unlimited money and superpowers, and traveling to imaginary lands.",
+      "Shopping advice is optional: discuss products, prices, carts, or checkout only when the person asks. Customer support is a separate Moosify department; direct explicit support requests to the support area instead of pretending to be a help-desk bot.",
       "Never claim an order or payment is real. Never ask for passwords, card numbers, or private secrets.",
-      "If someone wants to buy, recommend the best product and tell them to use the Add button or checkout preview."
+      "Keep replies natural and concise, usually one to four sentences. Never say you are a real animal."
     ].join(" ");
 
     function refreshIcons() {
@@ -1721,7 +1722,7 @@
           ? `Moosy sees ${quantity} item${quantity === 1 ? "" : "s"} in your cart: ${items.map((item) => `${item.quantity} x ${item.name}`).join(", ")}. Total: ${formatMoney(total)}.`
           : "Moosy sees an empty cart. The donut boxes are very persuasive, just saying.";
       }
-      if (matched) {
+      if (matched && (text.includes("buy") || text.includes("price") || text.includes("cost") || text.includes("recommend"))) {
         return `Moosy recommends ${matched.name} from ${matched.serviceTitle}. It costs ${formatMoney(matched.price)} and ${matched.description.toLowerCase()} Tap Add if that sounds good.`;
       }
       if (text.includes("best") || text.includes("recommend")) {
@@ -1729,7 +1730,10 @@
         const pick = service.products[Math.min(1, service.products.length - 1)];
         return `Moosy would start with ${pick.name} for ${formatMoney(pick.price)}. It is a good ${service.title} pick without getting too wild.`;
       }
-      return "Moosy can help compare phones, donuts, rockets, flights, cell plans, support, and your cart. Ask me what is cheapest, best, or ready for checkout.";
+      if (text.includes("hi") || text.includes("hello") || text.includes("hey")) {
+        return "Hey! I was just supervising the shelf and thinking about snacks. What is on your mind?";
+      }
+      return "That is a good question. I am listening, and I can chat about almost anything in the Moosify universe.";
     }
 
     async function askMoosy(message) {
