@@ -104,6 +104,8 @@ You can also control chat availability via the `CHAT_STATUS` secret (set to `dow
 
 The front‑end needs a live HTTP endpoint for `/api/moosy`. We provide a ready‑to‑use **Cloudflare Worker** implementation (`cloudflare-worker.js`).
 
+The Worker also uses a Cloudflare Workers AI binding as its primary model path. The binding is configured in `wrangler.toml`; Cerebras and Groq remain optional fallback providers.
+
 1. **Create a Cloudflare account** and generate an **API token** with the “Edit Cloudflare Workers” permission.
 2. Add the following repository secrets (Settings → Secrets → Actions):
    * `CF_API_TOKEN` – your Cloudflare API token
