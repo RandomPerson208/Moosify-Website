@@ -98,13 +98,13 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
       {
         name: "Cerebras",
         url: "https://api.cerebras.cloud/v1/chat/completions",
-        model: "llama3.1-8b",
+        model: "qwen-3.8-27b",
         key: env.CEREBRAS_API_KEY
       },
       {
         name: "Groq",
         url: "https://api.groq.com/openai/v1/chat/completions",
-        model: "llama3.1-8b-instant",
+        model: "llama-3.1-8b-instant",
         key: env.GROQ_API_KEY
       },
     ];
