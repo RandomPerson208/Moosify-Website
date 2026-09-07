@@ -1411,7 +1411,7 @@
         <div class="chat-log" data-chat-log>
           <div class="message">Moosy: Hi. Ask me about phones, donuts, rockets, flights, plans, support, or what to add to your cart.</div>
         </div>
-        <p class="form-note" data-ai-status>Moosy brain: local product guide.</p>
+        <p class="form-note" data-ai-status>Moosy brain: ready.</p>
         <form data-chat-form>
           <label class="field">Message<input type="text" data-chat-input placeholder="Type your question" autocomplete="off"></label>
           <button class="button orange" type="submit"><i class="icon" data-lucide="send"></i>Send</button>
@@ -1758,7 +1758,7 @@
         if (!response.ok) throw new Error(`Moosy API returned ${response.status}`);
         const data = await response.json();
         if (!data.reply) throw new Error("Moosy API returned no reply");
-        aiStatus.textContent = "Moosy brain: OpenAI API.";
+        aiStatus.textContent = data.provider ? `Moosy brain: ${data.provider}.` : "Moosy brain: AI online.";
         return data.reply;
       } catch (error) {
         aiStatus.textContent = "Moosy brain: local product guide.";
