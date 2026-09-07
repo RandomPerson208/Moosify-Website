@@ -28,13 +28,22 @@ jobs:
           CHAT_STATUS: ${{ secrets.CHAT_STATUS }}
         run: |
           python3 - <<'PY'
+          import json
           import os
           from pathlib import Path
 
           path = Path("index.html")
           html = path.read_text()
-          html = html.replace("__API_URL_PLACEHOLDER__", os.environ.get("API_URL", ""))
-          html = html.replace("__CHAT_STATUS_PLACEHOLDER__", os.environ.get("CHAT_STATUS", "up") or "up")
+          api_url = json.dumps(os.environ.get("API_URL", ""))
+          chat_status = json.dumps(os.environ.get("CHAT_STATUS", "up") or "up")
+          html = html.replace(
+              'const API_URL = "__API_URL_PLACEHOLDER__";',
+              f"const API_URL = {api_url};"
+          )
+          html = html.replace(
+              'const CURRENT_CHAT_STATUS = "__CHAT_STATUS_PLACEHOLDER__";',
+              f"const CURRENT_CHAT_STATUS = {chat_status};"
+          )
           path.write_text(html)
           PY
 
