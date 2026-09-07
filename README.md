@@ -4,20 +4,16 @@
 
 ---
 
-## Deploy to Cloudflare Pages (new CI/CD)
+## Deploy to GitHub Pages
 
-A new GitHub Actions workflow (`.github/workflows/pages.yml`) deploys the static site and Pages Functions to Cloudflare Pages.
-
-### Secrets to add in GitHub
-
-- `CF_API_TOKEN` – Cloudflare API token with **Pages** and **Workers** permissions.
-- `CF_ACCOUNT_ID` – Your Cloudflare account ID (`0d88ec410e04d6b7b705064405e8824a`).
+A GitHub Actions workflow (`.github/workflows/pages.yml`) deploys the static site to GitHub Pages.
 
 ### How it works
 
-1. Push to `main` → GitHub Pages workflow runs.
-2. The site is published to GitHub Pages at `https://moosify.pizzamonster.org` and the API function is deployed (if using Cloudflare Functions) or served via the static site.
-3. Your API (if applicable) is available at `https://moosify.pizzamonster.org/api`.
+1. In the repository settings, set Pages → Build and deployment → Source to **GitHub Actions**.
+2. Push to `main` → the GitHub Pages workflow runs.
+3. The site is published using the custom domain in `CNAME`: `https://moosify.pizzamonster.org`.
+4. Add the GitHub Actions secret `API_URL` with the deployed Worker URL so the live site can reach Moosy's AI.
 
 ---
 
@@ -57,8 +53,7 @@ export async function onRequest(context) {
 
 ## URLs
 - **GitHub Pages site:** https://moosify.pizzamonster.org
-- **Custom domain:** pending DNS setup (e.g., `moosify.pizzamonster.org`).
-- **API (if applicable):** https://moosify.pizzamonster.org/api
+- **Custom domain:** configured through `CNAME`.
 
 ---
 
