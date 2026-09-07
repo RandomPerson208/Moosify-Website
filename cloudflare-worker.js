@@ -93,6 +93,11 @@ Knowledge: Help users buy phones, donuts, flights, rockets, cell plans, and supp
 Guardrails: Do not process real payments, do not ask for passwords, do not pretend orders are real, treat checkout as a demo.`;
 
     const userMessage = payload.message || "";
+    const messages = [{ role: "system", content: systemPrompt }];
+    if (Array.isArray(payload.history) && payload.history.length) {
+      messages.push(...payload.history);
+    }
+    messages.push({ role: "user", content: userMessage });
 
     const providers = [
       {
@@ -110,18 +115,37 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
     ];
     const providerAttempts = [];
 
+    if (env.AI?.run) {
+      try {
+        const data = await env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", {
+          messages,
+          max_tokens: 256,
+          temperature: 0.7
+        });
+        const reply = data?.response
+          || data?.choices?.[0]?.message?.content
+          || data?.result?.response
+          || "";
+        if (reply) {
+          return new Response(JSON.stringify({ reply: reply.trim(), provider: "Cloudflare Workers AI" }), {
+            status: 200,
+            headers: { "Content-Type": "application/json", ...corsHeaders }
+          });
+        }
+        providerAttempts.push("Workers AI:empty-reply");
+      } catch (e) {
+        providerAttempts.push("Workers AI:error");
+      }
+    } else {
+      providerAttempts.push("Workers AI:missing-binding");
+    }
+
     for (const p of providers) {
       if (!p.key) {
         providerAttempts.push(`${p.name}:missing-key`);
         continue;
       }
       try {
-        // Build the messages array, preserving any prior conversation history
-        const messages = [{ role: "system", content: systemPrompt }];
-        if (Array.isArray(payload.history) && payload.history.length) {
-          messages.push(...payload.history);
-        }
-        messages.push({ role: "user", content: userMessage });
         const body = {
           model: p.model,
           messages,
