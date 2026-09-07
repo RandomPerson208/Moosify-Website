@@ -798,6 +798,38 @@
       box-shadow: 0 34px 90px rgba(23, 32, 51, 0.34);
     }
 
+    .chat-page {
+      min-height: 620px;
+      padding: 34px 20px 70px;
+    }
+
+    .chat-page-inner {
+      width: min(100%, 820px);
+      margin: 0 auto;
+    }
+
+    .chat-page-header {
+      margin: 38px 0 22px;
+    }
+
+    .chat-page-header h1 {
+      margin: 8px 0;
+      font-size: clamp(2.4rem, 6vw, 4.8rem);
+    }
+
+    .chat-page-card {
+      padding: 24px;
+      border: 1px solid #c8e6fb;
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: 0 18px 44px rgba(47, 124, 180, 0.14);
+    }
+
+    .chat-page-card .chat-log {
+      min-height: 360px;
+      max-height: 55vh;
+    }
+
     .modal-card.tester-card {
       width: min(100%, 1040px);
       max-height: min(92vh, 900px);
@@ -1210,9 +1242,11 @@
         </span>
       </a>
       <div class="nav-actions">
-        <button class="nav-link" type="button" data-scroll-to="services">Services</button>
+        <a class="nav-link" href="#products" data-scroll-to="services">Products</a>
+        <a class="nav-link" href="#shop" data-scroll-to="services">Shop</a>
+        <a class="nav-link" href="#features" data-scroll-to="features">Features</a>
         <button class="button secondary" type="button" data-modal-open="login"><i class="icon" data-lucide="user"></i><span class="button-label">Login</span></button>
-        <button class="button" type="button" data-modal-open="chat"><i class="icon" data-lucide="message-circle"></i><span class="button-label">Moosy Chat</span></button>
+        <a class="button" href="#moosy-chat" data-chat-page><i class="icon" data-lucide="message-circle"></i><span class="button-label">Moosy Chat</span></a>
         <button class="button secondary" type="button" data-modal-open="device-tester"><i class="icon" data-lucide="smartphone"></i><span class="button-label">OPhone Lab</span></button>
         <button class="button orange" type="button" data-modal-open="cart"><i class="icon" data-lucide="shopping-cart"></i><span class="button-label">Cart</span> <span data-cart-count>0</span></button>
       </div>
@@ -1225,9 +1259,9 @@
         <div class="hero-copy">
           <h1 id="hero-title" class="brand-font">Welcome to Moosify.</h1>
           <p class="hero-lede">A cheerful company universe run from one very important shelf. Shop orange phones, order donuts, plan a launch, book a flight, or get help from Moosy's support desk.</p>
-          <div class="hero-actions">
+        <div class="hero-actions">
             <a class="button orange" href="#services"><i class="icon" data-lucide="sparkles"></i>Explore services</a>
-            <button class="button secondary" type="button" data-modal-open="chat"><i class="icon" data-lucide="messages-square"></i>Ask Moosy</button>
+            <a class="button secondary" href="#moosy-chat" data-chat-page><i class="icon" data-lucide="messages-square"></i>Ask Moosy</a>
           </div>
           <div class="hero-proof" aria-label="Moosify highlights">
             <div class="proof-item"><strong>6</strong><span>Playful service desks</span></div>
@@ -1307,7 +1341,7 @@
         </div>
       </section>
 
-      <section class="about-band" aria-labelledby="about-title">
+      <section id="features" class="about-band" aria-labelledby="about-title">
         <div class="about-layout">
           <div class="about-image" aria-label="Moosify mascot in a playful sky and grass scene">
             <img class="ceo-cutout" src="moosy-ceo-cutout.png" alt="Moosy the stuffed moose CEO">
@@ -1341,11 +1375,32 @@
             </aside>
           </div>
           <div class="detail-actions">
-            <button class="button" type="button" data-modal-open="chat"><i class="icon" data-lucide="message-circle"></i>Ask Moosy</button>
+            <a class="button" href="#moosy-chat" data-chat-page><i class="icon" data-lucide="message-circle"></i>Ask Moosy</a>
             <button class="button secondary" type="button" data-back-home><i class="icon" data-lucide="grid-2x2"></i>All services</button>
           </div>
         </div>
       </article>
+    </section>
+
+    <section id="moosy-chat" class="view chat-page" data-view="chat" hidden aria-labelledby="chat-title">
+      <div class="chat-page-inner">
+        <a class="button secondary" href="#home" data-back-home><i class="icon" data-lucide="arrow-left"></i>Back home</a>
+        <div class="chat-page-header">
+          <span class="eyebrow">Moosify conversation room</span>
+          <h1 id="chat-title" class="brand-font">Talk to Moosy</h1>
+          <p>Come hang out, ask a question, or tell Moosy what is happening in the playarea.</p>
+        </div>
+        <div class="chat-page-card">
+          <div class="chat-log" data-chat-log-page>
+            <div class="message">Moosy: Hey, I’m Moosy. What are you thinking about today?</div>
+          </div>
+          <p class="form-note" data-ai-status-page>Moosy brain: ready.</p>
+          <form data-chat-form-page>
+            <label class="field">Message<input type="text" data-chat-input-page placeholder="Say something to Moosy" autocomplete="off"></label>
+            <button class="button orange" type="submit"><i class="icon" data-lucide="send"></i>Send</button>
+          </form>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -1528,6 +1583,7 @@
     const API_URL = "__API_URL_PLACEHOLDER__";
     const homeView = document.querySelector('[data-view="home"]');
     const detailView = document.querySelector('[data-view="detail"]');
+    const chatView = document.querySelector('[data-view="chat"]');
     const detailTitle = document.querySelector('[data-detail-title]');
     const detailCopy = document.querySelector('[data-detail-copy]');
     const detailVisual = document.querySelector('[data-detail-visual]');
@@ -1535,6 +1591,8 @@
     const chatLog = document.querySelector('[data-chat-log]');
     const aiStatus = document.querySelector("[data-ai-status]");
     const chatHistory = [];
+    const pageChatLog = document.querySelector('[data-chat-log-page]');
+    const pageAiStatus = document.querySelector('[data-ai-status-page]');
     const cart = new Map();
     let activeServiceKey = "phones";
     const ophoneModels = [
@@ -1742,7 +1800,8 @@
       const { items, total } = getCartTotals();
       // If chat is marked down, return maintenance message immediately
       if (CURRENT_CHAT_STATUS === "down") {
-          aiStatus.textContent = "Moosy brain: offline.";
+          if (aiStatus) aiStatus.textContent = "Moosy brain: offline.";
+          if (pageAiStatus) pageAiStatus.textContent = "Moosy brain: offline.";
           return "Our help desk chat is currently offline for testing. Check back soon!";
       }
       const payload = {
@@ -1764,10 +1823,13 @@
         if (!response.ok) throw new Error(`Moosy API returned ${response.status}`);
         const data = await response.json();
         if (!data.reply) throw new Error("Moosy API returned no reply");
-        aiStatus.textContent = data.provider ? `Moosy brain: ${data.provider}.` : "Moosy brain: AI online.";
+        const status = data.provider ? `Moosy brain: ${data.provider}.` : "Moosy brain: AI online.";
+        if (aiStatus) aiStatus.textContent = status;
+        if (pageAiStatus) pageAiStatus.textContent = status;
         return data.reply;
       } catch (error) {
-        aiStatus.textContent = "Moosy brain: local product guide.";
+        if (aiStatus) aiStatus.textContent = "Moosy brain: local product guide.";
+        if (pageAiStatus) pageAiStatus.textContent = "Moosy brain: local product guide.";
         return localMoosyReply(message);
       }
     }
@@ -1811,8 +1873,18 @@
 
     function showHome() {
       detailView.hidden = true;
+      chatView.hidden = true;
       homeView.hidden = false;
       window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function showChat() {
+      homeView.hidden = true;
+      detailView.hidden = true;
+      chatView.hidden = false;
+      closeModals();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      refreshIcons();
     }
 
     function openModal(name) {
@@ -1835,6 +1907,7 @@
 
     document.addEventListener("click", (event) => {
       const serviceButton = event.target.closest("[data-open-service]");
+      const chatPageButton = event.target.closest("[data-chat-page]");
       const modalButton = event.target.closest("[data-modal-open]");
       const scrollButton = event.target.closest("[data-scroll-to]");
       const homeButton = event.target.closest("[data-back-home], [data-home-link]");
@@ -1843,6 +1916,10 @@
       const qtyButton = event.target.closest("[data-cart-product]");
 
       if (serviceButton) openService(serviceButton.dataset.openService);
+      if (chatPageButton) {
+        event.preventDefault();
+        showChat();
+      }
       if (modalButton) openModal(modalButton.dataset.modalOpen);
       if (addButton) addToCart(addButton.dataset.addProduct);
       if (qtyButton) changeQuantity(qtyButton.dataset.cartProduct, Number(qtyButton.dataset.cartDelta));
@@ -1978,30 +2055,32 @@
       });
     }
 
-    document.querySelector("[data-chat-form]").addEventListener("submit", async (event) => {
+    document.querySelector("[data-chat-form-page]").addEventListener("submit", async (event) => {
       event.preventDefault();
-      const input = document.querySelector("[data-chat-input]");
+      const input = document.querySelector("[data-chat-input-page]");
       const message = input.value.trim();
       if (!message) return;
 
       const userBubble = document.createElement("div");
       userBubble.className = "message user";
       userBubble.textContent = `You: ${message}`;
-      chatLog.appendChild(userBubble);
+      pageChatLog.appendChild(userBubble);
 
       const reply = document.createElement("div");
       reply.className = "message";
       reply.textContent = "Moosy: thinking with antlers...";
-      chatLog.appendChild(reply);
+      pageChatLog.appendChild(reply);
 
       input.value = "";
-      chatLog.scrollTop = chatLog.scrollHeight;
+      pageChatLog.scrollTop = pageChatLog.scrollHeight;
 
       const answer = await askMoosy(message);
       reply.textContent = `Moosy: ${answer}`;
       chatHistory.push({ role: "user", content: message }, { role: "assistant", content: answer });
-      chatLog.scrollTop = chatLog.scrollHeight;
+      pageChatLog.scrollTop = pageChatLog.scrollHeight;
     });
+
+    if (window.location.hash === "#moosy-chat") showChat();
 
     document.querySelector("[data-checkout-form]").addEventListener("submit", (event) => {
       event.preventDefault();
