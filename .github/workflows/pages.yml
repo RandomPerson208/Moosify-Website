@@ -1,18 +1,47 @@
-name: Deploy to Cloudflare Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Configure Moosy connection
+        env:
+          API_URL: ${{ secrets.API_URL }}
+          CHAT_STATUS: ${{ secrets.CHAT_STATUS }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          path = Path("index.html")
+          html = path.read_text()
+          html = html.replace("__API_URL_PLACEHOLDER__", os.environ.get("API_URL", ""))
+          html = html.replace("__CHAT_STATUS_PLACEHOLDER__", os.environ.get("CHAT_STATUS", "up") or "up")
+          path.write_text(html)
+          PY
+
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v3
         with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: pages deploy . --project-name=moosify-website
+          path: .
+
+      - name: Deploy website
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -8,7 +8,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Publish Cloudflare Worker
         uses: cloudflare/wrangler-action@v3
@@ -16,13 +16,19 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           workingDirectory: .
-          command: deploy cloudflare-worker.js
+          command: deploy
 
       - name: Set Worker secrets
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          CHAT_STATUS: ${{ secrets.CHAT_STATUS }}
         run: |
-          # Use npx to ensure the locally installed Wrangler binary is used
-          echo "${{ secrets.CEREBRAS_API_KEY }}" | npx wrangler secret put CEREBRAS_API_KEY
-          echo "${{ secrets.GROQ_API_KEY }}" | npx wrangler secret put GROQ_API_KEY
-          echo "${{ secrets.CHAT_STATUS }}" | npx wrangler secret put CHAT_STATUS
+          if [ -n "$CEREBRAS_API_KEY" ]; then
+            printf '%s' "$CEREBRAS_API_KEY" | npx wrangler secret put CEREBRAS_API_KEY
+          fi
+          if [ -n "$GROQ_API_KEY" ]; then
+            printf '%s' "$GROQ_API_KEY" | npx wrangler secret put GROQ_API_KEY
+          fi
+          printf '%s' "${CHAT_STATUS:-up}" | npx wrangler secret put CHAT_STATUS
