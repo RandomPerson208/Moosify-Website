@@ -861,6 +861,62 @@
       max-height: 55vh;
     }
 
+    .route-content {
+      width: min(var(--max), calc(100% - 32px));
+      min-height: 620px;
+      margin: 0 auto;
+      padding: 34px 0 70px;
+    }
+
+    .route-heading {
+      margin: 34px 0 26px;
+    }
+
+    .route-heading h1 {
+      margin: 8px 0;
+      font-size: clamp(2.4rem, 6vw, 4.6rem);
+    }
+
+    .catalog-groups {
+      display: grid;
+      gap: 22px;
+    }
+
+    .catalog-group {
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .catalog-group h2 {
+      margin: 0 0 16px;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .feature-item {
+      padding: 24px;
+      border: 1px solid #c8e6fb;
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: 0 16px 38px rgba(47, 124, 180, 0.12);
+    }
+
+    .feature-item h2 {
+      margin: 16px 0 8px;
+    }
+
+    @media (max-width: 760px) {
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .modal-card.tester-card {
       width: min(100%, 1040px);
       max-height: min(92vh, 900px);
@@ -1389,6 +1445,40 @@
       </section>
     </div>
 
+    <section class="view route-content" data-view="products" hidden aria-labelledby="products-title">
+      <a class="button secondary" href="/"><i class="icon" data-lucide="arrow-left"></i>Back home</a>
+      <header class="route-heading">
+        <span class="eyebrow">Everything Moosify makes</span>
+        <h1 id="products-title" class="brand-font">All Products</h1>
+        <p>Browse phones, donuts, launch packages, flights, cell plans, and support options in one catalog.</p>
+      </header>
+      <div class="catalog-groups" data-all-products></div>
+    </section>
+
+    <section class="view route-content" data-view="shop" hidden aria-labelledby="shop-title">
+      <a class="button secondary" href="/"><i class="icon" data-lucide="arrow-left"></i>Back home</a>
+      <header class="route-heading">
+        <span class="eyebrow">Choose a department</span>
+        <h1 id="shop-title" class="brand-font">Moosify Shops</h1>
+        <p>Pick the kind of thing you want, then browse that department's products.</p>
+      </header>
+      <div class="services-grid" data-shop-grid></div>
+    </section>
+
+    <section class="view route-content" data-view="features" hidden aria-labelledby="features-page-title">
+      <a class="button secondary" href="/"><i class="icon" data-lucide="arrow-left"></i>Back home</a>
+      <header class="route-heading">
+        <span class="eyebrow">Things you can actually use</span>
+        <h1 id="features-page-title" class="brand-font">Features</h1>
+        <p>Try an OPhone, talk with Moosy, shop across departments, and take a demo order through checkout.</p>
+      </header>
+      <div class="feature-grid">
+        <article class="feature-item"><i class="icon" data-lucide="smartphone"></i><h2 class="brand-font">OPhone Lab</h2><p>Choose an OPhone and one of its supported PineappleOS versions, then try its apps.</p><a class="button secondary" href="/mobile-lab/">Open lab</a></article>
+        <article class="feature-item"><i class="icon" data-lucide="messages-square"></i><h2 class="brand-font">Moosy Chat</h2><p>Have a real conversation with Moosy without opening a popup over another page.</p><a class="button secondary" href="/chat/">Talk to Moosy</a></article>
+        <article class="feature-item"><i class="icon" data-lucide="shopping-bag"></i><h2 class="brand-font">Shopping</h2><p>Browse every Moosify department, add products, review the cart, and preview checkout.</p><a class="button secondary" href="/shop/">Start shopping</a></article>
+      </div>
+    </section>
+
     <section class="view detail-view" data-view="detail" hidden aria-live="polite">
       <button class="button secondary" type="button" data-back-home><i class="icon" data-lucide="arrow-left"></i>Back home</button>
       <article class="detail-panel" style="margin-top: 18px;">
@@ -1616,6 +1706,10 @@
     const homeView = document.querySelector('[data-view="home"]');
     const detailView = document.querySelector('[data-view="detail"]');
     const chatView = document.querySelector('[data-view="chat"]');
+    const productsView = document.querySelector('[data-view="products"]');
+    const shopView = document.querySelector('[data-view="shop"]');
+    const featuresView = document.querySelector('[data-view="features"]');
+    const primaryViews = [homeView, detailView, chatView, productsView, shopView, featuresView];
     const detailTitle = document.querySelector('[data-detail-title]');
     const detailCopy = document.querySelector('[data-detail-copy]');
     const detailVisual = document.querySelector('[data-detail-visual]');
@@ -1625,7 +1719,13 @@
     const chatHistory = [];
     const pageChatLog = document.querySelector('[data-chat-log-page]');
     const pageAiStatus = document.querySelector('[data-ai-status-page]');
-    const cart = new Map();
+    let savedCart = [];
+    try {
+      savedCart = JSON.parse(localStorage.getItem("moosify-cart") || "[]");
+    } catch (error) {
+      savedCart = [];
+    }
+    const cart = new Map(savedCart.map((item) => [item.id, item]));
     let activeServiceKey = "phones";
     const ophoneModels = [
       { id: "O1", name: "OPhone O1", front: "Ophones/O1/O1 Front.jpg", back: "Ophones/O1/O1 Back.jpg", note: "starter model", osIds: ["pineappleos-1", "pineappleos-2", "pineappleos-3"] },
@@ -1715,6 +1815,45 @@
       }
     }
 
+    function hidePrimaryViews() {
+      primaryViews.forEach((view) => {
+        if (view) view.hidden = true;
+      });
+    }
+
+    function renderRoutePages() {
+      const allProducts = document.querySelector("[data-all-products]");
+      const shopGrid = document.querySelector("[data-shop-grid]");
+      const iconNames = { phones: "smartphone", donuts: "circle-dot", space: "rocket", airlines: "plane", cellplans: "radio-tower", support: "headphones" };
+
+      allProducts.innerHTML = Object.entries(services).map(([serviceKey, service]) => `
+        <section class="catalog-group">
+          <h2 class="brand-font">${service.title}</h2>
+          ${service.products.map((product) => `
+            <article class="product-row">
+              <div><h3>${product.name}</h3><p>${product.description}</p><span class="product-price">${formatMoney(product.price)}</span></div>
+              <button class="button orange" type="button" data-add-product="${product.id}"><i class="icon" data-lucide="plus"></i>Add</button>
+            </article>
+          `).join("")}
+        </section>
+      `).join("");
+
+      shopGrid.innerHTML = Object.entries(services).map(([serviceKey, service]) => {
+        const image = service.image.replace(/^url\(['"]?|['"]?\)$/g, "");
+        return `
+          <button class="service-card" type="button" data-open-service="${serviceKey}">
+            <img class="service-photo${serviceKey === "support" ? " mascot-photo" : ""}" src="${image}" alt="${service.title}">
+            <span class="service-content">
+              <span class="service-icon"><i class="icon" data-lucide="${iconNames[serviceKey]}"></i></span>
+              <h3>${service.title}</h3>
+              <p>${service.copy}</p>
+              <span class="learn-more">Open shop <i class="icon" data-lucide="arrow-right"></i></span>
+            </span>
+          </button>
+        `;
+      }).join("");
+    }
+
     function openService(key) {
       const service = services[key];
       if (!service) return;
@@ -1723,7 +1862,8 @@
       detailCopy.innerHTML = service.copy;
       detailVisual.style.setProperty("--detail-image", service.image);
       renderProducts(service.products);
-      homeView.hidden = true;
+      closeModals();
+      hidePrimaryViews();
       detailView.hidden = false;
       window.scrollTo({ top: 0, behavior: "smooth" });
       refreshIcons();
@@ -1762,6 +1902,7 @@
       const current = cart.get(id) || { ...product, quantity: 0 };
       current.quantity += 1;
       cart.set(id, current);
+      saveCart();
       renderCart();
     }
 
@@ -1774,7 +1915,12 @@
       } else {
         cart.set(id, current);
       }
+      saveCart();
       renderCart();
+    }
+
+    function saveCart() {
+      localStorage.setItem("moosify-cart", JSON.stringify(Array.from(cart.values())));
     }
 
     function getCartTotals() {
@@ -1909,16 +2055,14 @@
         return;
       }
       closeModals();
-      detailView.hidden = true;
-      chatView.hidden = true;
+      hidePrimaryViews();
       homeView.hidden = false;
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function showChat() {
       closeModals();
-      homeView.hidden = true;
-      detailView.hidden = true;
+      hidePrimaryViews();
       chatView.hidden = false;
       window.scrollTo({ top: 0, behavior: "smooth" });
       refreshIcons();
@@ -1927,10 +2071,25 @@
     function showPath(path, replace = false) {
       const route = path.replace(/^\/+|\/+$/g, "");
       if (route === "chat") return showChat();
-      if (route === "shop" || route === "products") return openService("phones");
+      if (route === "products") {
+        closeModals();
+        hidePrimaryViews();
+        productsView.hidden = false;
+        refreshIcons();
+        return;
+      }
+      if (route === "shop") {
+        closeModals();
+        hidePrimaryViews();
+        shopView.hidden = false;
+        refreshIcons();
+        return;
+      }
       if (route === "features") {
-        showHome();
-        document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
+        closeModals();
+        hidePrimaryViews();
+        featuresView.hidden = false;
+        refreshIcons();
         return;
       }
       const modalRoutes = { login: "login", cart: "cart", checkout: "checkout", "mobile-lab": "device-tester" };
@@ -1939,7 +2098,7 @@
     }
 
     function openModal(name, keepPath = false) {
-      if (name === "checkout" && getCartTotals().items.length === 0) {
+      if (name === "checkout" && getCartTotals().items.length === 0 && !keepPath) {
         name = "cart";
       }
       if (name === "checkout") renderCheckoutSummary();
@@ -1948,9 +2107,7 @@
         renderTrialApps("home");
       }
       closeModals();
-      homeView.hidden = true;
-      detailView.hidden = true;
-      chatView.hidden = true;
+      hidePrimaryViews();
       document.getElementById(`${name}-modal`)?.removeAttribute("hidden");
       if (!keepPath) {
         const path = name === "device-tester" ? "mobile-lab" : name;
@@ -1962,8 +2119,6 @@
 
     function closeModals() {
       document.querySelectorAll(".modal").forEach((modal) => modal.setAttribute("hidden", ""));
-      if (!homeView.hidden && !detailView.hidden && !chatView.hidden) return;
-      if (homeView.hidden && detailView.hidden && chatView.hidden) homeView.hidden = false;
     }
 
     document.addEventListener("click", (event) => {
@@ -1984,11 +2139,11 @@
         event.preventDefault();
         showHome();
       }
-      if (closeButton || event.target.classList.contains("modal")) closeModals();
+      if (closeButton || event.target.classList.contains("modal")) showHome();
     });
 
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") closeModals();
+      if (event.key === "Escape") showHome();
     });
 
     window.addEventListener("popstate", () => showPath(window.location.pathname));
@@ -2138,16 +2293,16 @@
       pageChatLog.scrollTop = pageChatLog.scrollHeight;
     });
 
-    showPath(window.location.pathname);
-
     document.querySelector("[data-checkout-form]").addEventListener("submit", (event) => {
       event.preventDefault();
       const { quantity, total } = getCartTotals();
       document.querySelector("[data-checkout-note]").textContent = `Demo order ready: ${quantity} item${quantity === 1 ? "" : "s"} for ${formatMoney(total)}. No payment was charged.`;
     });
 
+    renderRoutePages();
     renderProducts(services[activeServiceKey].products);
     renderCart();
+    showPath(window.location.pathname);
     refreshIcons();
   </script>
   </body>
