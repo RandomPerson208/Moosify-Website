@@ -803,10 +803,19 @@
       background: transparent;
     }
 
+    .modal.route-page[hidden] {
+      display: none;
+    }
+
     .route-page .modal-card {
       width: min(100%, 1040px);
       margin: 0 auto;
       box-shadow: 0 18px 44px rgba(47, 124, 180, 0.14);
+    }
+
+    .route-page .modal-card.tester-card {
+      max-height: none;
+      overflow: visible;
     }
 
     .route-page .modal-head {
@@ -1424,7 +1433,6 @@
         </div>
       </div>
     </section>
-  </main>
 
   <div class="modal route-page" id="login-modal" hidden role="region" aria-labelledby="login-title">
     <div class="modal-card">
@@ -1529,6 +1537,8 @@
       </div>
     </div>
   </div>
+
+  </main>
 
   <footer class="footer">
     <p>Copyright 2026 Moosify. All rights reserved.</p>
