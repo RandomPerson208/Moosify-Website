@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/">
   <meta name="description" content="Moosify is a playful stuffed-moose company page for phones, donuts, space, flights, cell plans, and support.">
   <title>Moosify</title>
   <link rel="icon" href="download.png" type="image/png">
@@ -1263,13 +1264,13 @@
         </span>
       </a>
       <div class="nav-actions">
-        <a class="nav-link" href="/products" data-route="products">Products</a>
-        <a class="nav-link" href="/shop" data-route="shop">Shop</a>
-        <a class="nav-link" href="/features" data-route="features">Features</a>
-        <a class="button secondary" href="/login" data-route="login"><i class="icon" data-lucide="user"></i><span class="button-label">Login</span></a>
-        <a class="button" href="/chat" data-route="chat"><i class="icon" data-lucide="message-circle"></i><span class="button-label">Moosy Chat</span></a>
-        <a class="button secondary" href="/mobile-lab" data-route="mobile-lab"><i class="icon" data-lucide="smartphone"></i><span class="button-label">OPhone Lab</span></a>
-        <a class="button orange" href="/cart" data-route="cart"><i class="icon" data-lucide="shopping-cart"></i><span class="button-label">Cart</span> <span data-cart-count>0</span></a>
+        <a class="nav-link" href="/products/">Products</a>
+        <a class="nav-link" href="/shop/">Shop</a>
+        <a class="nav-link" href="/features/">Features</a>
+        <a class="button secondary" href="/login/"><i class="icon" data-lucide="user"></i><span class="button-label">Login</span></a>
+        <a class="button" href="/chat/"><i class="icon" data-lucide="message-circle"></i><span class="button-label">Moosy Chat</span></a>
+        <a class="button secondary" href="/mobile-lab/"><i class="icon" data-lucide="smartphone"></i><span class="button-label">OPhone Lab</span></a>
+        <a class="button orange" href="/cart/"><i class="icon" data-lucide="shopping-cart"></i><span class="button-label">Cart</span> <span data-cart-count>0</span></a>
       </div>
     </nav>
   </header>
@@ -1282,7 +1283,7 @@
           <p class="hero-lede">A cheerful company universe run from one very important shelf. Shop orange phones, order donuts, plan a launch, book a flight, or get help from Moosy's support desk.</p>
         <div class="hero-actions">
             <a class="button orange" href="#services"><i class="icon" data-lucide="sparkles"></i>Explore services</a>
-            <a class="button secondary" href="#moosy-chat" data-chat-page><i class="icon" data-lucide="messages-square"></i>Ask Moosy</a>
+            <a class="button secondary" href="/chat/"><i class="icon" data-lucide="messages-square"></i>Ask Moosy</a>
           </div>
           <div class="hero-proof" aria-label="Moosify highlights">
             <div class="proof-item"><strong>6</strong><span>Playful service desks</span></div>
@@ -1371,7 +1372,7 @@
             <h2 id="about-title" class="brand-font">Meet the CEO of the playarea.</h2>
             <p>Moosy runs the whole operation from a cheerful sky-and-cloud command center. The page keeps the blue playful theme, but the shortcuts are cleaner and easier to click.</p>
             <div class="hero-actions">
-              <button class="button" type="button" data-modal-open="login"><i class="icon" data-lucide="log-in"></i>Open login</button>
+              <a class="button" href="/login/"><i class="icon" data-lucide="log-in"></i>Open login</a>
               <button class="button secondary" type="button" data-open-service="support"><i class="icon" data-lucide="life-buoy"></i>Contact support</button>
             </div>
           </div>
@@ -1392,11 +1393,11 @@
               <h2 class="brand-font">Your cart</h2>
               <div class="cart-items" data-inline-cart>Cart is empty.</div>
               <div class="cart-total"><span>Total</span><span data-cart-total>$0</span></div>
-              <button class="button full" type="button" data-modal-open="checkout"><i class="icon" data-lucide="credit-card"></i>Checkout</button>
+              <a class="button full" href="/checkout/"><i class="icon" data-lucide="credit-card"></i>Checkout</a>
             </aside>
           </div>
           <div class="detail-actions">
-            <a class="button" href="#moosy-chat" data-chat-page><i class="icon" data-lucide="message-circle"></i>Ask Moosy</a>
+            <a class="button" href="/chat/"><i class="icon" data-lucide="message-circle"></i>Ask Moosy</a>
             <button class="button secondary" type="button" data-back-home><i class="icon" data-lucide="grid-2x2"></i>All services</button>
           </div>
         </div>
@@ -1449,7 +1450,7 @@
       <div class="modal-body">
         <div class="cart-items" data-modal-cart>Cart is empty.</div>
         <div class="cart-total"><span>Total</span><span data-cart-total>$0</span></div>
-        <button class="button full" type="button" data-modal-open="checkout"><i class="icon" data-lucide="credit-card"></i>Checkout</button>
+        <a class="button full" href="/checkout/"><i class="icon" data-lucide="credit-card"></i>Checkout</a>
       </div>
     </div>
   </div>
@@ -1893,6 +1894,10 @@
     }
 
     function showHome() {
+      if (window.location.pathname !== "/") {
+        window.location.assign("/");
+        return;
+      }
       closeModals();
       detailView.hidden = true;
       chatView.hidden = true;
@@ -1953,8 +1958,6 @@
 
     document.addEventListener("click", (event) => {
       const serviceButton = event.target.closest("[data-open-service]");
-      const chatPageButton = event.target.closest("[data-chat-page]");
-      const routeButton = event.target.closest("[data-route]");
       const modalButton = event.target.closest("[data-modal-open]");
       const scrollButton = event.target.closest("[data-scroll-to]");
       const homeButton = event.target.closest("[data-back-home], [data-home-link]");
@@ -1963,15 +1966,6 @@
       const qtyButton = event.target.closest("[data-cart-product]");
 
       if (serviceButton) openService(serviceButton.dataset.openService);
-      if (routeButton) {
-        event.preventDefault();
-        showPath(routeButton.getAttribute("href"));
-        history.pushState({}, "", routeButton.getAttribute("href"));
-      }
-      if (chatPageButton) {
-        event.preventDefault();
-        showChat();
-      }
       if (modalButton) openModal(modalButton.dataset.modalOpen);
       if (addButton) addToCart(addButton.dataset.addProduct);
       if (qtyButton) changeQuantity(qtyButton.dataset.cartProduct, Number(qtyButton.dataset.cartDelta));
