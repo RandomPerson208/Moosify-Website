@@ -32,19 +32,19 @@ jobs:
           import os
           from pathlib import Path
 
-          path = Path("index.html")
-          html = path.read_text()
           api_url = json.dumps(os.environ.get("API_URL", ""))
           chat_status = json.dumps(os.environ.get("CHAT_STATUS", "up") or "up")
-          html = html.replace(
-              'const API_URL = "__API_URL_PLACEHOLDER__";',
-              f"const API_URL = {api_url};"
-          )
-          html = html.replace(
-              'const CURRENT_CHAT_STATUS = "__CHAT_STATUS_PLACEHOLDER__";',
-              f"const CURRENT_CHAT_STATUS = {chat_status};"
-          )
-          path.write_text(html)
+          for path in Path(".").rglob("*.html"):
+              html = path.read_text()
+              html = html.replace(
+                  'const API_URL = "__API_URL_PLACEHOLDER__";',
+                  f"const API_URL = {api_url};"
+              )
+              html = html.replace(
+                  'const CURRENT_CHAT_STATUS = "__CHAT_STATUS_PLACEHOLDER__";',
+                  f"const CURRENT_CHAT_STATUS = {chat_status};"
+              )
+              path.write_text(html)
           PY
 
       - name: Upload website
