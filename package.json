@@ -9,6 +9,7 @@
   "scripts": {
     "start": "node -r dotenv/config server.mjs",
     "static": "python3 -m http.server 4173",
+    "sync-pages": "node scripts/sync-pages.mjs",
     "dev": "npx wrangler dev",
     "publish": "npx wrangler publish",
     "deploy": "./scripts/deploy.sh"

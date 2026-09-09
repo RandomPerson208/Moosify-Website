@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/">
+  <meta name="description" content="Moosify is a playful stuffed-moose company page for phones, donuts, space, flights, cell plans, and support.">
+  <title>Airlines | Moosify</title>
+  <link rel="icon" href="download.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="/assets/moosify.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="/">
+        <img class="brand-mark" src="moosy-ceo-cutout.png" alt="Moosify moose mascot">
+        <span class="brand-title">
+          <strong class="brand-font">Moosify</strong>
+          <span>Stuffed animals running everything</span>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-navigation"><i class="icon" data-lucide="menu"></i>Menu</button>
+      <div class="nav-actions" id="site-navigation" data-nav-menu>
+        <div class="services-menu">
+          <a class="nav-link services-trigger" href="/shop/" data-nav-section="services" aria-haspopup="true">Services <i class="icon" data-lucide="chevron-down"></i></a>
+          <div class="services-popover" aria-label="Moosify services">
+            <a href="/shop/phones/"><i class="icon" data-lucide="smartphone"></i>OPhones</a>
+            <a href="/shop/donuts/"><i class="icon" data-lucide="circle-dot"></i>Donuts</a>
+            <a href="/shop/space/"><i class="icon" data-lucide="rocket"></i>Rockets & Space</a>
+            <a href="/shop/airlines/"><i class="icon" data-lucide="plane"></i>Airlines</a>
+            <a href="/shop/cell-plans/"><i class="icon" data-lucide="radio-tower"></i>Cell Plans</a>
+            <a href="/shop/support/"><i class="icon" data-lucide="headphones"></i>Support</a>
+          </div>
+        </div>
+        <a class="nav-link" href="/products/" data-nav-section="products">Products</a>
+        <a class="nav-link" href="/shop/" data-nav-section="shop">Shop</a>
+        <a class="nav-link" href="/features/" data-nav-section="features">Features</a>
+        <a class="button secondary" href="/login/" data-nav-section="login"><i class="icon" data-lucide="user"></i><span class="button-label">Login</span></a>
+        <a class="button" href="/chat/" data-nav-section="chat"><i class="icon" data-lucide="message-circle"></i><span class="button-label">Moosy Chat</span></a>
+        <a class="button secondary" href="/mobile-lab/" data-nav-section="mobile-lab"><i class="icon" data-lucide="smartphone"></i><span class="button-label">OPhone Lab</span></a>
+        <a class="button orange" href="/cart/" data-nav-section="cart"><i class="icon" data-lucide="shopping-cart"></i><span class="button-label">Cart</span> <span data-cart-count>0</span></a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div id="home" class="view" data-view="home">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <h1 id="hero-title" class="brand-font">Welcome to Moosify.</h1>
+          <p class="hero-lede">A cheerful company universe run from one very important shelf. Shop orange phones, order donuts, plan a launch, book a flight, or get help from Moosy's support desk.</p>
+        <div class="hero-actions">
+            <a class="button orange" href="#services"><i class="icon" data-lucide="sparkles"></i>Explore services</a>
+            <a class="button secondary" href="/chat/"><i class="icon" data-lucide="messages-square"></i>Ask Moosy</a>
+          </div>
+          <div class="hero-proof" aria-label="Moosify highlights">
+            <div class="proof-item"><strong>6</strong><span>Playful service desks</span></div>
+            <div class="proof-item"><strong>24/7</strong><span>Shelf-side support</span></div>
+            <div class="proof-item"><strong>100%</strong><span>Moose-approved plans</span></div>
+          </div>
+        </div>
+        <div class="hero-card" aria-label="Moosify stuffed moose mascot">
+          <img class="hero-moose" src="moosy-ceo-cutout.png" alt="Moosy the stuffed moose CEO">
+          <div class="hero-card-panel">
+            <h2 class="brand-font">Moosy, Chief Everything Officer</h2>
+            <p>Friendly, fluffy, and somehow in charge of phones, donuts, rockets, flights, cell towers, and customer support.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="services" class="section" aria-labelledby="services-title">
+        <div class="section-head">
+          <h2 id="services-title" class="brand-font">Pick a Moosify department.</h2>
+          <p>Each card opens a clean detail page with a real back path, readable copy, and working actions.</p>
+        </div>
+        <div class="services-grid">
+          <a class="service-card" href="/shop/phones/">
+            <img class="service-photo" src="https://images.pexels.com/photos/11297769/pexels-photo-11297769.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Smartphone shop display">
+            <span class="service-content">
+              <span class="service-icon"><i class="icon" data-lucide="smartphone"></i></span>
+              <h3>Moosify Phone Shop</h3>
+              <p>Orange-partnered OPhones, cases, setup help, and an online app trial before you buy.</p>
+              <span class="learn-more">View phones <i class="icon" data-lucide="arrow-right"></i></span>
+            </span>
+          </a>
+          <a class="service-card" href="/shop/donuts/">
+            <img class="service-photo" src="https://images.pexels.com/photos/1191639/pexels-photo-1191639.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Colorful donuts with sprinkles">
+            <span class="service-content">
+              <span class="service-icon"><i class="icon" data-lucide="circle-dot"></i></span>
+              <h3>Ishaan's Donuts</h3>
+              <p>The most delicious donuts in the universe, glazed for every shelf snack break.</p>
+              <span class="learn-more">Order donuts <i class="icon" data-lucide="arrow-right"></i></span>
+            </span>
+          </a>
+          <a class="service-card" href="/shop/space/">
+            <img class="service-photo" src="https://images.pexels.com/photos/11086520/pexels-photo-11086520.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Rocket launching into the sky">
+            <span class="service-content">
+              <span class="service-icon"><i class="icon" data-lucide="rocket"></i></span>
+              <h3>Moosa Rockets & Space</h3>
+              <p>Reaching for the stars with next-gen rocket tech for brave plush crews.</p>
+              <span class="learn-more">Plan launch <i class="icon" data-lucide="arrow-right"></i></span>
+            </span>
+          </a>
+          <a class="service-card" href="/shop/airlines/">
+            <img class="service-photo" src="https://images.pexels.com/photos/8230826/pexels-photo-8230826.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Airplane flying through warm clouds">
+            <span class="service-content">
+              <span class="service-icon"><i class="icon" data-lucide="plane"></i></span>
+              <h3>Moosify Airlines</h3>
+              <p>Fly in comfort and style worldwide with cloud-soft seats and snack service.</p>
+              <span class="learn-more">Book flight <i class="icon" data-lucide="arrow-right"></i></span>
+            </span>
+          </a>
+          <a class="service-card" href="/shop/cell-plans/">
+            <img class="service-photo" src="https://images.pexels.com/photos/18379732/pexels-photo-18379732.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Cellular tower against blue sky">
+            <span class="service-content">
+              <span class="service-icon"><i class="icon" data-lucide="radio-tower"></i></span>
+              <h3>Moosify Cell Plans</h3>
+              <p>Unlimited data and 5G everywhere, made simple for the whole playroom.</p>
+              <span class="learn-more">Compare plans <i class="icon" data-lucide="arrow-right"></i></span>
+            </span>
+          </a>
+          <a class="service-card" href="/shop/support/">
+            <img class="service-photo mascot-photo" src="moosy-ceo-cutout.png" alt="Moosy support mascot">
+            <span class="service-content">
+              <span class="service-icon"><i class="icon" data-lucide="headphones"></i></span>
+              <h3>Moosify Support</h3>
+              <p>Get help from friendly mooses for orders, accounts, plans, and questions.</p>
+              <span class="learn-more">Get support <i class="icon" data-lucide="arrow-right"></i></span>
+            </span>
+          </a>
+        </div>
+      </section>
+
+      <section id="features" class="about-band" aria-labelledby="about-title">
+        <div class="about-layout">
+          <div class="about-image" aria-label="Moosify mascot in a playful sky and grass scene">
+            <img class="ceo-cutout" src="moosy-ceo-cutout.png" alt="Moosy the stuffed moose CEO">
+          </div>
+          <div class="about-copy">
+            <h2 id="about-title" class="brand-font">Meet the CEO of the playarea.</h2>
+            <p>Moosy runs the whole operation from a cheerful sky-and-cloud command center. The page keeps the blue playful theme, but the shortcuts are cleaner and easier to click.</p>
+            <div class="hero-actions">
+              <a class="button" href="/login/"><i class="icon" data-lucide="log-in"></i>Open login</a>
+              <a class="button secondary" href="/shop/support/"><i class="icon" data-lucide="life-buoy"></i>Contact support</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="view route-content" data-view="products" hidden aria-labelledby="products-title">
+      <a class="button secondary" href="/"><i class="icon" data-lucide="arrow-left"></i>Back home</a>
+      <header class="route-heading">
+        <span class="eyebrow">Everything Moosify makes</span>
+        <h1 id="products-title" class="brand-font">All Products</h1>
+        <p>Browse phones, donuts, launch packages, flights, cell plans, and support options in one catalog.</p>
+      </header>
+      <div class="catalog-groups" data-all-products></div>
+    </section>
+
+    <section class="view route-content" data-view="shop" hidden aria-labelledby="shop-title">
+      <a class="button secondary" href="/"><i class="icon" data-lucide="arrow-left"></i>Back home</a>
+      <header class="route-heading">
+        <span class="eyebrow">Choose a department</span>
+        <h1 id="shop-title" class="brand-font">Moosify Shops</h1>
+        <p>Pick the kind of thing you want, then browse that department's products.</p>
+      </header>
+      <div class="services-grid" data-shop-grid></div>
+    </section>
+
+    <section class="view route-content" data-view="features" hidden aria-labelledby="features-page-title">
+      <a class="button secondary" href="/"><i class="icon" data-lucide="arrow-left"></i>Back home</a>
+      <header class="route-heading">
+        <span class="eyebrow">Things you can actually use</span>
+        <h1 id="features-page-title" class="brand-font">Features</h1>
+        <p>Try an OPhone, talk with Moosy, shop across departments, and take a demo order through checkout.</p>
+      </header>
+      <div class="feature-grid">
+        <article class="feature-item"><i class="icon" data-lucide="smartphone"></i><h2 class="brand-font">OPhone Lab</h2><p>Choose an OPhone and one of its supported PineappleOS versions, then try its apps.</p><a class="button secondary" href="/mobile-lab/">Open lab</a></article>
+        <article class="feature-item"><i class="icon" data-lucide="messages-square"></i><h2 class="brand-font">Moosy Chat</h2><p>Have a real conversation with Moosy without opening a popup over another page.</p><a class="button secondary" href="/chat/">Talk to Moosy</a></article>
+        <article class="feature-item"><i class="icon" data-lucide="shopping-bag"></i><h2 class="brand-font">Shopping</h2><p>Browse every Moosify department, add products, review the cart, and preview checkout.</p><a class="button secondary" href="/shop/">Start shopping</a></article>
+      </div>
+    </section>
+
+    <section class="view detail-view" data-view="detail" hidden aria-live="polite">
+      <button class="button secondary" type="button" data-back-home><i class="icon" data-lucide="arrow-left"></i>Back home</button>
+      <article class="detail-panel" style="margin-top: 18px;">
+        <div class="detail-visual" data-detail-visual></div>
+        <div class="detail-content">
+          <h1 class="brand-font" data-detail-title></h1>
+          <p data-detail-copy></p>
+          <div class="product-shop">
+            <div class="product-list" data-product-list></div>
+            <aside class="cart-panel" aria-label="Cart summary">
+              <h2 class="brand-font">Your cart</h2>
+              <div class="cart-items" data-inline-cart>Cart is empty.</div>
+              <div class="cart-total"><span>Total</span><span data-cart-total>$0</span></div>
+              <a class="button full" href="/checkout/"><i class="icon" data-lucide="credit-card"></i>Checkout</a>
+            </aside>
+          </div>
+          <div class="detail-actions">
+            <a class="button" href="/chat/"><i class="icon" data-lucide="message-circle"></i>Ask Moosy</a>
+            <button class="button secondary" type="button" data-back-home><i class="icon" data-lucide="grid-2x2"></i>All services</button>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="moosy-chat" class="view chat-page" data-view="chat" hidden aria-labelledby="chat-title">
+      <div class="chat-page-inner">
+        <a class="button secondary" href="#home" data-back-home><i class="icon" data-lucide="arrow-left"></i>Back home</a>
+        <div class="chat-page-header">
+          <span class="eyebrow">Moosify conversation room</span>
+          <h1 id="chat-title" class="brand-font">Talk to Moosy</h1>
+          <p>Come hang out, ask a question, or tell Moosy what is happening in the playarea.</p>
+        </div>
+        <div class="chat-page-card">
+          <div class="chat-log" data-chat-log-page>
+            <div class="message">Moosy: Hey, I’m Moosy. What are you thinking about today?</div>
+          </div>
+          <p class="form-note" data-ai-status-page>Moosy brain: ready.</p>
+          <form data-chat-form-page>
+            <label class="field">Message<input type="text" data-chat-input-page placeholder="Say something to Moosy" autocomplete="off"></label>
+            <button class="button orange" type="submit"><i class="icon" data-lucide="send"></i>Send</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  <div class="modal route-page" id="login-modal" hidden role="region" aria-labelledby="login-title">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="login-title" class="brand-font">Login</h2>
+        <button class="close-button" type="button" data-modal-close aria-label="Close login"><i class="icon" data-lucide="x"></i></button>
+      </div>
+      <form class="modal-body" data-login-form>
+        <label class="field">Email<input type="email" autocomplete="email" required placeholder="you@example.com"></label>
+        <label class="field">Password<input type="password" autocomplete="current-password" required placeholder="Password"></label>
+        <button class="button" type="submit"><i class="icon" data-lucide="log-in"></i>Continue</button>
+        <p class="form-note" data-login-note></p>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal route-page" id="cart-modal" hidden role="region" aria-labelledby="cart-title">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="cart-title" class="brand-font">Cart</h2>
+        <button class="close-button" type="button" data-modal-close aria-label="Close cart"><i class="icon" data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="cart-items" data-modal-cart>Cart is empty.</div>
+        <div class="cart-total"><span>Total</span><span data-cart-total>$0</span></div>
+        <a class="button full" href="/checkout/"><i class="icon" data-lucide="credit-card"></i>Checkout</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal route-page" id="checkout-modal" hidden role="region" aria-labelledby="checkout-title">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="checkout-title" class="brand-font">Checkout preview</h2>
+        <button class="close-button" type="button" data-modal-close aria-label="Close checkout"><i class="icon" data-lucide="x"></i></button>
+      </div>
+      <form class="modal-body" data-checkout-form>
+        <div class="demo-banner"><i class="icon" data-lucide="info"></i> Demo checkout only. This page never charges money, creates a real order, or sends payment information.</div>
+        <div class="order-summary" data-checkout-summary>Cart is empty.</div>
+        <div class="checkout-grid">
+          <label class="field">Name<input required placeholder="Moosy Moose" autocomplete="name"></label>
+          <label class="field">Email<input type="email" required placeholder="you@example.com" autocomplete="email"></label>
+        </div>
+        <label class="field">Delivery note<textarea required placeholder="Shelf address, launch pad, donut instructions..."></textarea></label>
+        <button class="button full orange" type="submit"><i class="icon" data-lucide="package-check"></i>Finish demo checkout</button>
+        <p class="form-note" data-checkout-note></p>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal route-page" id="chat-modal" hidden role="region" aria-labelledby="chat-title">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="chat-title" class="brand-font">Talk to Moosy</h2>
+        <button class="close-button" type="button" data-modal-close aria-label="Close chat"><i class="icon" data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="chat-log" data-chat-log>
+          <div class="message">Moosy: Hey, I’m Moosy. What are you thinking about today?</div>
+        </div>
+        <p class="form-note" data-ai-status>Moosy brain: ready.</p>
+        <form data-chat-form>
+          <label class="field">Message<input type="text" data-chat-input placeholder="Type your question" autocomplete="off"></label>
+          <button class="button orange" type="submit"><i class="icon" data-lucide="send"></i>Send</button>
+        </form>
+      </div>
+    </div>
+</div>
+
+  <div id="device-tester-modal" class="modal route-page" hidden role="region" aria-labelledby="tester-title">
+    <div class="modal-card tester-card">
+      <div class="lab-page-head">
+        <h1 id="tester-title" class="brand-font">Try an OPhone Online</h1>
+        <a class="button secondary" href="/"><i class="icon" data-lucide="arrow-left"></i>Back home</a>
+      </div>
+      <div class="modal-body">
+        <div class="tester-layout">
+          <form id="device-tester-form" class="tester-controls">
+            <p class="tester-partner">Moosify partnered with Orange for OPhone sales, setup, and service. Pick a model and supported PineappleOS, then open apps to see how that phone behaves.</p>
+            <label class="field">OPhone model
+              <select id="tester-device"></select>
+            </label>
+            <label class="field">Operating system
+              <select id="tester-os"></select>
+            </label>
+            <button type="submit" class="button orange full"><i class="icon" data-lucide="play"></i>Start phone trial</button>
+            <p class="form-note trial-note" id="tester-result" aria-live="polite">Choose a model and supported PineappleOS version, then open an app below.</p>
+            <div class="test-results" id="tester-results" aria-label="Apps to try"></div>
+          </form>
+
+          <div class="tester-stage" aria-label="3D OPhone model preview">
+            <div class="phone-rig" id="phone-rig">
+              <figure class="phone-face front">
+                <img id="tester-front" src="Ophones/O1/O1%20Front.jpg" alt="OPhone front">
+              </figure>
+              <figure class="phone-face back">
+                <img id="tester-back" src="Ophones/O1/O1%20Back.jpg" alt="OPhone back">
+              </figure>
+              <div class="phone-label" id="tester-device-label">OPhone O1 on PineappleOS 1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </main>
+
+  <footer class="footer">
+    <p>Copyright 2026 Moosify. All rights reserved.</p>
+  </footer>
+
+  <script>
+    window.MOOSIFY_CONFIG = {
+      chatStatus: "__CHAT_STATUS_PLACEHOLDER__",
+      apiUrl: "__API_URL_PLACEHOLDER__"
+    };
+  </script>
+  <script src="/assets/moosify.js"></script>
+  </body>
+</html>
