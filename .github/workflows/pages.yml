@@ -37,12 +37,12 @@ jobs:
           for path in Path(".").rglob("*.html"):
               html = path.read_text()
               html = html.replace(
-                  'const API_URL = "__API_URL_PLACEHOLDER__";',
-                  f"const API_URL = {api_url};"
+                  '"__API_URL_PLACEHOLDER__"',
+                  api_url
               )
               html = html.replace(
-                  'const CURRENT_CHAT_STATUS = "__CHAT_STATUS_PLACEHOLDER__";',
-                  f"const CURRENT_CHAT_STATUS = {chat_status};"
+                  '"__CHAT_STATUS_PLACEHOLDER__"',
+                  chat_status
               )
               path.write_text(html)
           PY
