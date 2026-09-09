@@ -160,6 +160,11 @@ img {
   gap: 10px;
 }
 
+.nav-actions .button,
+.nav-actions .nav-link {
+  white-space: nowrap;
+}
+
 .nav-toggle {
   display: none;
 }
@@ -1303,6 +1308,71 @@ main {
 
   .tester-layout {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1080px) {
+  .nav {
+    min-height: auto;
+    padding: 12px 0;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .brand-title span {
+    display: none;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 40px;
+    padding: 0 12px;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: #fff;
+    font-weight: 800;
+  }
+
+  .nav-actions {
+    display: none;
+    width: 100%;
+    align-items: stretch;
+    gap: 8px;
+    padding-top: 10px;
+  }
+
+  .nav-actions.is-open {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .nav-actions > *,
+  .nav-actions .button,
+  .nav-actions .nav-link {
+    width: 100%;
+  }
+
+  .services-menu {
+    grid-column: 1 / -1;
+  }
+
+  .services-trigger {
+    justify-content: space-between;
+  }
+
+  .services-popover {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    margin-top: 8px;
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    box-shadow: none;
   }
 }
 
