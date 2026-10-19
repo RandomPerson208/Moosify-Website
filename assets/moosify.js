@@ -80,21 +80,44 @@ const detailVisual = document.querySelector('[data-detail-visual]');
 const productList = document.querySelector("[data-product-list]");
 const chatLog = document.querySelector('[data-chat-log]');
 const aiStatus = document.querySelector("[data-ai-status]");
-let savedChatHistory = [];
-try {
-  savedChatHistory = JSON.parse(localStorage.getItem("moosify-chat-history") || "[]");
-} catch (error) {
-  savedChatHistory = [];
+function loadChatHistory() {
+  try {
+    const raw = localStorage.getItem("moosify-chat-history");
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((entry) =>
+      entry && typeof entry.role === "string" && ["user", "assistant"].includes(entry.role) &&
+      typeof entry.content === "string" && entry.content.length > 0 && entry.content.length <= 2000
+    ).slice(-40);
+  } catch (error) {
+    localStorage.removeItem("moosify-chat-history");
+    return [];
+  }
 }
-const chatHistory = Array.isArray(savedChatHistory) ? savedChatHistory.slice(-40) : [];
+
+let savedChatHistory = loadChatHistory();
+const chatHistory = savedChatHistory.slice(-40);
 const pageChatLog = document.querySelector('[data-chat-log-page]');
 const pageAiStatus = document.querySelector('[data-ai-status-page]');
-let savedCart = [];
-try {
-  savedCart = JSON.parse(localStorage.getItem("moosify-cart") || "[]");
-} catch (error) {
-  savedCart = [];
+function loadCart() {
+  try {
+    const raw = localStorage.getItem("moosify-cart");
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((item) =>
+      item && typeof item.id === "string" && typeof item.name === "string" &&
+      typeof item.price === "number" && item.price >= 0 &&
+      Number.isInteger(item.quantity) && item.quantity > 0 && item.quantity <= 100
+    );
+  } catch (error) {
+    localStorage.removeItem("moosify-cart");
+    return [];
+  }
 }
+
+let savedCart = loadCart();
 const cart = new Map(savedCart.map((item) => [item.id, item]));
 let activeServiceKey = "phones";
 const ophoneModels = [
@@ -226,15 +249,21 @@ function renderRoutePages() {
 }
 
 function renderSavedChat() {
-  if (!pageChatLog || chatHistory.length === 0) return;
-  pageChatLog.innerHTML = '<div class="message">Moosy: Hey, I’m Moosy. What are you thinking about today?</div>';
-  chatHistory.forEach((entry) => {
-    const bubble = document.createElement("div");
-    bubble.className = entry.role === "user" ? "message user" : "message";
-    bubble.textContent = `${entry.role === "user" ? "You" : "Moosy"}: ${entry.content}`;
-    pageChatLog.appendChild(bubble);
+  const chatLogEl = document.querySelector('[data-chat-log]');
+  const pageChatLogEl = document.querySelector('[data-chat-log-page]');
+  const targetLogs = [chatLogEl, pageChatLogEl].filter(Boolean);
+  if (targetLogs.length === 0 || chatHistory.length === 0) return;
+
+  targetLogs.forEach((logEl) => {
+    logEl.innerHTML = '<div class="message">Moosy: Hey, I’m Moosy. What are you thinking about today?</div>';
+    chatHistory.forEach((entry) => {
+      const bubble = document.createElement("div");
+      bubble.className = entry.role === "user" ? "message user" : "message";
+      bubble.textContent = `${entry.role === "user" ? "You" : "Moosy"}: ${entry.content}`;
+      logEl.appendChild(bubble);
+    });
+    logEl.scrollTop = logEl.scrollHeight;
   });
-  pageChatLog.scrollTop = pageChatLog.scrollHeight;
 }
 
 function saveChatHistory() {
@@ -638,6 +667,16 @@ function renderTesterPreview() {
   testerFront.alt = `${model.name} front`;
   testerBack.alt = `${model.name} back`;
   testerLabel.textContent = `${model.name} on ${os.name}`;
+
+  // Fallback if images fail to load
+  testerFront.onerror = () => {
+    testerFront.src = "moosy-ceo-cutout.png";
+    testerFront.alt = "Image unavailable";
+  };
+  testerBack.onerror = () => {
+    testerBack.src = "moosy-ceo-cutout.png";
+    testerBack.alt = "Image unavailable";
+  };
 }
 
 function trialExperience(model, os, appId) {
