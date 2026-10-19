@@ -1,10 +1,108 @@
 // Cloudflare Worker for Moosify chat with multi‑provider failover
 // Exported module for Workers runtime (ESM)
 
+const PRODUCTION_ORIGIN = "https://moosify.pizzamonster.org";
+
+const MAX_MESSAGE_LENGTH = 2000;
+const MAX_HISTORY_ENTRIES = 50;
+const MAX_REQUEST_BODY_BYTES = 20_000;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 30;
+
+// In-memory rate limit store: IP -> { count, windowStart }
+const rateLimitStore = new Map();
+
+function getClientIp(request) {
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0].trim();
+  const realIp = request.headers.get("x-real-ip");
+  if (realIp) return realIp;
+  return "unknown";
+}
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  const entry = rateLimitStore.get(ip);
+  if (!entry) {
+    rateLimitStore.set(ip, { count: 1, windowStart: now });
+    return false;
+  }
+  if (now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+    rateLimitStore.set(ip, { count: 1, windowStart: now });
+    return false;
+  }
+  if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return true;
+  }
+  entry.count++;
+  return false;
+}
+
+function validateHistory(history) {
+  if (!Array.isArray(history)) return false;
+  if (history.length > MAX_HISTORY_ENTRIES) return false;
+  for (const entry of history) {
+    if (!entry || typeof entry !== "object") return false;
+    if (typeof entry.role !== "string" || !["user", "assistant"].includes(entry.role)) return false;
+    if (typeof entry.content !== "string" || entry.content.length > MAX_MESSAGE_LENGTH) return false;
+    if (entry.content.length === 0) return false;
+  }
+  return true;
+}
+
+async function readValidatedBody(request) {
+  const contentLength = Number(request.headers.get("content-length") || 0);
+  if (contentLength > MAX_REQUEST_BODY_BYTES) {
+    throw new Error("Request too large");
+  }
+  const chunks = [];
+  const reader = request.body.getReader();
+  let total = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    total += value.byteLength;
+    if (total > MAX_REQUEST_BODY_BYTES) throw new Error("Request too large");
+  }
+  const body = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    body.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  const text = new TextDecoder().decode(body);
+  try {
+    return JSON.parse(text || "{}");
+  } catch {
+    throw new Error("Invalid JSON");
+  }
+}
+
+function validateChatPayload(payload) {
+  if (!payload || typeof payload !== "object") {
+    throw new Error("Invalid payload");
+  }
+  if (payload.message !== undefined && (typeof payload.message !== "string" || payload.message.length > MAX_MESSAGE_LENGTH)) {
+    throw new Error("Message must be a string under 2000 characters");
+  }
+  if (payload.history !== undefined && !validateHistory(payload.history)) {
+    throw new Error("History must be an array of {role, content} entries (max 50)");
+  }
+}
+
 export default {
   async fetch(request, env, ctx) {
+    const ip = getClientIp(request);
+    if (isRateLimited(ip)) {
+      return new Response(
+        JSON.stringify({ error: "Too many requests. Please slow down." }),
+        { status: 429, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     const corsHeaders = {
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": PRODUCTION_ORIGIN,
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization"
     };
@@ -41,9 +139,10 @@ export default {
       }
       let payload;
       try {
-        payload = await request.json();
+        payload = await readValidatedBody(request);
+        validateChatPayload(payload);
       } catch (e) {
-        return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+        return new Response(JSON.stringify({ error: e.message }), {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders }
         });
@@ -71,9 +170,10 @@ export default {
 
     let payload;
     try {
-      payload = await request.json();
+      payload = await readValidatedBody(request);
+      validateChatPayload(payload);
     } catch (e) {
-      return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+      return new Response(JSON.stringify({ error: e.message }), {
         status: 400,
         headers: { "Content-Type": "application/json", ...corsHeaders }
       });
