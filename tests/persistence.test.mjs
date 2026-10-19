@@ -1,7 +1,28 @@
-import { describe, it, assert } from "node:test";
+import { describe, it } from "node:test";
+import assert from "node:assert";
 
 // Tests for cart persistence, chat persistence, and route handling.
 // To run: node --test tests/persistence.test.mjs
+
+// --- localStorage mock for Node.js test environment ---
+class LocalStorageMock {
+  constructor() {
+    this.store = new Map();
+  }
+  getItem(key) {
+    return this.store.has(key) ? this.store.get(key) : null;
+  }
+  setItem(key, value) {
+    this.store.set(key, String(value));
+  }
+  removeItem(key) {
+    this.store.delete(key);
+  }
+  clear() {
+    this.store.clear();
+  }
+}
+globalThis.localStorage = new LocalStorageMock();
 
 // --- Cart persistence tests ---
 
