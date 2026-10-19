@@ -91,6 +91,18 @@ function validateChatPayload(payload) {
   }
 }
 
+function validateLoginPayload(payload) {
+  if (!payload || typeof payload !== "object") {
+    throw new Error("Invalid payload");
+  }
+  if (typeof payload.email !== "string" || payload.email.trim().length === 0) {
+    throw new Error("Email is required");
+  }
+  if (typeof payload.password !== "string" || payload.password.length === 0) {
+    throw new Error("Password is required");
+  }
+}
+
 export default {
   async fetch(request, env, ctx) {
     const ip = getClientIp(request);
@@ -156,6 +168,32 @@ export default {
         status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders }
       });
+    }
+
+    // ---------------------------------------------------------------------
+    // 3️⃣ Login endpoint – demo session token issuance
+    // ---------------------------------------------------------------------
+    if (request.method === "POST" && pathname === "/api/login") {
+      let payload;
+      try {
+        payload = await readValidatedBody(request);
+        validateLoginPayload(payload);
+      } catch (e) {
+        return new Response(JSON.stringify({ error: e.message }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+      // Demo login: accept any non-empty email + password, issue a demo token
+      const token = `demo-${crypto.randomUUID()}`;
+      return new Response(
+        JSON.stringify({
+          token,
+          user: { email: payload.email, name: payload.email.split("@")[0] },
+          expiresIn: 86400
+        }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     }
 
     // ---------------------------------------------------------------------
