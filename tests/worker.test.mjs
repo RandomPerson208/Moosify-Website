@@ -1,4 +1,5 @@
-import { describe, it, assert } from "node:test";
+import { describe, it } from "node:test";
+import assert from "node:assert";
 
 // Tests for Cloudflare Worker responses
 // These tests simulate the Worker's fetch handler logic.
@@ -67,10 +68,10 @@ describe("Worker - rate limiting", () => {
   it("allows requests under the rate limit", () => {
     rateLimitStore.clear();
     const ip = "1.2.3.4";
-    for (let i = 0; i < RATE_LIMIT_MAX_REQUESTS - 1; i++) {
+    for (let i = 0; i < RATE_LIMIT_MAX_REQUESTS; i++) {
       assert.strictEqual(isRateLimited(ip), false);
     }
-    assert.strictEqual(isRateLimited(ip), true); // one more trips the limit
+    assert.strictEqual(isRateLimited(ip), true); // next one trips the limit
   });
 
   it("resets rate limit after window expires", () => {
