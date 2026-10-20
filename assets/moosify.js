@@ -119,34 +119,6 @@ function loadCart() {
 
 let savedCart = loadCart();
 const cart = new Map(savedCart.map((item) => [item.id, item]));
-
-// Session management for demo login
-const SESSION_KEY = "moosify-session";
-
-function loadSession() {
-  try {
-    const raw = localStorage.getItem(SESSION_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") return null;
-    if (typeof parsed.email !== "string" || parsed.email.length === 0) return null;
-    if (typeof parsed.token !== "string" || parsed.token.length === 0) return null;
-    return parsed;
-  } catch (error) {
-    localStorage.removeItem(SESSION_KEY);
-    return null;
-  }
-}
-
-function saveSession(session) {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-}
-
-function clearSession() {
-  localStorage.removeItem(SESSION_KEY);
-}
-
-let session = loadSession();
 let activeServiceKey = "phones";
 const ophoneModels = [
   { id: "O1", name: "OPhone O1", front: "Ophones/O1/O1 Front.jpg", back: "Ophones/O1/O1 Back.jpg", note: "starter model", osIds: ["pineappleos-1", "pineappleos-2", "pineappleos-3"] },
@@ -539,47 +511,6 @@ function updatePageIdentity(route) {
   if (route.startsWith("shop/") || route === "shop") {
     document.querySelector('[data-nav-section="services"]')?.setAttribute("aria-current", "page");
   }
-
-  // Update login/logout nav link based on session
-  const loginLink = document.querySelector('[href="/login/"]');
-  if (loginLink) {
-    if (session) {
-      const name = session.user?.name || session.email.split("@")[0];
-      loginLink.innerHTML = `<i class="icon" data-lucide="log-out"></i><span class="button-label">Logout</span>`;
-      loginLink.setAttribute("data-action", "logout");
-      loginLink.href = "#";
-      loginLink.onclick = (e) => {
-        e.preventDefault();
-        handleLogout();
-      };
-    } else {
-      loginLink.innerHTML = `<i class="icon" data-lucide="user"></i><span class="button-label">Login</span>`;
-      loginLink.removeAttribute("data-action");
-      loginLink.href = "/login/";
-      loginLink.onclick = null;
-    }
-    refreshIcons();
-  }
-}
-
-function handleLogin(email, token) {
-  const user = { email, name: email.split("@")[0] };
-  session = { email, token, user, loggedInAt: Date.now() };
-  saveSession(session);
-  updateNavSessionUI();
-}
-
-function handleLogout() {
-  clearSession();
-  session = null;
-  updateNavSessionUI();
-  showHome();
-}
-
-function updateNavSessionUI() {
-  // Re-evaluate the current route to refresh nav link
-  const route = window.location.pathname.replace(/^\/+|\/+$/g, "");
-  updatePageIdentity(route);
 }
 
 function showPath(path, replace = false) {
@@ -684,56 +615,6 @@ document.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("popstate", () => showPath(window.location.pathname));
-
-document.querySelector("[data-login-form]").addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const form = event.target;
-  const emailInput = form.querySelector('input[type="email"]');
-  const passwordInput = form.querySelector('input[type="password"]');
-  const note = document.querySelector("[data-login-note]");
-  const submitBtn = form.querySelector('button[type="submit"]');
-
-  const email = emailInput ? emailInput.value.trim() : "";
-  const password = passwordInput ? passwordInput.value : "";
-
-  if (!email || !password) {
-    if (note) note.textContent = "Please enter both email and password.";
-    return;
-  }
-
-  // Disable submit during request
-  if (submitBtn) submitBtn.disabled = true;
-  if (note) note.textContent = "Signing in...";
-
-  try {
-    const endpoint = (API_URL && API_URL.trim() !== "" && !API_URL.includes("__API_URL_PLACEHOLDER__"))
-      ? `${API_URL.replace(/\/$/, "")}/api/login`
-      : "/api/login";
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Login failed (${response.status})`);
-    }
-
-    const data = await response.json();
-    if (!data.token) throw new Error("No token returned");
-
-    handleLogin(email, data.token);
-    closeModals();
-    if (note) note.textContent = `Welcome back, ${session.user.name}!`;
-    emailInput.value = "";
-    passwordInput.value = "";
-  } catch (error) {
-    if (note) note.textContent = "Login failed. Please try again.";
-    console.error("Login error:", error);
-  } finally {
-    if (submitBtn) submitBtn.disabled = false;
-  }
-});
 
 const deviceForm = document.getElementById("device-tester-form");
 const testerDevice = document.getElementById("tester-device");
@@ -897,5 +778,4 @@ renderProducts(services[activeServiceKey].products);
 renderCart();
 renderSavedChat();
 showPath(window.location.pathname);
-updateNavSessionUI();
 refreshIcons();
