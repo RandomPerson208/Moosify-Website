@@ -147,8 +147,24 @@ export default {
     }
 
     // ---------------------------------------------------------------------
+    // 1.5️⃣ Auth status endpoint – public; returns logged-in user email if
+    // Cloudflare Access session exists, otherwise not-authenticated.
+    // Used by frontend to update nav Login/Logout state.
+    // ---------------------------------------------------------------------
+    if (request.method === "GET" && pathname === "/api/auth-status") {
+      const user = getAuthenticatedUser(request);
+      return new Response(
+        JSON.stringify({
+          authenticated: !!user,
+          user: user ? { email: user.email } : null
+        }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // ---------------------------------------------------------------------
     // Auth gate – Cloudflare Access injects Cf-Access-Authenticated-User-Email
-    // Protect all API endpoints except /api/health
+    // Protect all API endpoints except /api/health and /api/auth-status
     // ---------------------------------------------------------------------
     if (pathname.startsWith("/api/")) {
       const authResult = requireAuth(request, corsHeaders);

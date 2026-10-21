@@ -76,3 +76,27 @@ describe("Auth gate", () => {
     assert.strictEqual(result.headers.get("access-control-allow-origin"), PRODUCTION_ORIGIN);
   });
 });
+
+// --- Auth status endpoint tests ---
+describe("Auth status endpoint", () => {
+  it("returns authenticated=false without Access header", () => {
+    const user = getAuthenticatedUser(makeRequest());
+    assert.strictEqual(user, null);
+  });
+
+  it("returns authenticated=true with valid Access header", () => {
+    const req = makeRequest({
+      "cf-access-authenticated-user-email": "moosy@gmail.com"
+    });
+    const user = getAuthenticatedUser(req);
+    assert.deepStrictEqual(user, { email: "moosy@gmail.com" });
+  });
+
+  it("extracts Google-style email from Access header", () => {
+    const req = makeRequest({
+      "cf-access-authenticated-user-email": "user.name+tag@gmail.com"
+    });
+    const user = getAuthenticatedUser(req);
+    assert.strictEqual(user.email, "user.name+tag@gmail.com");
+  });
+});
