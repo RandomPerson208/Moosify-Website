@@ -91,7 +91,7 @@ function loadChatHistory() {
       typeof entry.content === "string" && entry.content.length > 0 && entry.content.length <= 2000
     ).slice(-40);
   } catch (error) {
-    localStorage.removeItem("moosify-chat-history");
+    try { localStorage.removeItem("moosify-chat-history"); } catch {}
     return [];
   }
 }
@@ -112,7 +112,7 @@ function loadCart() {
       Number.isInteger(item.quantity) && item.quantity > 0 && item.quantity <= 100
     );
   } catch (error) {
-    localStorage.removeItem("moosify-cart");
+    try { localStorage.removeItem("moosify-cart"); } catch {}
     return [];
   }
 }
@@ -515,7 +515,10 @@ function updatePageIdentity(route) {
 
 async function updateNavAuthUI() {
   try {
-    const resp = await fetch("/api/auth-status", {
+    const apiBase = (API_URL && API_URL.trim() !== "" && !API_URL.includes("__API_URL_PLACEHOLDER__"))
+      ? API_URL.replace(/\/$/, "")
+      : "";
+    const resp = await fetch(`${apiBase}/api/auth-status`, {
       headers: { "Content-Type": "application/json" }
     });
     const data = await resp.json();
@@ -662,6 +665,31 @@ document.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("popstate", () => showPath(window.location.pathname));
+
+// ---------------------------------------------------------------------
+// Login form – Google Sign-In via Cloudflare Access.
+// Cloudflare Access manages the actual authentication (Google, email OTP, etc.).
+// Submitting this form redirects to the Access login URL; after successful sign-in
+// Access redirects back to the site with a validated session cookie.
+// ---------------------------------------------------------------------
+document.querySelector("[data-login-form]").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const form = event.target;
+  const emailInput = form.querySelector('input[type="email"]');
+  const note = document.querySelector("[data-login-note]");
+  const submitBtn = form.querySelector('button[type="submit"]');
+
+  const email = emailInput ? emailInput.value.trim() : "";
+
+  if (submitBtn) submitBtn.disabled = true;
+  if (note) note.textContent = "Signing in with Google...";
+
+  // Redirect to Cloudflare Access login. Access will prompt for Google (or
+  // configured IdP), validate, and redirect back with a signed session cookie.
+  const loginUrl = "https://moosify-website.cloudflareaccess.com/cdn-cgi/access/login";
+  const callbackUrl = window.location.origin + window.location.pathname;
+  window.location.href = `${loginUrl}?callback=${encodeURIComponent(callbackUrl)}`;
+});
 
 const deviceForm = document.getElementById("device-tester-form");
 const testerDevice = document.getElementById("tester-device");
