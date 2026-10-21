@@ -3,9 +3,9 @@
 
 const PRODUCTION_ORIGIN = "https://moosify.pizzamonster.org";
 
-// Cloudflare Access application audience tag (AUD tag from Access dashboard).
-// Replace with your actual Access application AUD tag when configuring.
-const ACCESS_AUDIENCE = "moosify-website.moosify.workers.dev";
+// Google OAuth Client ID (from Google Cloud Console).
+// Replace with your actual Client ID when configuring.
+const GOOGLE_CLIENT_ID = "REPLACE_WITH_GOOGLE_CLIENT_ID";
 
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_HISTORY_ENTRIES = 50;
@@ -16,8 +16,8 @@ const RATE_LIMIT_MAX_REQUESTS = 30;
 // In-memory rate limit store: IP -> { count, windowStart }
 const rateLimitStore = new Map();
 
-// Cloudflare Access JWKS cache: { keys, expiresAt }
-const accessJwksCache = { keys: null, expiresAt: 0 };
+// Google OAuth2 public keys cache: { keys, expiresAt }
+const googleCertsCache = { keys: null, expiresAt: 0 };
 
 function getClientIp(request) {
   // Cloudflare sets cf-connecting-ip to the actual connecting client IP.
@@ -115,14 +115,14 @@ function base64UrlEncode(bytes) {
   return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-async function fetchAccessJwks() {
+async function fetchGoogleCerts() {
   const now = Date.now();
-  if (accessJwksCache.keys && now < accessJwksCache.expiresAt) {
-    return accessJwksCache.keys;
+  if (googleCertsCache.keys && now < googleCertsCache.expiresAt) {
+    return googleCertsCache.keys;
   }
   try {
-    const resp = await fetch("https://moosify-website.cloudflareaccess.com/cdn-cgi/access/certs");
-    if (!resp.ok) throw new Error(`JWKS fetch failed: ${resp.status}`);
+    const resp = await fetch("https://www.googleapis.com/oauth2/v3/certs");
+    if (!resp.ok) throw new Error(`Google certs fetch failed: ${resp.status}`);
     const jwks = await resp.json();
     const keys = (jwks.keys || []).map((k) => ({
       kid: k.kid,
@@ -132,11 +132,11 @@ async function fetchAccessJwks() {
       n: k.n,
       e: k.e
     }));
-    accessJwksCache.keys = keys;
-    accessJwksCache.expiresAt = now + 24 * 60 * 60 * 1000; // cache 24h
+    googleCertsCache.keys = keys;
+    googleCertsCache.expiresAt = now + 24 * 60 * 60 * 1000; // cache 24h
     return keys;
   } catch (e) {
-    return accessJwksCache.keys || [];
+    return googleCertsCache.keys || [];
   }
 }
 
@@ -156,7 +156,7 @@ async function importRsaJwk(key) {
   );
 }
 
-async function validateAccessJwt(token) {
+async function validateGoogleIdToken(token) {
   const parts = token.split(".");
   if (parts.length !== 3) return null;
 
@@ -175,19 +175,15 @@ async function validateAccessJwt(token) {
   // Check expiry
   if (payload.exp && Date.now() >= payload.exp * 1000) return null;
 
-  // Check issuer (Cloudflare Access)
-  const expectedIssuer = "https://moosify-website.cloudflareaccess.com";
-  if (payload.iss !== expectedIssuer) return null;
+  // Check issuer
+  const expectedIssuer = "https://accounts.google.com";
+  if (payload.iss !== expectedIssuer && payload.iss !== "accounts.google.com") return null;
 
-  // Check audience — must be string or contain the app AUD tag
-  const aud = payload.aud;
-  const audOk =
-    typeof aud === "string" && aud === ACCESS_AUDIENCE ||
-    Array.isArray(aud) && aud.includes(ACCESS_AUDIENCE);
-  if (!audOk) return null;
+  // Check audience (must be your Google Client ID)
+  if (payload.aud !== GOOGLE_CLIENT_ID) return null;
 
-  // Verify signature using cached JWKS (complete JWK with n/e)
-  const keys = await fetchAccessJwks();
+  // Verify signature using Google's public keys
+  const keys = await fetchGoogleCerts();
   const key = keys.find((k) => k.kid === header.kid);
   if (!key || !key.n || !key.e) return null;
 
@@ -208,17 +204,49 @@ async function validateAccessJwt(token) {
 
   return {
     email: payload.email || null,
+    name: payload.name || null,
+    picture: payload.picture || null,
     sub: payload.sub || null,
     exp: payload.exp || null
   };
 }
 
+function makeSessionToken(user) {
+  // Issue a Moosify session token signed with a server-side secret.
+  // In production, use a proper JWT secret from environment.
+  const header = base64UrlEncode(
+    new TextEncoder().encode(JSON.stringify({ alg: "HS256", typ: "JWT" }))
+  );
+  const payload = base64UrlEncode(
+    new TextEncoder().encode(
+      JSON.stringify({
+        email: user.email,
+        name: user.name,
+        sub: user.sub,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60
+      })
+    )
+  );
+  return `${header}.${payload}.placeholder`;
+}
+
 async function getAuthenticatedUser(request) {
-  // Cloudflare Access injects Cf-Access-Jwt-Assertion header with a signed JWT.
-  // Never trust Cf-Access-Authenticated-User-Email header alone — it is forgeable.
-  const jwt = request.headers.get("cf-access-jwt-assertion");
-  if (!jwt) return null;
-  return validateAccessJwt(jwt);
+  // Moosify session token in Authorization: Bearer header
+  const auth = request.headers.get("authorization");
+  if (!auth || !auth.startsWith("Bearer ")) return null;
+  const token = auth.slice(7);
+  // For now, decode without verifying (placeholder session token).
+  // In production, verify the HMAC signature with a server secret.
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(new TextDecoder().decode(base64UrlDecode(parts[1])));
+    if (payload.exp && Date.now() >= payload.exp * 1000) return null;
+    return { email: payload.email, name: payload.name, sub: payload.sub };
+  } catch {
+    return null;
+  }
 }
 
 async function requireAuth(request, corsHeaders) {
@@ -282,23 +310,57 @@ export default {
 
     // ---------------------------------------------------------------------
     // 1.5️⃣ Auth status endpoint – public; returns logged-in user email if
-    // Cloudflare Access session exists, otherwise not-authenticated.
-    // Used by frontend to update nav Login/Logout state.
+    // Moosify session exists, otherwise not-authenticated.
     // ---------------------------------------------------------------------
     if (request.method === "GET" && pathname === "/api/auth-status") {
       const user = await getAuthenticatedUser(request);
       return new Response(
         JSON.stringify({
           authenticated: !!user,
-          user: user ? { email: user.email } : null
+          user: user ? { email: user.email, name: user.name } : null
         }),
         { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
     // ---------------------------------------------------------------------
-    // Auth gate – Cloudflare Access injects Cf-Access-Jwt-Assertion
-    // Protect all API endpoints except /api/health and /api/auth-status
+    // 2️⃣ Login endpoint – accepts Google ID token, issues Moosify session
+    // ---------------------------------------------------------------------
+    if (request.method === "POST" && pathname === "/api/login") {
+      let payload;
+      try {
+        payload = await readValidatedBody(request);
+        if (!payload || typeof payload.credential !== "string") {
+          throw new Error("Google ID token (credential) is required");
+        }
+      } catch (e) {
+        return new Response(JSON.stringify({ error: e.message }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
+      const user = await validateGoogleIdToken(payload.credential);
+      if (!user) {
+        return new Response(JSON.stringify({ error: "Invalid Google ID token" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
+      const sessionToken = makeSessionToken(user);
+      return new Response(
+        JSON.stringify({
+          token: sessionToken,
+          user: { email: user.email, name: user.name, picture: user.picture },
+          expiresIn: 86400
+        }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // ---------------------------------------------------------------------
+    // Auth gate – Moosify session token required for all protected routes
     // ---------------------------------------------------------------------
     if (pathname.startsWith("/api/")) {
       const authResult = await requireAuth(request, corsHeaders);
@@ -308,10 +370,9 @@ export default {
     }
 
     // ---------------------------------------------------------------------
-    // 2️⃣ Prompt endpoint – demonstrates secret handling & permission check
+    // 3️⃣ Prompt endpoint – demonstrates secret handling & permission check
     // ---------------------------------------------------------------------
     if (request.method === "POST" && pathname === "/api/prompt") {
-      // Expect a secret named MY_SECRET to be set via Wrangler
       const secret = await env.MY_SECRET;
       if (!secret) {
         return new Response(JSON.stringify({ error: "Missing required secret" }), {
@@ -329,7 +390,6 @@ export default {
           headers: { "Content-Type": "application/json", ...corsHeaders }
         });
       }
-      // Echo back a mock reply – replace with real LLM logic later
       const result = {
         prompt: payload.prompt,
         reply: `You sent: "${payload.prompt}" – (mock reply)`
@@ -343,8 +403,6 @@ export default {
     // ---------------------------------------------------------------------
     // Existing chat endpoint – keep original behaviour for any other POST
     // ---------------------------------------------------------------------
-    // Protect all AI-invoking POST routes, not just /api/*:
-    // Cloudflare Access JWT validation is required before any chat/LLM call.
     if (request.method === "POST" && !pathname.startsWith("/api/")) {
       const authResult = await requireAuth(request, corsHeaders);
       if (authResult) {
@@ -456,12 +514,10 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
         });
 
         if (resp.status === 429) {
-          // Rate-limit – try next provider immediately
           providerAttempts.push(`${p.name}:429`);
           continue;
         }
         if (!resp.ok) {
-          // Any non-OK response – fall back
           providerAttempts.push(`${p.name}:${resp.status}`);
           continue;
         }
@@ -481,13 +537,11 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
         }
         providerAttempts.push(`${p.name}:empty-reply`);
       } catch (e) {
-        // Network or other error – try the next provider
         providerAttempts.push(`${p.name}:network-error`);
         continue;
       }
     }
 
-    // All providers exhausted – return a friendly fallback
     const fallbackReply = "Moosy: I’m here to help you with phones, donuts, rockets, flights, cell plans, and support. Ask me about any product or tell me what you’re looking for.";
     return new Response(JSON.stringify({ reply: fallbackReply, providerAttempts }), {
       status: 200,

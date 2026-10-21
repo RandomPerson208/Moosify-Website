@@ -519,19 +519,25 @@ async function updateNavAuthUI() {
     const apiBase = (API_URL && API_URL.trim() !== "" && !API_URL.includes("__API_URL_PLACEHOLDER__"))
       ? API_URL.replace(/\/$/, "")
       : "";
+    // Read stored Moosify session token
+    let sessionToken = "";
+    try { sessionToken = localStorage.getItem("moosify-session-token") || ""; } catch {}
     const resp = await fetch(`${apiBase}/api/auth-status`, {
       credentials: "include",
-      headers: { "Content-Type": "application/json" }
+      headers: {
+        "Content-Type": "application/json",
+        ...(sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {})
+      }
     });
     const data = await resp.json();
     const authenticated = data.authenticated === true;
     const email = data.user?.email || "";
+    const name = data.user?.name || "";
 
     const loginLink = document.querySelector('[href="/login/"]');
     if (!loginLink) return;
 
     if (authenticated) {
-      const name = email.split("@")[0];
       loginLink.innerHTML = `<i class="icon" data-lucide="log-out"></i><span class="button-label">${email}</span>`;
       loginLink.setAttribute("data-action", "logout");
       loginLink.href = "#";
@@ -560,9 +566,10 @@ async function updateNavAuthUI() {
 }
 
 function handleLogout() {
-  // Cloudflare Access logout URL – clears the Access session cookie
-  const logoutUrl = "https://moosify-website.cloudflareaccess.com/cdn-cgi/access/logout";
-  window.location.href = logoutUrl;
+  // Clear Moosify session token and redirect to Google sign-out (optional)
+  try { localStorage.removeItem("moosify-session-token"); } catch {}
+  updateNavAuthUI();
+  showHome();
 }
 
 function showPath(path, replace = false) {
@@ -669,28 +676,108 @@ document.addEventListener("keydown", (event) => {
 window.addEventListener("popstate", () => showPath(window.location.pathname));
 
 // ---------------------------------------------------------------------
-// Login form – Google Sign-In via Cloudflare Access.
-// Cloudflare Access manages the actual authentication (Google, email OTP, etc.).
-// Submitting this form redirects to the Access login URL; after successful sign-in
-// Access redirects back to the site with a validated session cookie.
+// Login form – Google Sign-In via Google Identity Services.
+// Loads the Google SDK, renders a "Sign in with Google" button, and on
+// success sends the Google ID token to /api/login for validation.
+// Replace GOOGLE_CLIENT_ID below with your real Client ID from Google Cloud Console.
 // ---------------------------------------------------------------------
+const GOOGLE_CLIENT_ID = "REPLACE_WITH_GOOGLE_CLIENT_ID";
+
+function loadGoogleSdk() {
+  return new Promise((resolve, reject) => {
+    if (window.google && window.google.accounts) {
+      resolve(window.google);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve(window.google);
+    script.onerror = () => reject(new Error("Failed to load Google Identity Services SDK"));
+    document.head.appendChild(script);
+  });
+}
+
+function renderGoogleLoginButton(form) {
+  const note = document.querySelector("[data-login-note]");
+  const container = form.parentElement || form;
+  // Clear existing login button and render Google button
+  const existing = container.querySelector(".google-login-btn");
+  if (existing) existing.remove();
+
+  const btn = document.createElement("div");
+  btn.id = "google-login-btn";
+  btn.className = "google-login-btn";
+  container.appendChild(btn);
+
+  loadGoogleSdk().then((google) => {
+    google.accounts.id.renderButton(
+      btn,
+      {
+        theme: "outline",
+        size: "large",
+        width: "100%",
+        logo_alignment: "center"
+      }
+    );
+
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: async (credentialResponse) => {
+        const credential = credentialResponse.credential;
+        if (!credential) {
+          if (note) note.textContent = "Google sign-in failed: no credential.";
+          return;
+        }
+        if (note) note.textContent = "Validating with Moosify...";
+
+        try {
+          const apiBase = (API_URL && API_URL.trim() !== "" && !API_URL.includes("__API_URL_PLACEHOLDER__"))
+            ? API_URL.replace(/\/$/, "")
+            : "";
+          const resp = await fetch(`${apiBase}/api/login`, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ credential })
+          });
+
+          if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.error || `Login failed (${resp.status})`);
+          }
+
+          const data = await resp.json();
+          if (!data.token) throw new Error("No session token returned");
+
+          // Store Moysify session token for authenticated requests
+          try {
+            localStorage.setItem("moosify-session-token", data.token);
+          } catch {}
+
+          if (note) note.textContent = `Welcome back, ${data.user?.name || data.user?.email}!`;
+          closeModals();
+          updateNavAuthUI();
+          form.reset();
+        } catch (error) {
+          if (note) note.textContent = "Login failed. Please try again.";
+          console.error("Google login error:", error);
+        }
+      }
+    });
+  }).catch((error) => {
+    if (note) note.textContent = "Google Sign-In unavailable. Check console.";
+    console.error(error);
+  });
+}
+
 document.querySelector("[data-login-form]").addEventListener("submit", (event) => {
   event.preventDefault();
   const form = event.target;
-  const emailInput = form.querySelector('input[type="email"]');
   const note = document.querySelector("[data-login-note]");
-  const submitBtn = form.querySelector('button[type="submit"]');
-
-  const email = emailInput ? emailInput.value.trim() : "";
-
-  if (submitBtn) submitBtn.disabled = true;
-  if (note) note.textContent = "Signing in with Google...";
-
-  // Redirect to Cloudflare Access login. Access will prompt for Google (or
-  // configured IdP), validate, and redirect back with a signed session cookie.
-  const loginUrl = "https://moosify-website.cloudflareaccess.com/cdn-cgi/access/login";
-  const callbackUrl = window.location.origin + window.location.pathname;
-  window.location.href = `${loginUrl}?callback=${encodeURIComponent(callbackUrl)}`;
+  if (note) note.textContent = "Loading Google Sign-In...";
+  renderGoogleLoginButton(form);
 });
 
 const deviceForm = document.getElementById("device-tester-form");
