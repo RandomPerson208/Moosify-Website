@@ -513,6 +513,53 @@ function updatePageIdentity(route) {
   }
 }
 
+async function updateNavAuthUI() {
+  try {
+    const resp = await fetch("/api/auth-status", {
+      headers: { "Content-Type": "application/json" }
+    });
+    const data = await resp.json();
+    const authenticated = data.authenticated === true;
+    const email = data.user?.email || "";
+
+    const loginLink = document.querySelector('[href="/login/"]');
+    if (!loginLink) return;
+
+    if (authenticated) {
+      const name = email.split("@")[0];
+      loginLink.innerHTML = `<i class="icon" data-lucide="log-out"></i><span class="button-label">${email}</span>`;
+      loginLink.setAttribute("data-action", "logout");
+      loginLink.href = "#";
+      loginLink.onclick = (e) => {
+        e.preventDefault();
+        handleLogout();
+      };
+    } else {
+      loginLink.innerHTML = `<i class="icon" data-lucide="user"></i><span class="button-label">Login</span>`;
+      loginLink.removeAttribute("data-action");
+      loginLink.href = "/login/";
+      loginLink.onclick = null;
+    }
+    refreshIcons();
+  } catch (error) {
+    // Auth check failed – show Login as safe default
+    const loginLink = document.querySelector('[href="/login/"]');
+    if (loginLink) {
+      loginLink.innerHTML = `<i class="icon" data-lucide="user"></i><span class="button-label">Login</span>`;
+      loginLink.removeAttribute("data-action");
+      loginLink.href = "/login/";
+      loginLink.onclick = null;
+      refreshIcons();
+    }
+  }
+}
+
+function handleLogout() {
+  // Cloudflare Access logout URL – clears the Access session cookie
+  const logoutUrl = "https://moosify-website.cloudflareaccess.com/cdn-cgi/access/logout";
+  window.location.href = logoutUrl;
+}
+
 function showPath(path, replace = false) {
   const route = path.replace(/^\/+|\/+$/g, "");
   updatePageIdentity(route);
@@ -778,4 +825,5 @@ renderProducts(services[activeServiceKey].products);
 renderCart();
 renderSavedChat();
 showPath(window.location.pathname);
+updateNavAuthUI();
 refreshIcons();
