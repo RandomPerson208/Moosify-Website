@@ -12,9 +12,18 @@ const RATE_LIMIT_MAX_REQUESTS = 30;
 // In-memory rate limit store: IP -> { count, windowStart }
 const rateLimitStore = new Map();
 
+// Cloudflare Access JWT validation cache: kid -> { pem, expiresAt }
+const accessCertCache = new Map();
+
+// Fetch Cloudflare Access JWKS public keys for JWT signature validation.
+// Replace with your Access team domain when configuring in the dashboard.
+const ACCESS_TEAM_DOMAIN = "moosify-website.cloudflareaccess.com";
+
 function getClientIp(request) {
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
+  // Cloudflare sets cf-connecting-ip to the actual connecting client IP.
+  // X-Forwarded-For is client-supplied and forgeable, so never trust it here.
+  const cfIp = request.headers.get("cf-connecting-ip");
+  if (cfIp) return cfIp.trim();
   const realIp = request.headers.get("x-real-ip");
   if (realIp) return realIp;
   return "unknown";
@@ -91,11 +100,111 @@ function validateChatPayload(payload) {
   }
 }
 
+async function fetchAccessJwks() {
+  const cache = accessCertCache.get(ACCESS_TEAM_DOMAIN);
+  if (cache && Date.now() < cache.expiresAt) {
+    return cache.keys;
+  }
+  try {
+    const resp = await fetch(`https://${ACCESS_TEAM_DOMAIN}/cdn-cgi/access/certs`);
+    if (!resp.ok) throw new Error(`JWKS fetch failed: ${resp.status}`);
+    const jwks = await resp.json();
+    const keys = (jwks.keys || []).map((k) => ({
+      kid: k.kid,
+      alg: k.alg,
+      x5c: k.x5c,
+      use: k.use
+    }));
+    accessCertCache.set(ACCESS_TEAM_DOMAIN, {
+      keys,
+      expiresAt: Date.now() + 24 * 60 * 60 * 1000 // cache 24h
+    });
+    return keys;
+  } catch (e) {
+    // Return cached keys if available, otherwise empty
+    return cache ? cache.keys : [];
+  }
+}
+
+function base64UrlDecode(input) {
+  let base64 = input.replace(/-/g, "+").replace(/_/g, "/");
+  while (base64.length % 4) base64 += "=";
+  const bin = atob(base64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+
+async function importX5cCert(x5cCert) {
+  const certDer = base64UrlDecode(x5cCert);
+  return await crypto.subtle.importKey(
+    "spki",
+    certDer,
+    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+    true,
+    ["verify"]
+  );
+}
+
+async function validateAccessJwt(token) {
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+
+  let header, payload;
+  try {
+    header = JSON.parse(
+      new TextDecoder().decode(base64UrlDecode(parts[0]))
+    );
+    payload = JSON.parse(
+      new TextDecoder().decode(base64UrlDecode(parts[1]))
+    );
+  } catch {
+    return null;
+  }
+
+  // Check expiry
+  if (payload.exp && Date.now() >= payload.exp * 1000) return null;
+
+  // Check issuer and audience (Cloudflare Access values)
+  const expectedIssuer = `https://${ACCESS_TEAM_DOMAIN}`;
+  if (payload.iss !== expectedIssuer) return null;
+  if (payload.aud !== expectedIssuer && !Array.isArray(payload.aud)?.includes(expectedIssuer)) {
+    return null;
+  }
+
+  // Verify signature using cached JWKS
+  const keys = await fetchAccessJwks();
+  const key = keys.find((k) => k.kid === header.kid);
+  if (!key || !key.x5c?.[0]) return null;
+
+  try {
+    const cryptoKey = await importX5cCert(key.x5c[0]);
+    const signature = base64UrlDecode(parts[2]);
+    const data = new TextEncoder().encode(`${parts[0]}.${parts[1]}`);
+    const valid = await crypto.subtle.verify(
+      "RSASSA-PKCS1-v1_5",
+      cryptoKey,
+      signature,
+      data
+    );
+    if (!valid) return null;
+  } catch {
+    return null;
+  }
+
+  return {
+    email: payload.email || null,
+    sub: payload.sub || null,
+    exp: payload.exp || null
+  };
+}
+
 function getAuthenticatedUser(request) {
-  // Cloudflare Access injects this header when a valid session exists
-  const email = request.headers.get("cf-access-authenticated-user-email");
-  if (!email) return null;
-  return { email };
+  // Cloudflare Access injects a signed JWT in Cf-Access-Authenticated-User-Jwt.
+  // Never trust the forgeable Cf-Access-Authenticated-User-Email header alone.
+  const jwt = request.headers.get("cf-access-authenticated-user-jwt");
+  if (!jwt) return null;
+  return validateAccessJwt(jwt);
 }
 
 function requireAuth(request, corsHeaders) {
@@ -163,7 +272,7 @@ export default {
     }
 
     // ---------------------------------------------------------------------
-    // Auth gate – Cloudflare Access injects Cf-Access-Authenticated-User-Email
+    // Auth gate – Cloudflare Access injects Cf-Access-Authenticated-User-JWT
     // Protect all API endpoints except /api/health and /api/auth-status
     // ---------------------------------------------------------------------
     if (pathname.startsWith("/api/")) {
@@ -209,6 +318,15 @@ export default {
     // ---------------------------------------------------------------------
     // Existing chat endpoint – keep original behaviour for any other POST
     // ---------------------------------------------------------------------
+    // Protect all AI-invoking POST routes, not just /api/*:
+    // Cloudflare Access JWT validation is required before any chat/LLM call.
+    if (request.method === "POST" && !pathname.startsWith("/api/")) {
+      const authResult = requireAuth(request, corsHeaders);
+      if (authResult) {
+        return authResult;
+      }
+    }
+
     if (request.method !== "POST") {
       return new Response(JSON.stringify({ error: "Method not allowed" }), {
         status: 405,
