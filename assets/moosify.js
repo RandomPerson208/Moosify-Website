@@ -409,10 +409,15 @@ async function askMoosy(message) {
 };
   try {
     const endpoint = (API_URL && API_URL.trim() !== "" && !API_URL.includes("__API_URL_PLACEHOLDER__")) ? API_URL : "/api/moosy";
+    let sessionToken = "";
+    try { sessionToken = localStorage.getItem("moosify-session-token") || ""; } catch {}
     const response = await fetch(endpoint, {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {})
+      },
       body: JSON.stringify(payload)
     });
     if (!response.ok) throw new Error(`Moosy API returned ${response.status}`);
