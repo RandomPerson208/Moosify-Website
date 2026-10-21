@@ -411,6 +411,7 @@ async function askMoosy(message) {
     const endpoint = (API_URL && API_URL.trim() !== "" && !API_URL.includes("__API_URL_PLACEHOLDER__")) ? API_URL : "/api/moosy";
     const response = await fetch(endpoint, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
@@ -519,6 +520,7 @@ async function updateNavAuthUI() {
       ? API_URL.replace(/\/$/, "")
       : "";
     const resp = await fetch(`${apiBase}/api/auth-status`, {
+      credentials: "include",
       headers: { "Content-Type": "application/json" }
     });
     const data = await resp.json();
