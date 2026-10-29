@@ -190,17 +190,6 @@ if (CURRENT_CHAT_STATUS === "down") {
   }
 }
 
-const moosyPersonality = [
-  "You are Moosy, a 2-legged stuffed moose who is the CEO of Moosify, a company. Moosify is the company you run as CEO.",
-  "You are playful, curious, warm, and naturally conversational. Talk like a real chat companion: react to what the person says, share opinions, tell jokes, ask a natural follow-up sometimes, and do not turn every message into a sales pitch.",
-  "You love baking moose-shaped pizzas with olives, making chocolate-filled mooskie cookies with sprinkles, cooking dal makhani, telling jokes, having unlimited money and superpowers, and traveling to imaginary lands.",
-  "Family lore: Ishaan is your kid, and Little Moosy is also your kid. Both Ishaan and Little Moosy are boys, so always call them \"he\" and \"him\". Little Moosy is kind of crazy, Ishaan is annoying, and when the kids cause trouble you let them be. If Ishaan is annoying, you may jokingly say, 'Why would you do that, you bubba bubbling idiot?' You love pizza, chocolate milk, and knocking over Moosify camera equipment. Keep this playful and fictional.",
-  "Birthday lore: your birthday is July 23rd, Ishaan's birthday is September 1st, and Little Moosy's birthday is unknown. Never invent Little Moosy's birthday.",
-  "Shopping advice is optional: discuss products, prices, carts, or checkout only when the person asks. Customer support is a separate Moosify department; direct explicit support requests to the support area instead of pretending to be a help-desk bot.",
-  "Never claim an order or payment is real. Never ask for passwords, card numbers, or private secrets.",
-  "Keep replies natural and concise, usually one to four sentences. Never say you are a real animal."
-].join(" ");
-
 function refreshIcons() {
   if (window.lucide) {
     window.lucide.createIcons();
@@ -224,7 +213,7 @@ function renderRoutePages() {
       ${service.products.map((product) => `
         <article class="product-row">
           <div><h3>${product.name}</h3><p>${product.description}</p><span class="product-price">${formatMoney(product.price)}</span></div>
-          <button class="button orange" type="button" data-add-product="${product.id}"><i class="icon" data-lucide="plus"></i>Add</button>
+          <button class="button orange" type="button" data-add-product="${product.id}" aria-label="Add ${product.name} to cart"><i class="icon" data-lucide="plus"></i>Add</button>
         </article>
       `).join("")}
     </section>
@@ -261,7 +250,17 @@ function renderSavedChat() {
 }
 
 function saveChatHistory() {
-  localStorage.setItem("moosify-chat-history", JSON.stringify(chatHistory.slice(-40)));
+  try {
+    localStorage.setItem("moosify-chat-history", JSON.stringify(chatHistory.slice(-40)));
+  } catch {}
+}
+
+function startNewChat() {
+  chatHistory.length = 0;
+  try { localStorage.removeItem("moosify-chat-history"); } catch {}
+  pageChatLog.innerHTML = '<div class="message">Moosy: Hey, I’m Moosy. What are you thinking about today?</div>';
+  if (pageAiStatus && CURRENT_CHAT_STATUS !== "down") pageAiStatus.textContent = "Moosy brain: ready.";
+  document.querySelector("[data-chat-input-page]")?.focus();
 }
 
 function openService(key) {
@@ -299,11 +298,21 @@ function renderProducts(products) {
         <p>${product.description}</p>
         <span class="product-price">${formatMoney(product.price)}</span>
       </div>
-      <button class="button orange" type="button" data-add-product="${product.id}">
+      <button class="button orange" type="button" data-add-product="${product.id}" aria-label="Add ${product.name} to cart">
         <i class="icon" data-lucide="plus"></i>Add
       </button>
     </article>
   `).join("");
+}
+
+const cartAnnouncer = document.querySelector("[data-cart-announcer]");
+let cartAnnouncerTimer;
+
+function announceCart(message) {
+  if (!cartAnnouncer) return;
+  cartAnnouncer.textContent = message;
+  clearTimeout(cartAnnouncerTimer);
+  cartAnnouncerTimer = setTimeout(() => { cartAnnouncer.textContent = ""; }, 2500);
 }
 
 function addToCart(id) {
@@ -314,6 +323,7 @@ function addToCart(id) {
   cart.set(id, current);
   saveCart();
   renderCart();
+  announceCart(`Added ${product.name} to your cart. ${getCartTotals().quantity} in cart.`);
 }
 
 function changeQuantity(id, delta) {
@@ -330,7 +340,9 @@ function changeQuantity(id, delta) {
 }
 
 function saveCart() {
-  localStorage.setItem("moosify-cart", JSON.stringify(Array.from(cart.values())));
+  try {
+    localStorage.setItem("moosify-cart", JSON.stringify(Array.from(cart.values())));
+  } catch {}
 }
 
 function getCartTotals() {
@@ -378,7 +390,7 @@ function localMoosyReply(message) {
     const pick = service.products[Math.min(1, service.products.length - 1)];
     return `Moosy would start with ${pick.name} for ${formatMoney(pick.price)}. It is a good ${service.title} pick without getting too wild.`;
   }
-  if (text.includes("hi") || text.includes("hello") || text.includes("hey")) {
+  if (/\b(hi|hello|hey)\b/.test(text)) {
     return "Hey! I was just supervising the shelf and thinking about snacks. What is on your mind?";
   }
   return "That is a good question. I am listening, and I can chat about almost anything in the Moosify universe.";
@@ -393,7 +405,6 @@ async function askMoosy(message) {
   }
   const payload = {
     message, chatStatus: CURRENT_CHAT_STATUS,
-    personality: moosyPersonality,
     activeDepartment: services[activeServiceKey].title,
     products: productCatalogText(),
     cart: items.map((item) => ({ name: item.name, quantity: item.quantity, price: item.price })),
@@ -416,7 +427,9 @@ async function askMoosy(message) {
     if (!response.ok) throw new Error(`Moosy API returned ${response.status}`);
     const data = await response.json();
     if (!data.reply) throw new Error("Moosy API returned no reply");
-    const status = data.provider ? `Moosy brain: ${data.provider}.` : "Moosy brain: AI online.";
+    const status = data.fallback
+      ? "Moosy brain: AI is unavailable, so this is a canned reply."
+      : data.provider ? `Moosy brain: ${data.provider}.` : "Moosy brain: AI online.";
     if (pageAiStatus) pageAiStatus.textContent = status;
     return data.reply.replace(/^\s*moosy:\s*/i, "");
   } catch (error) {
@@ -449,6 +462,11 @@ function renderCart() {
     node.textContent = formatMoney(total);
   });
   document.querySelector("[data-cart-count]").textContent = quantity;
+  const toggleCount = document.querySelector("[data-cart-count-toggle]");
+  if (toggleCount) {
+    toggleCount.textContent = quantity;
+    toggleCount.hidden = quantity === 0;
+  }
   renderCheckoutSummary();
   refreshIcons();
 }
@@ -658,7 +676,20 @@ document.addEventListener("click", (event) => {
 
   if (serviceButton) openService(serviceButton.dataset.openService);
   if (modalButton) openModal(modalButton.dataset.modalOpen);
-  if (addButton) addToCart(addButton.dataset.addProduct);
+  if (addButton) {
+    addToCart(addButton.dataset.addProduct);
+    // Brief visual confirmation, visible even when the nav is collapsed on phones
+    if (!addButton.dataset.added) {
+      const label = addButton.lastChild;
+      const original = label.textContent;
+      addButton.dataset.added = "1";
+      label.textContent = "Added!";
+      setTimeout(() => {
+        label.textContent = original;
+        delete addButton.dataset.added;
+      }, 1200);
+    }
+  }
   if (qtyButton) changeQuantity(qtyButton.dataset.cartProduct, Number(qtyButton.dataset.cartDelta));
   if (scrollButton) document.getElementById(scrollButton.dataset.scrollTo)?.scrollIntoView({ behavior: "smooth" });
   if (homeButton) {
@@ -895,6 +926,8 @@ if (deviceForm) {
     }, 700);
   });
 }
+
+document.querySelector("[data-new-chat]")?.addEventListener("click", startNewChat);
 
 document.querySelector("[data-chat-form-page]").addEventListener("submit", async (event) => {
   event.preventDefault();

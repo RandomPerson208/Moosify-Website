@@ -20,8 +20,10 @@ const RATE_LIMIT_MAX_REQUESTS = 30;
 // In-memory rate limit store: IP -> { count, windowStart }
 const rateLimitStore = new Map();
 
-// Google OAuth2 public keys cache: { keys, expiresAt }
-const googleCertsCache = { keys: null, expiresAt: 0 };
+// Google OAuth2 public keys cache: { keys, expiresAt, fetchedAt }
+const googleCertsCache = { keys: null, expiresAt: 0, fetchedAt: 0 };
+// Minimum gap between forced refetches when a token names an unknown key.
+const GOOGLE_CERTS_REFETCH_MS = 10_000;
 
 function getClientIp(request) {
   // Cloudflare sets cf-connecting-ip to the actual connecting client IP.
@@ -119,9 +121,9 @@ function base64UrlEncode(bytes) {
   return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-async function fetchGoogleCerts() {
+async function fetchGoogleCerts({ force = false } = {}) {
   const now = Date.now();
-  if (googleCertsCache.keys && now < googleCertsCache.expiresAt) {
+  if (!force && googleCertsCache.keys && now < googleCertsCache.expiresAt) {
     return googleCertsCache.keys;
   }
   try {
@@ -136,8 +138,11 @@ async function fetchGoogleCerts() {
       n: k.n,
       e: k.e
     }));
+    // Honor Google's Cache-Control max-age (default 1h)
+    const maxAge = /max-age=(\d+)/.exec(resp.headers.get("cache-control") || "");
     googleCertsCache.keys = keys;
-    googleCertsCache.expiresAt = now + 24 * 60 * 60 * 1000; // cache 24h
+    googleCertsCache.fetchedAt = now;
+    googleCertsCache.expiresAt = now + (maxAge ? Number(maxAge[1]) * 1000 : 60 * 60 * 1000);
     return keys;
   } catch (e) {
     return googleCertsCache.keys || [];
@@ -187,8 +192,13 @@ async function validateGoogleIdToken(token, clientId) {
   if (!clientId || payload.aud !== clientId) return null;
 
   // Verify signature using Google's public keys
-  const keys = await fetchGoogleCerts();
-  const key = keys.find((k) => k.kid === header.kid);
+  let keys = await fetchGoogleCerts();
+  let key = keys.find((k) => k.kid === header.kid);
+  if (!key && Date.now() - googleCertsCache.fetchedAt >= GOOGLE_CERTS_REFETCH_MS) {
+    // Google may have rotated its keys since we cached them
+    keys = await fetchGoogleCerts({ force: true });
+    key = keys.find((k) => k.kid === header.kid);
+  }
   if (!key || !key.n || !key.e) return null;
 
   try {
@@ -464,8 +474,8 @@ export default {
       });
     }
 
-    // Maintenance mode – if client explicitly requests down, short‑circuit
-    if (payload.chatStatus && payload.chatStatus === "down") {
+    // Maintenance mode – CHAT_STATUS=down on the Worker, or the client says so
+    if (env.CHAT_STATUS === "down" || payload.chatStatus === "down") {
       return new Response(JSON.stringify({ reply: "Our help desk chat is currently offline for testing. Check back soon!" }), {
         status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders }
@@ -572,7 +582,7 @@ export default {
     }
 
     const fallbackReply = "I’m here to help you with phones, donuts, rockets, flights, cell plans, and support. Ask me about any product or tell me what you’re looking for.";
-    return new Response(JSON.stringify({ reply: fallbackReply, providerAttempts }), {
+    return new Response(JSON.stringify({ reply: fallbackReply, fallback: true, providerAttempts }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders }
     });

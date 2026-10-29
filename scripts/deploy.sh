@@ -15,23 +15,21 @@ if ! command -v npx >/dev/null 2>&1; then
   exit 1
 fi
 
-# Check that required Cloudflare secrets are present
-required_secrets=("CF_API_TOKEN" "CF_ACCOUNT_ID")
-missing=()
-for secret in "${required_secrets[@]}"; do
-  if ! npx wrangler secret list | grep -q "$secret"; then
-    missing+=("$secret")
-  fi
-done
-
-if [[ ${#missing[@]} -gt 0 ]]; then
-  error "The following Cloudflare secrets are missing: ${missing[*]}"
-  echo "Run the following commands to add them (you will be prompted for the value):"
-  for s in "${missing[@]}"; do
-    echo "  npx wrangler secret put $s"
-  done
+# Deploying needs a logged-in Wrangler or CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID.
+# (CF_API_TOKEN / CF_ACCOUNT_ID are GitHub Actions secrets, not Worker secrets.)
+if [[ -z "${CLOUDFLARE_API_TOKEN:-}" ]] && ! npx wrangler whoami >/dev/null 2>&1; then
+  error "Not logged in to Cloudflare."
+  echo "Run 'npx wrangler login', or set CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID."
   exit 1
 fi
+
+# Warn (but don't block) when optional Worker secrets are missing
+existing=$(npx wrangler secret list 2>/dev/null || true)
+for secret in GOOGLE_CLIENT_ID SESSION_SECRET; do
+  if ! grep -q "\"$secret\"" <<<"$existing"; then
+    echo "Note: Worker secret $secret is not set, so login stays off. Add it with: npx wrangler secret put $secret"
+  fi
+done
 
 # Deploy the worker using the current Wrangler command
 echo "Deploying Cloudflare Worker..."
