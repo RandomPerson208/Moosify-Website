@@ -3,9 +3,11 @@
 
 const PRODUCTION_ORIGIN = "https://moosify.pizzamonster.org";
 
-// Google OAuth Client ID (from Google Cloud Console).
-// Replace with your actual Client ID when configuring.
-const GOOGLE_CLIENT_ID = "REPLACE_WITH_GOOGLE_CLIENT_ID";
+// Login needs two Worker secrets:
+//   GOOGLE_CLIENT_ID – OAuth Client ID from Google Cloud Console
+//   SESSION_SECRET   – random string used to sign Moosify session tokens
+// Without them, /api/login answers 503 and nobody is treated as logged in.
+const SESSION_TTL_SECONDS = 24 * 60 * 60;
 
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_HISTORY_ENTRIES = 50;
@@ -156,7 +158,7 @@ async function importRsaJwk(key) {
   );
 }
 
-async function validateGoogleIdToken(token) {
+async function validateGoogleIdToken(token, clientId) {
   const parts = token.split(".");
   if (parts.length !== 3) return null;
 
@@ -180,7 +182,7 @@ async function validateGoogleIdToken(token) {
   if (payload.iss !== expectedIssuer && payload.iss !== "accounts.google.com") return null;
 
   // Check audience (must be your Google Client ID)
-  if (payload.aud !== GOOGLE_CLIENT_ID) return null;
+  if (!clientId || payload.aud !== clientId) return null;
 
   // Verify signature using Google's public keys
   const keys = await fetchGoogleCerts();
@@ -211,9 +213,19 @@ async function validateGoogleIdToken(token) {
   };
 }
 
-function makeSessionToken(user) {
-  // Issue a Moosify session token signed with a server-side secret.
-  // In production, use a proper JWT secret from environment.
+async function importHmacKey(secret) {
+  return await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign", "verify"]
+  );
+}
+
+async function makeSessionToken(user, secret) {
+  // Moosify session token: an HS256 JWT signed with SESSION_SECRET.
+  const now = Math.floor(Date.now() / 1000);
   const header = base64UrlEncode(
     new TextEncoder().encode(JSON.stringify({ alg: "HS256", typ: "JWT" }))
   );
@@ -223,34 +235,50 @@ function makeSessionToken(user) {
         email: user.email,
         name: user.name,
         sub: user.sub,
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60
+        iat: now,
+        exp: now + SESSION_TTL_SECONDS
       })
     )
   );
-  return `${header}.${payload}.placeholder`;
+  const key = await importHmacKey(secret);
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(`${header}.${payload}`)
+  );
+  return `${header}.${payload}.${base64UrlEncode(new Uint8Array(signature))}`;
 }
 
-async function getAuthenticatedUser(request) {
+async function getAuthenticatedUser(request, env) {
   // Moosify session token in Authorization: Bearer header
+  const secret = env?.SESSION_SECRET;
+  if (!secret) return null;
   const auth = request.headers.get("authorization");
   if (!auth || !auth.startsWith("Bearer ")) return null;
   const token = auth.slice(7);
-  // For now, decode without verifying (placeholder session token).
-  // In production, verify the HMAC signature with a server secret.
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
+    const header = JSON.parse(new TextDecoder().decode(base64UrlDecode(parts[0])));
+    if (header.alg !== "HS256") return null;
+    const key = await importHmacKey(secret);
+    const valid = await crypto.subtle.verify(
+      "HMAC",
+      key,
+      base64UrlDecode(parts[2]),
+      new TextEncoder().encode(`${parts[0]}.${parts[1]}`)
+    );
+    if (!valid) return null;
     const payload = JSON.parse(new TextDecoder().decode(base64UrlDecode(parts[1])));
-    if (payload.exp && Date.now() >= payload.exp * 1000) return null;
+    if (typeof payload.exp !== "number" || Date.now() >= payload.exp * 1000) return null;
     return { email: payload.email, name: payload.name, sub: payload.sub };
   } catch {
     return null;
   }
 }
 
-async function requireAuth(request, corsHeaders) {
-  const user = await getAuthenticatedUser(request);
+async function requireAuth(request, env, corsHeaders) {
+  const user = await getAuthenticatedUser(request, env);
   if (!user) {
     return new Response(
       JSON.stringify({ error: "Authentication required. Please log in." }),
@@ -269,20 +297,6 @@ async function requireAuth(request, corsHeaders) {
 
 export default {
   async fetch(request, env, ctx) {
-    const ip = getClientIp(request);
-    if (isRateLimited(ip)) {
-      return new Response(
-        JSON.stringify({ error: "Too many requests. Please slow down." }),
-        {
-          status: 429,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Credentials": "true"
-          }
-        }
-      );
-    }
-
     const corsHeaders = {
       "Access-Control-Allow-Origin": PRODUCTION_ORIGIN,
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -290,9 +304,20 @@ export default {
       "Access-Control-Allow-Credentials": "true"
     };
 
-    // Handle CORS preflight
+    // Handle CORS preflight (not counted against the rate limit)
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders });
+    }
+
+    const ip = getClientIp(request);
+    if (isRateLimited(ip)) {
+      return new Response(
+        JSON.stringify({ error: "Too many requests. Please slow down." }),
+        {
+          status: 429,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        }
+      );
     }
 
     const url = new URL(request.url);
@@ -313,7 +338,7 @@ export default {
     // Moosify session exists, otherwise not-authenticated.
     // ---------------------------------------------------------------------
     if (request.method === "GET" && pathname === "/api/auth-status") {
-      const user = await getAuthenticatedUser(request);
+      const user = await getAuthenticatedUser(request, env);
       return new Response(
         JSON.stringify({
           authenticated: !!user,
@@ -327,6 +352,12 @@ export default {
     // 2️⃣ Login endpoint – accepts Google ID token, issues Moosify session
     // ---------------------------------------------------------------------
     if (request.method === "POST" && pathname === "/api/login") {
+      if (!env.GOOGLE_CLIENT_ID || !env.SESSION_SECRET) {
+        return new Response(JSON.stringify({ error: "Login is not configured on this server" }), {
+          status: 503,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
       let payload;
       try {
         payload = await readValidatedBody(request);
@@ -340,7 +371,7 @@ export default {
         });
       }
 
-      const user = await validateGoogleIdToken(payload.credential);
+      const user = await validateGoogleIdToken(payload.credential, env.GOOGLE_CLIENT_ID);
       if (!user) {
         return new Response(JSON.stringify({ error: "Invalid Google ID token" }), {
           status: 401,
@@ -348,22 +379,25 @@ export default {
         });
       }
 
-      const sessionToken = makeSessionToken(user);
+      const sessionToken = await makeSessionToken(user, env.SESSION_SECRET);
       return new Response(
         JSON.stringify({
           token: sessionToken,
           user: { email: user.email, name: user.name, picture: user.picture },
-          expiresIn: 86400
+          expiresIn: SESSION_TTL_SECONDS
         }),
         { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
     // ---------------------------------------------------------------------
-    // Auth gate – Moosify session token required for all protected routes
+    // Auth gate – Moosify session token required for protected routes.
+    // Chat (/api/moosy or the Worker root) is public unless
+    // CHAT_REQUIRES_LOGIN is "true".
     // ---------------------------------------------------------------------
-    if (pathname.startsWith("/api/")) {
-      const authResult = await requireAuth(request, corsHeaders);
+    const isChatRoute = pathname === "/api/moosy" || !pathname.startsWith("/api/");
+    if (!isChatRoute || env.CHAT_REQUIRES_LOGIN === "true") {
+      const authResult = await requireAuth(request, env, corsHeaders);
       if (authResult) {
         return authResult;
       }
@@ -401,13 +435,13 @@ export default {
     }
 
     // ---------------------------------------------------------------------
-    // Existing chat endpoint – keep original behaviour for any other POST
+    // Chat endpoint
     // ---------------------------------------------------------------------
-    if (request.method === "POST" && !pathname.startsWith("/api/")) {
-      const authResult = await requireAuth(request, corsHeaders);
-      if (authResult) {
-        return authResult;
-      }
+    if (!isChatRoute) {
+      return new Response(JSON.stringify({ error: "Not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json", ...corsHeaders }
+      });
     }
 
     if (request.method !== "POST") {
@@ -542,7 +576,7 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
       }
     }
 
-    const fallbackReply = "Moosy: I’m here to help you with phones, donuts, rockets, flights, cell plans, and support. Ask me about any product or tell me what you’re looking for.";
+    const fallbackReply = "I’m here to help you with phones, donuts, rockets, flights, cell plans, and support. Ask me about any product or tell me what you’re looking for.";
     return new Response(JSON.stringify({ reply: fallbackReply, providerAttempts }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders }

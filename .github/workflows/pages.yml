@@ -26,6 +26,7 @@ jobs:
         env:
           API_URL: ${{ secrets.API_URL }}
           CHAT_STATUS: ${{ secrets.CHAT_STATUS }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         run: |
           python3 - <<'PY'
           import json
@@ -34,6 +35,7 @@ jobs:
 
           api_url = json.dumps(os.environ.get("API_URL", ""))
           chat_status = json.dumps(os.environ.get("CHAT_STATUS", "up") or "up")
+          google_client_id = json.dumps(os.environ.get("GOOGLE_CLIENT_ID", ""))
           for path in Path(".").rglob("*.html"):
               html = path.read_text()
               html = html.replace(
@@ -43,6 +45,10 @@ jobs:
               html = html.replace(
                   '"__CHAT_STATUS_PLACEHOLDER__"',
                   chat_status
+              )
+              html = html.replace(
+                  '"__GOOGLE_CLIENT_ID_PLACEHOLDER__"',
+                  google_client_id
               )
               path.write_text(html)
           PY
