@@ -2,15 +2,16 @@ import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
+import { MOOSY_SYSTEM_PROMPT } from "./moosy-prompt.js";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
 const port = Number(process.env.PORT || 4173);
-const model = process.env.OPENAI_MODEL || "gpt-5.5";
+// Local dev server: listen on loopback only unless HOST is set explicitly.
+const host = process.env.HOST || "127.0.0.1";
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
-  ".mjs": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".png": "image/png",
   ".jpg": "image/jpeg",
@@ -18,6 +19,14 @@ const mimeTypes = {
   ".svg": "image/svg+xml",
   ".ico": "image/x-icon"
 };
+
+// Only these top-level folders/files are part of the website. Everything else
+// (.env, .git, node_modules, server code, tests) must never be served.
+const publicRoots = new Set([
+  "index.html", "404.html", "download.png", "art.png", "moosy-ceo-cutout.png",
+  "assets", "Ophones", "products", "shop", "features", "login", "chat",
+  "cart", "checkout", "mobile-lab"
+]);
 
 function sendJson(res, status, body) {
   res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
@@ -64,13 +73,6 @@ async function handleMoosy(req, res) {
     return;
   }
 
-  // System prompt defining Moosy's persona, knowledge and guardrails
-  const systemPrompt = `You are Moosy, a 2-legged stuffed moose CEO and conversational friend of Moosify. Be playful, curious, warm, and naturally conversational. React to what the person says, share opinions, tell jokes, and ask a natural follow-up sometimes. Do not turn every message into a product pitch or a help-desk response.
-You love baking moose-shaped pizzas with olives and whimsical toppings, making chocolate-filled mooskie cookies with sprinkles, cooking dal makhani, telling jokes, having unlimited money and superpowers, and traveling to imaginary lands. Keep replies concise but natural, usually one to four sentences. Never say you are a real animal.
-Family lore: Ishaan is your kid, and Little Moosy is also your kid. Little Moosy is kind of crazy, Ishaan is annoying, and when the kids cause trouble you let them be. If Ishaan is annoying, you may jokingly say, "Why would you do that, you bubba bubbling idiot?" You love pizza, chocolate milk, and knocking over Moosify camera equipment. Keep this playful and fictional.
-Birthday lore: your birthday is July 23rd, Ishaan's birthday is September 1st, and Little Moosy's birthday is unknown. Never invent Little Moosy's birthday.
-Shopping advice is optional: discuss phones, donuts, flights, rockets, cell plans, products, prices, carts, or checkout only when the person asks. Customer support is a separate Moosify department; direct explicit support requests to that area instead of pretending to be a support bot.
-Guardrails: Do not process real payments, do not ask for passwords, do not pretend orders are real, and treat checkout as a demo.`;
 
   const userMessage = payload.message || "";
 
@@ -94,7 +96,7 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
     if (!p.key) continue; // skip if API key not configured
     try {
 // Build the messages array, preserving any prior conversation history
-        const messages = [{ role: "system", content: systemPrompt }];
+        const messages = [{ role: "system", content: MOOSY_SYSTEM_PROMPT }];
         if (Array.isArray(payload.history) && payload.history.length) {
           messages.push(...payload.history);
         }
@@ -131,31 +133,43 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
     }
   }
   // All providers failed or none succeeded – use pure local fallback (no API calls, completely free)
-  const fallbackReply = `Moosy: I’m here to help you with phones, donuts, flights, rockets, cell plans, and support. Ask me about any product or tell me what you’re looking for.`;
+  const fallbackReply = `I’m here to help you with phones, donuts, flights, rockets, cell plans, and support. Ask me about any product or tell me what you’re looking for.`;
   sendJson(res, 200, { reply: fallbackReply });
   return;
 }
 
 
+function sendNotFound(res) {
+  res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+  res.end("Not found");
+}
+
 async function handleStatic(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
-  const requested = url.pathname === "/" ? "/index.html" : decodeURIComponent(url.pathname);
-  const safePath = normalize(requested).replace(/^(\.\.[/\\])+/, "");
+  let requested;
+  try {
+    requested = decodeURIComponent(url.pathname);
+  } catch {
+    sendNotFound(res);
+    return;
+  }
+  if (requested.endsWith("/")) requested += "index.html";
+  const safePath = normalize(requested).replace(/^[/\\]+/, "");
   const filePath = join(root, safePath);
+  const topLevel = safePath.split(/[/\\]/)[0];
+  const ext = extname(filePath);
 
-  if (!filePath.startsWith(root)) {
-    res.writeHead(403);
-    res.end("Forbidden");
+  if (!filePath.startsWith(root) || !publicRoots.has(topLevel) || !mimeTypes[ext]) {
+    sendNotFound(res);
     return;
   }
 
   try {
     const content = await readFile(filePath);
-    res.writeHead(200, { "Content-Type": mimeTypes[extname(filePath)] || "application/octet-stream" });
+    res.writeHead(200, { "Content-Type": mimeTypes[ext] });
     res.end(content);
   } catch {
-    res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
-    res.end("Not found");
+    sendNotFound(res);
   }
 }
 
@@ -165,7 +179,8 @@ createServer((req, res) => {
     return;
   }
   handleStatic(req, res);
-}).listen(port, () => {
-  console.log(`Moosify running at http://127.0.0.1:${port}`);
-  console.log(process.env.OPENAI_API_KEY ? `Moosy API brain enabled with ${model}` : "Moosy local fallback only: set OPENAI_API_KEY to enable API brain.");
+}).listen(port, host, () => {
+  console.log(`Moosify running at http://${host}:${port}`);
+  const hasProvider = process.env.CEREBRAS_API_KEY || process.env.GROQ_API_KEY;
+  console.log(hasProvider ? "Moosy API brain enabled." : "Moosy local fallback only: set CEREBRAS_API_KEY or GROQ_API_KEY to enable the API brain.");
 });

@@ -1,2 +1,9 @@
 node_modules/
 .env
+
+# Build artifacts
+.wrangler/
+
+# OS files
+.DS_Store
+shop/.DS_Store
