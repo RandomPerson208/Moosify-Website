@@ -113,6 +113,10 @@ The Worker also uses a Cloudflare Workers AI binding as its primary model path. 
    * `CEREBRAS_API_KEY` – free Cerebras key (optional)
    * `GROQ_API_KEY` – free Groq key (optional)
    * `API_URL` – the URL where the worker will be published (e.g., `https://moosy-api.<account>.workers.dev`).
+   * `GOOGLE_CLIENT_ID` – OAuth Client ID for Google Sign-In (used by both the Worker and the Pages build)
+   * `SESSION_SECRET` – long random string that signs Moosify session tokens (e.g. `openssl rand -base64 32`)
+
+   Login stays off (the Worker answers `/api/login` with 503) until both `GOOGLE_CLIENT_ID` and `SESSION_SECRET` are set. Chat is public by default; set the Worker secret `CHAT_REQUIRES_LOGIN` to `true` to require sign-in.
 3. The workflow **`.github/workflows/deploy-worker.yml`** will automatically publish the worker on every push to `main`.
 4. After the workflow finishes, the `API_URL` secret should point at the worker’s URL (the workflow prints the URL in the logs).
 

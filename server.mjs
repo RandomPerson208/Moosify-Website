@@ -5,12 +5,12 @@ import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
 const port = Number(process.env.PORT || 4173);
-const model = process.env.OPENAI_MODEL || "gpt-5.5";
+// Local dev server: listen on loopback only unless HOST is set explicitly.
+const host = process.env.HOST || "127.0.0.1";
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
-  ".mjs": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".png": "image/png",
   ".jpg": "image/jpeg",
@@ -18,6 +18,14 @@ const mimeTypes = {
   ".svg": "image/svg+xml",
   ".ico": "image/x-icon"
 };
+
+// Only these top-level folders/files are part of the website. Everything else
+// (.env, .git, node_modules, server code, tests) must never be served.
+const publicRoots = new Set([
+  "index.html", "404.html", "download.png", "art.png", "moosy-ceo-cutout.png",
+  "assets", "Ophones", "products", "shop", "features", "login", "chat",
+  "cart", "checkout", "mobile-lab"
+]);
 
 function sendJson(res, status, body) {
   res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
@@ -131,31 +139,43 @@ Guardrails: Do not process real payments, do not ask for passwords, do not prete
     }
   }
   // All providers failed or none succeeded – use pure local fallback (no API calls, completely free)
-  const fallbackReply = `Moosy: I’m here to help you with phones, donuts, flights, rockets, cell plans, and support. Ask me about any product or tell me what you’re looking for.`;
+  const fallbackReply = `I’m here to help you with phones, donuts, flights, rockets, cell plans, and support. Ask me about any product or tell me what you’re looking for.`;
   sendJson(res, 200, { reply: fallbackReply });
   return;
 }
 
 
+function sendNotFound(res) {
+  res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+  res.end("Not found");
+}
+
 async function handleStatic(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
-  const requested = url.pathname === "/" ? "/index.html" : decodeURIComponent(url.pathname);
-  const safePath = normalize(requested).replace(/^(\.\.[/\\])+/, "");
+  let requested;
+  try {
+    requested = decodeURIComponent(url.pathname);
+  } catch {
+    sendNotFound(res);
+    return;
+  }
+  if (requested.endsWith("/")) requested += "index.html";
+  const safePath = normalize(requested).replace(/^[/\\]+/, "");
   const filePath = join(root, safePath);
+  const topLevel = safePath.split(/[/\\]/)[0];
+  const ext = extname(filePath);
 
-  if (!filePath.startsWith(root)) {
-    res.writeHead(403);
-    res.end("Forbidden");
+  if (!filePath.startsWith(root) || !publicRoots.has(topLevel) || !mimeTypes[ext]) {
+    sendNotFound(res);
     return;
   }
 
   try {
     const content = await readFile(filePath);
-    res.writeHead(200, { "Content-Type": mimeTypes[extname(filePath)] || "application/octet-stream" });
+    res.writeHead(200, { "Content-Type": mimeTypes[ext] });
     res.end(content);
   } catch {
-    res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
-    res.end("Not found");
+    sendNotFound(res);
   }
 }
 
@@ -165,7 +185,8 @@ createServer((req, res) => {
     return;
   }
   handleStatic(req, res);
-}).listen(port, () => {
-  console.log(`Moosify running at http://127.0.0.1:${port}`);
-  console.log(process.env.OPENAI_API_KEY ? `Moosy API brain enabled with ${model}` : "Moosy local fallback only: set OPENAI_API_KEY to enable API brain.");
+}).listen(port, host, () => {
+  console.log(`Moosify running at http://${host}:${port}`);
+  const hasProvider = process.env.CEREBRAS_API_KEY || process.env.GROQ_API_KEY;
+  console.log(hasProvider ? "Moosy API brain enabled." : "Moosy local fallback only: set CEREBRAS_API_KEY or GROQ_API_KEY to enable the API brain.");
 });
