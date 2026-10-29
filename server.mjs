@@ -12,6 +12,7 @@ const host = process.env.HOST || "127.0.0.1";
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
+  ".mjs": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".png": "image/png",
   ".jpg": "image/jpeg",
@@ -20,8 +21,6 @@ const mimeTypes = {
   ".ico": "image/x-icon"
 };
 
-// Only these top-level folders/files are part of the website. Everything else
-// (.env, .git, node_modules, server code, tests) must never be served.
 const publicRoots = new Set([
   "index.html", "404.html", "download.png", "art.png", "moosy-ceo-cutout.png",
   "assets", "Ophones", "products", "shop", "features", "login", "chat",
@@ -72,7 +71,6 @@ async function handleMoosy(req, res) {
     sendJson(res, 200, { reply: "Our help desk chat is currently offline for testing. Check back soon!" });
     return;
   }
-
 
   const userMessage = payload.message || "";
 
@@ -132,7 +130,6 @@ async function handleMoosy(req, res) {
       continue;
     }
   }
-  // All providers failed or none succeeded – use pure local fallback (no API calls, completely free)
   const fallbackReply = `I’m here to help you with phones, donuts, flights, rockets, cell plans, and support. Ask me about any product or tell me what you’re looking for.`;
   sendJson(res, 200, { reply: fallbackReply });
   return;
@@ -161,9 +158,6 @@ async function handleStatic(req, res) {
 
   if (!filePath.startsWith(root) || !publicRoots.has(topLevel) || !mimeTypes[ext]) {
     sendNotFound(res);
-    return;
-  }
-
   try {
     const content = await readFile(filePath);
     res.writeHead(200, { "Content-Type": mimeTypes[ext] });

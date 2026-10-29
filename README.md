@@ -56,8 +56,6 @@ export async function onRequest(context) {
 - **Custom domain:** configured through `CNAME`.
 
 ---
-
-
 Playful static storefront with a Moosy chat assistant.
 
 ## Run local fallback mode
