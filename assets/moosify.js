@@ -67,6 +67,9 @@ const services = {
 const moosifyConfig = window.MOOSIFY_CONFIG || {};
 const CURRENT_CHAT_STATUS = moosifyConfig.chatStatus || "up";
 const API_URL = moosifyConfig.apiUrl || "";
+const GOOGLE_CLIENT_ID = (moosifyConfig.googleClientId && !moosifyConfig.googleClientId.includes("PLACEHOLDER"))
+  ? moosifyConfig.googleClientId
+  : "";
 const homeView = document.querySelector('[data-view="home"]');
 const detailView = document.querySelector('[data-view="detail"]');
 const chatView = document.querySelector('[data-view="chat"]');
@@ -78,23 +81,44 @@ const detailTitle = document.querySelector('[data-detail-title]');
 const detailCopy = document.querySelector('[data-detail-copy]');
 const detailVisual = document.querySelector('[data-detail-visual]');
 const productList = document.querySelector("[data-product-list]");
-const chatLog = document.querySelector('[data-chat-log]');
-const aiStatus = document.querySelector("[data-ai-status]");
-let savedChatHistory = [];
-try {
-  savedChatHistory = JSON.parse(localStorage.getItem("moosify-chat-history") || "[]");
-} catch (error) {
-  savedChatHistory = [];
+function loadChatHistory() {
+  try {
+    const raw = localStorage.getItem("moosify-chat-history");
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((entry) =>
+      entry && typeof entry.role === "string" && ["user", "assistant"].includes(entry.role) &&
+      typeof entry.content === "string" && entry.content.length > 0 && entry.content.length <= 2000
+    ).slice(-40);
+  } catch (error) {
+    try { localStorage.removeItem("moosify-chat-history"); } catch {}
+    return [];
+  }
 }
-const chatHistory = Array.isArray(savedChatHistory) ? savedChatHistory.slice(-40) : [];
+
+let savedChatHistory = loadChatHistory();
+const chatHistory = savedChatHistory.slice(-40);
 const pageChatLog = document.querySelector('[data-chat-log-page]');
 const pageAiStatus = document.querySelector('[data-ai-status-page]');
-let savedCart = [];
-try {
-  savedCart = JSON.parse(localStorage.getItem("moosify-cart") || "[]");
-} catch (error) {
-  savedCart = [];
+function loadCart() {
+  try {
+    const raw = localStorage.getItem("moosify-cart");
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((item) =>
+      item && typeof item.id === "string" && typeof item.name === "string" &&
+      typeof item.price === "number" && item.price >= 0 &&
+      Number.isInteger(item.quantity) && item.quantity > 0 && item.quantity <= 100
+    );
+  } catch (error) {
+    try { localStorage.removeItem("moosify-cart"); } catch {}
+    return [];
+  }
 }
+
+let savedCart = loadCart();
 const cart = new Map(savedCart.map((item) => [item.id, item]));
 let activeServiceKey = "phones";
 const ophoneModels = [
@@ -158,14 +182,12 @@ const ophoneTrialProblems = {
 };
 // Chat status: if set to "down" disable chat UI
 if (CURRENT_CHAT_STATUS === "down") {
-    const chatForm = document.querySelector("[data-chat-form]");
-    if (chatForm) {
-        chatForm.querySelectorAll("input, button").forEach(el => el.disabled = true);
-        const note = document.createElement("div");
-        note.textContent = "Our help desk chat is currently offline for testing. Check back soon!";
-        note.className = "text-center text-red-600 mt-4";
-        chatForm.parentElement.appendChild(note);
-    }
+  const chatForm = document.querySelector("[data-chat-form-page]");
+  if (chatForm) {
+    chatForm.querySelectorAll("input, button").forEach((el) => { el.disabled = true; });
+    const status = document.querySelector("[data-ai-status-page]");
+    if (status) status.textContent = "Moosy chat is offline for testing. Check back soon!";
+  }
 }
 
 const moosyPersonality = [
@@ -227,6 +249,7 @@ function renderRoutePages() {
 
 function renderSavedChat() {
   if (!pageChatLog || chatHistory.length === 0) return;
+
   pageChatLog.innerHTML = '<div class="message">Moosy: Hey, I’m Moosy. What are you thinking about today?</div>';
   chatHistory.forEach((entry) => {
     const bubble = document.createElement("div");
@@ -365,7 +388,6 @@ async function askMoosy(message) {
   const { items, total } = getCartTotals();
   // If chat is marked down, return maintenance message immediately
   if (CURRENT_CHAT_STATUS === "down") {
-      if (aiStatus) aiStatus.textContent = "Moosy brain: offline.";
       if (pageAiStatus) pageAiStatus.textContent = "Moosy brain: offline.";
       return "Our help desk chat is currently offline for testing. Check back soon!";
   }
@@ -380,20 +402,24 @@ async function askMoosy(message) {
 };
   try {
     const endpoint = (API_URL && API_URL.trim() !== "" && !API_URL.includes("__API_URL_PLACEHOLDER__")) ? API_URL : "/api/moosy";
+    let sessionToken = "";
+    try { sessionToken = localStorage.getItem("moosify-session-token") || ""; } catch {}
     const response = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        ...(sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {})
+      },
       body: JSON.stringify(payload)
     });
     if (!response.ok) throw new Error(`Moosy API returned ${response.status}`);
     const data = await response.json();
     if (!data.reply) throw new Error("Moosy API returned no reply");
     const status = data.provider ? `Moosy brain: ${data.provider}.` : "Moosy brain: AI online.";
-    if (aiStatus) aiStatus.textContent = status;
     if (pageAiStatus) pageAiStatus.textContent = status;
-    return data.reply;
+    return data.reply.replace(/^\s*moosy:\s*/i, "");
   } catch (error) {
-    if (aiStatus) aiStatus.textContent = "Moosy brain: local product guide.";
     if (pageAiStatus) pageAiStatus.textContent = "Moosy brain: local product guide.";
     return localMoosyReply(message);
   }
@@ -484,6 +510,66 @@ function updatePageIdentity(route) {
   }
 }
 
+async function updateNavAuthUI() {
+  try {
+    const apiBase = (API_URL && API_URL.trim() !== "" && !API_URL.includes("__API_URL_PLACEHOLDER__"))
+      ? API_URL.replace(/\/$/, "")
+      : "";
+    // Read stored Moosify session token
+    let sessionToken = "";
+    try { sessionToken = localStorage.getItem("moosify-session-token") || ""; } catch {}
+    const resp = await fetch(`${apiBase}/api/auth-status`, {
+      credentials: "include",
+      headers: sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {}
+    });
+    const data = await resp.json();
+    const authenticated = data.authenticated === true;
+    const email = data.user?.email || "";
+
+    setNavAuthState(authenticated, email);
+  } catch (error) {
+    // Auth check failed – show Login as safe default
+    setNavAuthState(false, "");
+  }
+}
+
+function setNavAuthState(authenticated, email) {
+  const loginLink = document.querySelector('[data-nav-section="login"]');
+  if (!loginLink) return;
+  const icon = document.createElement("i");
+  icon.className = "icon";
+  const label = document.createElement("span");
+  label.className = "button-label";
+
+  if (authenticated) {
+    icon.dataset.lucide = "log-out";
+    label.textContent = email;
+    loginLink.setAttribute("data-action", "logout");
+    loginLink.setAttribute("aria-label", `Log out ${email}`);
+    loginLink.href = "#";
+    loginLink.onclick = (e) => {
+      e.preventDefault();
+      handleLogout();
+    };
+  } else {
+    icon.dataset.lucide = "user";
+    label.textContent = "Login";
+    loginLink.removeAttribute("data-action");
+    loginLink.removeAttribute("aria-label");
+    loginLink.href = "/login/";
+    loginLink.onclick = null;
+  }
+  loginLink.replaceChildren(icon, label);
+  refreshIcons();
+}
+
+function handleLogout() {
+  try { localStorage.removeItem("moosify-session-token"); } catch {}
+  window.google?.accounts?.id?.disableAutoSelect();
+  setNavAuthState(false, "");
+  showHome();
+}
+
 function showPath(path, replace = false) {
   const route = path.replace(/^\/+|\/+$/g, "");
   updatePageIdentity(route);
@@ -528,6 +614,7 @@ function openModal(name, keepPath = false) {
     name = "cart";
   }
   if (name === "checkout") renderCheckoutSummary();
+  if (name === "login") renderGoogleLoginButton();
   if (name === "device-tester") {
     renderTesterPreview();
     renderTrialApps("home");
@@ -578,19 +665,111 @@ document.addEventListener("click", (event) => {
     event.preventDefault();
     showHome();
   }
-  if (closeButton || event.target.classList.contains("modal")) showHome();
+  const isOverlayBackdrop = event.target.classList.contains("modal") && !event.target.classList.contains("route-page");
+  if (closeButton || isOverlayBackdrop) showHome();
 });
 
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") showHome();
+  if (event.key !== "Escape" || !navMenu?.classList.contains("is-open")) return;
+  navMenu.classList.remove("is-open");
+  navToggle?.setAttribute("aria-expanded", "false");
+  navToggle?.focus();
 });
 
 window.addEventListener("popstate", () => showPath(window.location.pathname));
 
-document.querySelector("[data-login-form]").addEventListener("submit", (event) => {
-  event.preventDefault();
-  document.querySelector("[data-login-note]").textContent = "Demo login ready. Connect a real auth provider when Moosy approves it.";
-});
+// ---------------------------------------------------------------------
+// Login – Google Sign-In via Google Identity Services.
+// Renders a "Sign in with Google" button and sends the Google ID token to
+// /api/login, which returns a signed Moosify session token. The client ID
+// comes from MOOSIFY_CONFIG.googleClientId (injected at deploy time).
+// ---------------------------------------------------------------------
+function loadGoogleSdk() {
+  return new Promise((resolve, reject) => {
+    if (window.google && window.google.accounts) {
+      resolve(window.google);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve(window.google);
+    script.onerror = () => reject(new Error("Failed to load Google Identity Services SDK"));
+    document.head.appendChild(script);
+  });
+}
+
+async function handleGoogleCredential(credentialResponse) {
+  const note = document.querySelector("[data-login-note]");
+  const credential = credentialResponse.credential;
+  if (!credential) {
+    if (note) note.textContent = "Google sign-in failed: no credential.";
+    return;
+  }
+  if (note) note.textContent = "Validating with Moosify...";
+
+  try {
+    const apiBase = (API_URL && API_URL.trim() !== "" && !API_URL.includes("__API_URL_PLACEHOLDER__"))
+      ? API_URL.replace(/\/$/, "")
+      : "";
+    const resp = await fetch(`${apiBase}/api/login`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ credential })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error || `Login failed (${resp.status})`);
+    }
+
+    const data = await resp.json();
+    if (!data.token) throw new Error("No session token returned");
+
+    // Store Moosify session token for authenticated requests
+    try {
+      localStorage.setItem("moosify-session-token", data.token);
+    } catch {}
+
+    if (note) note.textContent = `Welcome back, ${data.user?.name || data.user?.email}!`;
+    await updateNavAuthUI();
+    history.replaceState({}, "", "/");
+    showPath("/");
+  } catch (error) {
+    if (note) note.textContent = "Login failed. Please try again.";
+    console.error("Google login error:", error);
+  }
+}
+
+function renderGoogleLoginButton() {
+  const note = document.querySelector("[data-login-note]");
+  const slot = document.querySelector("[data-google-login]");
+  if (!slot) return;
+
+  if (!GOOGLE_CLIENT_ID) {
+    if (note) note.textContent = "Google Sign-In is not set up on this site yet.";
+    return;
+  }
+
+  loadGoogleSdk().then((google) => {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleCredential
+    });
+    slot.innerHTML = "";
+    google.accounts.id.renderButton(slot, {
+      theme: "outline",
+      size: "large",
+      width: Math.min(slot.clientWidth || 320, 400),
+      logo_alignment: "center"
+    });
+  }).catch((error) => {
+    if (note) note.textContent = "Google Sign-In could not load. Please try again later.";
+    console.error(error);
+  });
+}
 
 const deviceForm = document.getElementById("device-tester-form");
 const testerDevice = document.getElementById("tester-device");
@@ -638,6 +817,16 @@ function renderTesterPreview() {
   testerFront.alt = `${model.name} front`;
   testerBack.alt = `${model.name} back`;
   testerLabel.textContent = `${model.name} on ${os.name}`;
+
+  // Fallback if images fail to load
+  testerFront.onerror = () => {
+    testerFront.src = "moosy-ceo-cutout.png";
+    testerFront.alt = "Image unavailable";
+  };
+  testerBack.onerror = () => {
+    testerBack.src = "moosy-ceo-cutout.png";
+    testerBack.alt = "Image unavailable";
+  };
 }
 
 function trialExperience(model, os, appId) {
@@ -709,9 +898,12 @@ if (deviceForm) {
 
 document.querySelector("[data-chat-form-page]").addEventListener("submit", async (event) => {
   event.preventDefault();
+  const form = event.currentTarget;
   const input = document.querySelector("[data-chat-input-page]");
-  const message = input.value.trim();
-  if (!message) return;
+  const sendButton = form.querySelector('button[type="submit"]');
+  const message = input.value.trim().slice(0, 2000);
+  if (!message || sendButton.disabled) return;
+  sendButton.disabled = true;
 
   const userBubble = document.createElement("div");
   userBubble.className = "message user";
@@ -728,15 +920,23 @@ document.querySelector("[data-chat-form-page]").addEventListener("submit", async
 
   const answer = await askMoosy(message);
   reply.textContent = `Moosy: ${answer}`;
-  chatHistory.push({ role: "user", content: message }, { role: "assistant", content: answer });
+  // The API rejects history entries over 2000 characters, so store them trimmed.
+  chatHistory.push({ role: "user", content: message }, { role: "assistant", content: answer.slice(0, 2000) });
   saveChatHistory();
   pageChatLog.scrollTop = pageChatLog.scrollHeight;
+  sendButton.disabled = false;
+  input.focus();
 });
 
 document.querySelector("[data-checkout-form]").addEventListener("submit", (event) => {
   event.preventDefault();
   const { quantity, total } = getCartTotals();
-  document.querySelector("[data-checkout-note]").textContent = `Demo order ready: ${quantity} item${quantity === 1 ? "" : "s"} for ${formatMoney(total)}. No payment was charged.`;
+  const note = document.querySelector("[data-checkout-note]");
+  if (quantity === 0) {
+    note.textContent = "Your cart is empty. Add something before checking out.";
+    return;
+  }
+  note.textContent = `Demo order ready: ${quantity} item${quantity === 1 ? "" : "s"} for ${formatMoney(total)}. No payment was charged.`;
 });
 
 renderRoutePages();
@@ -744,4 +944,5 @@ renderProducts(services[activeServiceKey].products);
 renderCart();
 renderSavedChat();
 showPath(window.location.pathname);
+updateNavAuthUI();
 refreshIcons();

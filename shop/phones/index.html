@@ -204,7 +204,7 @@
           </div>
           <div class="detail-actions">
             <a class="button" href="/chat/"><i class="icon" data-lucide="message-circle"></i>Ask Moosy</a>
-            <button class="button secondary" type="button" data-back-home><i class="icon" data-lucide="grid-2x2"></i>All services</button>
+            <a class="button secondary" href="/shop/"><i class="icon" data-lucide="grid-2x2"></i>All services</a>
           </div>
         </div>
       </article>
@@ -237,12 +237,11 @@
         <h2 id="login-title" class="brand-font">Login</h2>
         <button class="close-button" type="button" data-modal-close aria-label="Close login"><i class="icon" data-lucide="x"></i></button>
       </div>
-      <form class="modal-body" data-login-form>
-        <label class="field">Email<input type="email" autocomplete="email" required placeholder="you@example.com"></label>
-        <label class="field">Password<input type="password" autocomplete="current-password" required placeholder="Password"></label>
-        <button class="button" type="submit"><i class="icon" data-lucide="log-in"></i>Continue</button>
+      <div class="modal-body">
+        <p>Sign in with your Google account. Moosify never asks for your password.</p>
+        <div class="google-login-btn" data-google-login></div>
         <p class="form-note" data-login-note></p>
-      </form>
+      </div>
     </div>
   </div>
 
@@ -279,25 +278,6 @@
       </form>
     </div>
   </div>
-
-  <div class="modal route-page" id="chat-modal" hidden role="region" aria-labelledby="chat-title">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h2 id="chat-title" class="brand-font">Talk to Moosy</h2>
-        <button class="close-button" type="button" data-modal-close aria-label="Close chat"><i class="icon" data-lucide="x"></i></button>
-      </div>
-      <div class="modal-body">
-        <div class="chat-log" data-chat-log>
-          <div class="message">Moosy: Hey, I’m Moosy. What are you thinking about today?</div>
-        </div>
-        <p class="form-note" data-ai-status>Moosy brain: ready.</p>
-        <form data-chat-form>
-          <label class="field">Message<input type="text" data-chat-input placeholder="Type your question" autocomplete="off"></label>
-          <button class="button orange" type="submit"><i class="icon" data-lucide="send"></i>Send</button>
-        </form>
-      </div>
-    </div>
-</div>
 
   <div id="device-tester-modal" class="modal route-page" hidden role="region" aria-labelledby="tester-title">
     <div class="modal-card tester-card">
@@ -345,7 +325,8 @@
   <script>
     window.MOOSIFY_CONFIG = {
       chatStatus: "__CHAT_STATUS_PLACEHOLDER__",
-      apiUrl: "__API_URL_PLACEHOLDER__"
+      apiUrl: "__API_URL_PLACEHOLDER__",
+      googleClientId: "__GOOGLE_CLIENT_ID_PLACEHOLDER__"
     };
   </script>
   <script src="/assets/moosify.js"></script>
