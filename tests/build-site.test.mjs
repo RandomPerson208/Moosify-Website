@@ -38,13 +38,16 @@ describe("Static site build (Vercel)", () => {
     }
   });
 
-  it("defaults chat to up and leaves login and API empty when nothing is set", () => {
-    const result = build();
+  it("works with no environment variables, using scripts/site-config.json", () => {
+    const defaults = JSON.parse(readFileSync(fileURLToPath(new URL("../scripts/site-config.json", import.meta.url)), "utf8"));
+    assert.match(defaults.apiUrl, /^https:\/\//);
+    assert.match(defaults.googleClientId, /\.apps\.googleusercontent\.com$/);
+    const result = build({ VERCEL_ENV: "production" });
     assert.strictEqual(result.status, 0, result.stderr);
     const html = readFileSync(join(out, "index.html"), "utf8");
     assert.match(html, /chatStatus: "up"/);
-    assert.match(html, /apiUrl: ""/);
-    assert.match(html, /googleClientId: ""/);
+    assert.ok(html.includes(`apiUrl: ${JSON.stringify(defaults.apiUrl)}`));
+    assert.ok(html.includes(`googleClientId: ${JSON.stringify(defaults.googleClientId)}`));
   });
 
   it("includes every page route and the shared assets", () => {
@@ -65,13 +68,11 @@ describe("Static site build (Vercel)", () => {
     assert.deepStrictEqual(files.filter((file) => forbidden.test(file)), []);
   });
 
-  it("fails a production deploy that has no API_URL, but only warns elsewhere", () => {
-    const production = build({ VERCEL_ENV: "production" });
-    assert.notStrictEqual(production.status, 0);
-    assert.match(production.stderr, /API_URL is not set/);
-    const preview = build({ VERCEL_ENV: "preview" });
-    assert.strictEqual(preview.status, 0, preview.stderr);
-    const ok = build({ VERCEL_ENV: "production", API_URL: "https://api.example.com" });
-    assert.strictEqual(ok.status, 0, ok.stderr);
+  it("lets environment variables override the defaults", () => {
+    const result = build({ VERCEL_ENV: "production", API_URL: "https://other.example.com", GOOGLE_CLIENT_ID: "override.apps.googleusercontent.com" });
+    assert.strictEqual(result.status, 0, result.stderr);
+    const html = readFileSync(join(out, "index.html"), "utf8");
+    assert.match(html, /apiUrl: "https:\/\/other\.example\.com"/);
+    assert.match(html, /googleClientId: "override\.apps\.googleusercontent\.com"/);
   });
 });
