@@ -1,10 +1,12 @@
 // Builds the static website into dist/ (or OUT_DIR) for Vercel.
 // It copies only the public site files (never tests, server code, node_modules or
 // secrets) and fills in the three settings the pages need:
-//   API_URL          - the Worker address that answers chat and logins
-//   CHAT_STATUS      - "up" (default) or "down"
-//   GOOGLE_CLIENT_ID - turns Google sign-in on when set
-// Same variable names as the GitHub Pages workflow.
+//   apiUrl           - the Worker address that answers chat and logins
+//   chatStatus       - "up" (default) or "down"
+//   googleClientId   - turns Google sign-in on when set
+// Defaults for the first two come from scripts/site-config.json (both values are
+// public: they are already visible in the page). Environment variables override them:
+// API_URL, GOOGLE_CLIENT_ID and CHAT_STATUS, the same names the Pages workflow used.
 import { cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -19,18 +21,19 @@ const publicEntries = [
   "assets", "Ophones", "products", "shop", "features", "login", "chat", "cart", "checkout", "mobile-lab"
 ];
 
-const apiUrl = (process.env.API_URL || "").trim();
+const defaults = JSON.parse(await readFile(join(root, "scripts", "site-config.json"), "utf8"));
+const apiUrl = (process.env.API_URL || defaults.apiUrl || "").trim();
 const chatStatus = (process.env.CHAT_STATUS || "up").trim() || "up";
-const googleClientId = (process.env.GOOGLE_CLIENT_ID || "").trim();
+const googleClientId = (process.env.GOOGLE_CLIENT_ID || defaults.googleClientId || "").trim();
 
 // A production site without a backend address would quietly lose its AI chat and
 // login, so stop the deploy instead of shipping it.
 if (process.env.VERCEL_ENV === "production" && !apiUrl) {
-  console.error("ERROR: API_URL is not set. Add it in Vercel -> Settings -> Environment Variables.");
+  console.error("ERROR: no API address. Set apiUrl in scripts/site-config.json or API_URL in Vercel.");
   process.exit(1);
 }
-if (!apiUrl) console.warn("Warning: API_URL is not set, so chat will use the local guide.");
-if (!googleClientId) console.warn("Warning: GOOGLE_CLIENT_ID is not set, so Google sign-in will be off.");
+if (!apiUrl) console.warn("Warning: no API address, so chat will use the local guide.");
+if (!googleClientId) console.warn("Warning: no Google client ID, so Google sign-in will be off.");
 
 await rm(outDir, { recursive: true, force: true });
 await mkdir(outDir, { recursive: true });
