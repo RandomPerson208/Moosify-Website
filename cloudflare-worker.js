@@ -2,6 +2,7 @@
 // Exported module for Workers runtime (ESM)
 
 import { MOOSY_SYSTEM_PROMPT } from "./moosy-prompt.js";
+import { handleAccountRoute, upsertUser } from "./accounts.js";
 
 const PRODUCTION_ORIGIN = "https://moosify.pizzamonster.org";
 
@@ -9,6 +10,8 @@ const PRODUCTION_ORIGIN = "https://moosify.pizzamonster.org";
 //   GOOGLE_CLIENT_ID – OAuth Client ID from Google Cloud Console
 //   SESSION_SECRET   – random string used to sign Moosify session tokens
 // Without them, /api/login answers 503 and nobody is treated as logged in.
+// Saved chats, carts and orders live in the D1 database bound as DB (see accounts.js).
+// Without that binding, login still works but nothing is saved to the account.
 const SESSION_TTL_SECONDS = 24 * 60 * 60;
 
 const MAX_MESSAGE_LENGTH = 2000;
@@ -311,7 +314,7 @@ export default {
   async fetch(request, env, ctx) {
     const corsHeaders = {
       "Access-Control-Allow-Origin": PRODUCTION_ORIGIN,
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
       "Access-Control-Allow-Credentials": "true"
     };
@@ -354,7 +357,8 @@ export default {
       return new Response(
         JSON.stringify({
           authenticated: !!user,
-          user: user ? { email: user.email, name: user.name } : null
+          user: user ? { email: user.email, name: user.name } : null,
+          persistence: !!env.DB
         }),
         { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
@@ -391,11 +395,21 @@ export default {
         });
       }
 
+      if (env.DB && user.sub) {
+        try {
+          await upsertUser(env, user);
+        } catch (e) {
+          // Login should still work if the database is briefly unavailable
+          console.error("Could not save user", e);
+        }
+      }
+
       const sessionToken = await makeSessionToken(user, env.SESSION_SECRET);
       return new Response(
         JSON.stringify({
           token: sessionToken,
           user: { email: user.email, name: user.name, picture: user.picture },
+          persistence: !!env.DB,
           expiresIn: SESSION_TTL_SECONDS
         }),
         { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -412,6 +426,28 @@ export default {
       const authResult = await requireAuth(request, env, corsHeaders);
       if (authResult) {
         return authResult;
+      }
+    }
+
+    // ---------------------------------------------------------------------
+    // Account data – saved chat, cart and demo orders (logged-in users only)
+    // ---------------------------------------------------------------------
+    if (pathname === "/api/me" || pathname.startsWith("/api/me/") || pathname === "/api/orders") {
+      const user = await getAuthenticatedUser(request, env);
+      try {
+        const result = await handleAccountRoute({ request, env, pathname, user, readBody: readValidatedBody });
+        if (result) {
+          return new Response(JSON.stringify(result.body), {
+            status: result.status,
+            headers: { "Content-Type": "application/json", ...corsHeaders }
+          });
+        }
+      } catch (e) {
+        console.error("Account route failed", e);
+        return new Response(JSON.stringify({ error: "Could not reach saved data. Try again." }), {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
       }
     }
 

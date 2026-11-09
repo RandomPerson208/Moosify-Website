@@ -31,6 +31,9 @@ for secret in GOOGLE_CLIENT_ID SESSION_SECRET; do
   fi
 done
 
+# Make sure the D1 database for saved accounts exists and is up to date
+bash "$(dirname "$0")/setup-d1.sh"
+
 # Deploy the worker using the current Wrangler command
 echo "Deploying Cloudflare Worker..."
 npx wrangler deploy

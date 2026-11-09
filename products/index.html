@@ -227,7 +227,7 @@
             <label class="field">Message<input type="text" data-chat-input-page placeholder="Say something to Moosy" autocomplete="off"></label>
             <button class="button orange" type="submit"><i class="icon" data-lucide="send"></i>Send</button>
           </form>
-          <button class="button secondary" type="button" data-new-chat><i class="icon" data-lucide="rotate-ccw"></i>New chat</button>
+          <button class="button secondary" type="button" data-clear-chat><i class="icon" data-lucide="trash-2"></i>Clear chat</button>
         </div>
       </div>
     </section>
@@ -239,9 +239,17 @@
         <button class="close-button" type="button" data-modal-close aria-label="Close login"><i class="icon" data-lucide="x"></i></button>
       </div>
       <div class="modal-body">
-        <p>Sign in with your Google account. Moosify never asks for your password.</p>
-        <div class="google-login-btn" data-google-login></div>
-        <p class="form-note" data-login-note></p>
+        <div data-login-form>
+          <p>Sign in with your Google account. Moosify never asks for your password.</p>
+          <div class="google-login-btn" data-google-login></div>
+          <p class="form-note" data-login-note></p>
+        </div>
+        <div data-account-panel hidden>
+          <p>Signed in as <strong data-account-email></strong>.</p>
+          <p class="form-note" data-account-saved-note></p>
+          <button class="button secondary" type="button" data-delete-account><i class="icon" data-lucide="trash-2"></i>Delete my account and data</button>
+          <p class="form-note" data-account-note></p>
+        </div>
       </div>
     </div>
   </div>
@@ -277,6 +285,10 @@
         <button class="button full orange" type="submit"><i class="icon" data-lucide="package-check"></i>Finish demo checkout</button>
         <p class="form-note" data-checkout-note></p>
       </form>
+      <div class="modal-body" data-order-history hidden>
+        <h3 class="brand-font">Your orders</h3>
+        <div class="order-list" data-order-list></div>
+      </div>
     </div>
   </div>
 

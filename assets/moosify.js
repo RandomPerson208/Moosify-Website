@@ -120,6 +120,124 @@ function loadCart() {
 
 let savedCart = loadCart();
 const cart = new Map(savedCart.map((item) => [item.id, item]));
+
+// ---------------------------------------------------------------------------
+// Saved account data. When someone is logged in and the Worker has its
+// database, chat, cart and orders are also stored on their account.
+// ---------------------------------------------------------------------------
+const SESSION_KEY = "moosify-session-token";
+let accountSync = false;
+let cartSyncTimer;
+
+function apiBase() {
+  return (API_URL && API_URL.trim() !== "" && !API_URL.includes("__API_URL_PLACEHOLDER__"))
+    ? API_URL.replace(/\/$/, "")
+    : "";
+}
+
+function getSessionToken() {
+  try { return localStorage.getItem(SESSION_KEY) || ""; } catch { return ""; }
+}
+
+async function accountFetch(path, { method = "GET", body } = {}) {
+  const token = getSessionToken();
+  if (!token) throw new Error("Not logged in");
+  const response = await fetch(`${apiBase()}${path}`, {
+    method,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      ...(body !== undefined ? { "Content-Type": "application/json" } : {})
+    },
+    body: body !== undefined ? JSON.stringify(body) : undefined
+  });
+  if (!response.ok) throw new Error(`Account request failed (${response.status})`);
+  return response.json();
+}
+
+function cartPayload() {
+  return Array.from(cart.values()).map(({ id, name, price, quantity }) => ({ id, name, price, quantity }));
+}
+
+async function pushCart() {
+  clearTimeout(cartSyncTimer);
+  cartSyncTimer = undefined;
+  if (!accountSync) return;
+  try {
+    await accountFetch("/api/me/cart", { method: "PUT", body: { items: cartPayload() } });
+  } catch (error) {
+    console.error("Could not save cart", error);
+  }
+}
+
+function scheduleCartSync() {
+  if (!accountSync) return;
+  clearTimeout(cartSyncTimer);
+  cartSyncTimer = setTimeout(pushCart, 500);
+}
+
+// Pull chat and cart from the account. On a fresh login the guest cart and
+// guest chat are merged in so nothing the visitor already did is lost.
+async function loadAccountData({ mergeGuest }) {
+  const data = await accountFetch("/api/me/data");
+
+  const guestChat = chatHistory.slice();
+  if (data.chat.length > 0) {
+    chatHistory.length = 0;
+    chatHistory.push(...data.chat);
+  } else if (mergeGuest && guestChat.length > 0) {
+    for (let i = 0; i < guestChat.length; i += 10) {
+      await accountFetch("/api/me/chat", { method: "POST", body: { messages: guestChat.slice(i, i + 10) } });
+    }
+  }
+  saveChatHistory();
+  renderSavedChat();
+
+  const merged = new Map();
+  for (const saved of data.cart) merged.set(saved.id, saved.quantity);
+  if (mergeGuest) {
+    for (const guest of cart.values()) {
+      merged.set(guest.id, Math.min(100, (merged.get(guest.id) || 0) + guest.quantity));
+    }
+  }
+  cart.clear();
+  for (const [id, quantity] of merged) {
+    const product = findProduct(id); // only real catalog products, with today's prices
+    if (product) cart.set(id, { ...product, quantity });
+  }
+  saveCart();
+  renderCart();
+  if (mergeGuest) await pushCart();
+  await loadOrders();
+}
+
+function renderOrderHistory(orders) {
+  const box = document.querySelector("[data-order-history]");
+  const list = document.querySelector("[data-order-list]");
+  if (!box || !list) return;
+  box.hidden = !accountSync;
+  list.replaceChildren(...orders.map((order) => {
+    const entry = document.createElement("div");
+    entry.className = "order-entry";
+    const head = document.createElement("strong");
+    head.textContent = `Order #${order.id} · ${formatMoney(order.total)}`;
+    const when = document.createElement("small");
+    when.textContent = new Date(order.createdAt).toLocaleString();
+    const lines = document.createElement("div");
+    lines.textContent = order.items.map((item) => `${item.quantity} x ${item.name}`).join(", ");
+    entry.append(head, when, lines);
+    return entry;
+  }));
+  if (orders.length === 0) list.textContent = "No orders yet.";
+}
+
+async function loadOrders() {
+  if (!accountSync) return renderOrderHistory([]);
+  try {
+    renderOrderHistory((await accountFetch("/api/orders")).orders);
+  } catch (error) {
+    console.error("Could not load orders", error);
+  }
+}
 let activeServiceKey = "phones";
 const ophoneModels = [
   { id: "O1", name: "OPhone O1", front: "Ophones/O1/O1 Front.jpg", back: "Ophones/O1/O1 Back.jpg", note: "starter model", osIds: ["pineappleos-1", "pineappleos-2", "pineappleos-3"] },
@@ -255,11 +373,21 @@ function saveChatHistory() {
   } catch {}
 }
 
-function startNewChat() {
+let chatEpoch = 0;
+
+function clearChat() {
+  chatEpoch += 1; // a reply still on its way belongs to the old chat and gets dropped
   chatHistory.length = 0;
+  if (accountSync) {
+    accountFetch("/api/me/chat", { method: "DELETE" }).catch(() => {
+      if (pageAiStatus) pageAiStatus.textContent = "Chat cleared here, but your saved copy could not be cleared. Try again.";
+    });
+  }
   try { localStorage.removeItem("moosify-chat-history"); } catch {}
   pageChatLog.innerHTML = '<div class="message">Moosy: Hey, I’m Moosy. What are you thinking about today?</div>';
   if (pageAiStatus && CURRENT_CHAT_STATUS !== "down") pageAiStatus.textContent = "Moosy brain: ready.";
+  const sendButton = document.querySelector('[data-chat-form-page] button[type="submit"]');
+  if (sendButton) sendButton.disabled = false;
   document.querySelector("[data-chat-input-page]")?.focus();
 }
 
@@ -343,6 +471,7 @@ function saveCart() {
   try {
     localStorage.setItem("moosify-cart", JSON.stringify(Array.from(cart.values())));
   } catch {}
+  scheduleCartSync();
 }
 
 function getCartTotals() {
@@ -413,8 +542,7 @@ async function askMoosy(message) {
 };
   try {
     const endpoint = (API_URL && API_URL.trim() !== "" && !API_URL.includes("__API_URL_PLACEHOLDER__")) ? API_URL : "/api/moosy";
-    let sessionToken = "";
-    try { sessionToken = localStorage.getItem("moosify-session-token") || ""; } catch {}
+    const sessionToken = getSessionToken();
     const response = await fetch(endpoint, {
       method: "POST",
       credentials: "include",
@@ -528,25 +656,33 @@ function updatePageIdentity(route) {
   }
 }
 
-async function updateNavAuthUI() {
+async function updateNavAuthUI({ mergeGuest = false } = {}) {
   try {
-    const apiBase = (API_URL && API_URL.trim() !== "" && !API_URL.includes("__API_URL_PLACEHOLDER__"))
-      ? API_URL.replace(/\/$/, "")
-      : "";
-    // Read stored Moosify session token
-    let sessionToken = "";
-    try { sessionToken = localStorage.getItem("moosify-session-token") || ""; } catch {}
-    const resp = await fetch(`${apiBase}/api/auth-status`, {
+    const sessionToken = getSessionToken();
+    const resp = await fetch(`${apiBase()}/api/auth-status`, {
       credentials: "include",
       headers: sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {}
     });
     const data = await resp.json();
     const authenticated = data.authenticated === true;
     const email = data.user?.email || "";
+    if (!authenticated && sessionToken) {
+      // The saved session expired or was rejected, so stop sending it
+      try { localStorage.removeItem(SESSION_KEY); } catch {}
+    }
 
+    accountSync = authenticated && data.persistence === true;
     setNavAuthState(authenticated, email);
+    if (accountSync) {
+      try {
+        await loadAccountData({ mergeGuest });
+      } catch (error) {
+        console.error("Could not load saved account data", error);
+      }
+    }
   } catch (error) {
     // Auth check failed – show Login as safe default
+    accountSync = false;
     setNavAuthState(false, "");
   }
 }
@@ -578,14 +714,52 @@ function setNavAuthState(authenticated, email) {
     loginLink.onclick = null;
   }
   loginLink.replaceChildren(icon, label);
+
+  const loginForm = document.querySelector("[data-login-form]");
+  const accountPanel = document.querySelector("[data-account-panel]");
+  if (loginForm) loginForm.hidden = authenticated;
+  if (accountPanel) accountPanel.hidden = !authenticated;
+  const accountEmail = document.querySelector("[data-account-email]");
+  if (accountEmail) accountEmail.textContent = email;
+  const savedNote = document.querySelector("[data-account-saved-note]");
+  if (savedNote) {
+    savedNote.textContent = accountSync
+      ? "Your chat, cart and orders are saved to this account."
+      : "Saving to your account is not available right now.";
+  }
   refreshIcons();
 }
 
-function handleLogout() {
-  try { localStorage.removeItem("moosify-session-token"); } catch {}
+async function handleLogout() {
+  await pushCart(); // save the last cart change before the session goes away
+  signOutLocally();
+}
+
+// Forget the session and the account's data on this device (shared computers).
+function signOutLocally() {
+  try { localStorage.removeItem(SESSION_KEY); } catch {}
+  accountSync = false;
+  clearTimeout(cartSyncTimer);
+  cart.clear();
+  chatHistory.length = 0;
+  try {
+    localStorage.removeItem("moosify-cart");
+    localStorage.removeItem("moosify-chat-history");
+  } catch {}
   window.google?.accounts?.id?.disableAutoSelect();
   setNavAuthState(false, "");
   showHome();
+}
+
+async function handleDeleteAccount() {
+  const note = document.querySelector("[data-account-note]");
+  if (!window.confirm("Delete your Moosify account and everything saved to it (chat, cart and orders)? This cannot be undone.")) return;
+  try {
+    await accountFetch("/api/me", { method: "DELETE" });
+    signOutLocally();
+  } catch (error) {
+    if (note) note.textContent = "Could not delete your account. Please try again.";
+  }
 }
 
 function showPath(path, replace = false) {
@@ -761,11 +935,11 @@ async function handleGoogleCredential(credentialResponse) {
 
     // Store Moosify session token for authenticated requests
     try {
-      localStorage.setItem("moosify-session-token", data.token);
+      localStorage.setItem(SESSION_KEY, data.token);
     } catch {}
 
     if (note) note.textContent = `Welcome back, ${data.user?.name || data.user?.email}!`;
-    await updateNavAuthUI();
+    await updateNavAuthUI({ mergeGuest: true });
     history.replaceState({}, "", "/");
     showPath("/");
   } catch (error) {
@@ -927,7 +1101,7 @@ if (deviceForm) {
   });
 }
 
-document.querySelector("[data-new-chat]")?.addEventListener("click", startNewChat);
+document.querySelector("[data-clear-chat]")?.addEventListener("click", clearChat);
 
 document.querySelector("[data-chat-form-page]").addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -951,26 +1125,54 @@ document.querySelector("[data-chat-form-page]").addEventListener("submit", async
   input.value = "";
   pageChatLog.scrollTop = pageChatLog.scrollHeight;
 
+  const epoch = chatEpoch;
   const answer = await askMoosy(message);
+  if (epoch !== chatEpoch) return; // chat was cleared while Moosy was thinking
   reply.textContent = `Moosy: ${answer}`;
   // The API rejects history entries over 2000 characters, so store them trimmed.
   chatHistory.push({ role: "user", content: message }, { role: "assistant", content: answer.slice(0, 2000) });
   saveChatHistory();
+  if (accountSync) {
+    accountFetch("/api/me/chat", {
+      method: "POST",
+      body: { messages: [{ role: "user", content: message }, { role: "assistant", content: answer.slice(0, 2000) }] }
+    }).catch((error) => console.error("Could not save chat", error));
+  }
   pageChatLog.scrollTop = pageChatLog.scrollHeight;
   sendButton.disabled = false;
   input.focus();
 });
 
-document.querySelector("[data-checkout-form]").addEventListener("submit", (event) => {
+document.querySelector("[data-checkout-form]").addEventListener("submit", async (event) => {
   event.preventDefault();
   const { quantity, total } = getCartTotals();
   const note = document.querySelector("[data-checkout-note]");
+  const submit = event.currentTarget.querySelector('button[type="submit"]');
   if (quantity === 0) {
     note.textContent = "Your cart is empty. Add something before checking out.";
     return;
   }
-  note.textContent = `Demo order ready: ${quantity} item${quantity === 1 ? "" : "s"} for ${formatMoney(total)}. No payment was charged.`;
+  const summary = `${quantity} item${quantity === 1 ? "" : "s"} for ${formatMoney(total)}`;
+  if (!accountSync) {
+    note.textContent = `Demo order ready: ${summary}. No payment was charged. Log in to keep a history of your orders.`;
+    return;
+  }
+  submit.disabled = true;
+  try {
+    const { order } = await accountFetch("/api/orders", { method: "POST", body: { items: cartPayload() } });
+    cart.clear();
+    saveCart();
+    renderCart();
+    note.textContent = `Demo order #${order.id} saved: ${summary}. No payment was charged.`;
+    await loadOrders();
+  } catch (error) {
+    note.textContent = "Could not save your order, so your cart was left as it is. Please try again.";
+  } finally {
+    submit.disabled = false;
+  }
 });
+
+document.querySelector("[data-delete-account]")?.addEventListener("click", handleDeleteAccount);
 
 renderRoutePages();
 renderProducts(services[activeServiceKey].products);
