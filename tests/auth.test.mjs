@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { createHmac } from "node:crypto";
+import { createHmac, createSign, generateKeyPairSync } from "node:crypto";
 import worker from "../cloudflare-worker.js";
 
 // These tests run the real Worker fetch handler (not a copy of its logic).
@@ -164,5 +164,68 @@ describe("Rate limiting", () => {
     for (let i = 0; i < 40; i++) await call("/api/moosy", { method: "OPTIONS", ip });
     const resp = await call("/api/health", { ip });
     assert.strictEqual(resp.status, 200);
+  });
+});
+
+describe("Google key rotation", () => {
+  it("refetches Google's keys when a token uses a key it hasn't seen", async () => {
+    const makeKey = (kid) => {
+      const { publicKey, privateKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
+      return { kid, privateKey, jwk: { ...publicKey.export({ format: "jwk" }), kid, alg: "RS256", use: "sig" } };
+    };
+    const oldKey = makeKey("old-key");
+    const newKey = makeKey("new-key");
+    let published = [oldKey.jwk];
+    let certFetches = 0;
+
+    const realFetch = globalThis.fetch;
+    const realNow = Date.now;
+    globalThis.fetch = async (url) => {
+      assert.strictEqual(String(url), "https://www.googleapis.com/oauth2/v3/certs");
+      certFetches += 1;
+      return new Response(JSON.stringify({ keys: published }), {
+        headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=3600" }
+      });
+    };
+
+    const googleToken = (key) => {
+      const now = Math.floor(realNow() / 1000);
+      const head = b64url({ alg: "RS256", kid: key.kid, typ: "JWT" });
+      const body = b64url({ iss: "https://accounts.google.com", aud: "test-client-id", sub: "42", email: "moosy@moosify.com", exp: now + 3600 });
+      const sig = createSign("RSA-SHA256").update(`${head}.${body}`).sign(key.privateKey, "base64url");
+      return `${head}.${body}.${sig}`;
+    };
+    const login = (key) => call("/api/login", { method: "POST", body: { credential: googleToken(key) } });
+
+    try {
+      assert.strictEqual((await login(oldKey)).status, 200);
+      assert.strictEqual(certFetches, 1);
+
+      // Google rotates in a new key; our cached copy doesn't have it yet
+      published = [oldKey.jwk, newKey.jwk];
+      Date.now = () => realNow() + 15_000;
+      const resp = await login(newKey);
+      assert.strictEqual(resp.status, 200);
+      assert.strictEqual(certFetches, 2);
+      const data = await resp.json();
+      assert.strictEqual(data.user.email, "moosy@moosify.com");
+    } finally {
+      globalThis.fetch = realFetch;
+      Date.now = realNow;
+    }
+  });
+});
+
+describe("Chat responses", () => {
+  it("goes offline when the CHAT_STATUS secret is down", async () => {
+    const resp = await call("/api/moosy", { method: "POST", body: { message: "hi" } }, { ...baseEnv, CHAT_STATUS: "down" });
+    const data = await resp.json();
+    assert.match(data.reply, /offline/);
+  });
+
+  it("flags the canned fallback reply so the UI can say so", async () => {
+    const resp = await call("/api/moosy", { method: "POST", body: { message: "hi" } });
+    const data = await resp.json();
+    assert.strictEqual(data.fallback, true);
   });
 });

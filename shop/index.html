@@ -23,7 +23,7 @@
           <span>Stuffed animals running everything</span>
         </span>
       </a>
-      <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-navigation"><i class="icon" data-lucide="menu"></i>Menu</button>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-navigation"><i class="icon" data-lucide="menu"></i>Menu <span class="nav-toggle-count" data-cart-count-toggle aria-label="items in cart" hidden>0</span></button>
       <div class="nav-actions" id="site-navigation" data-nav-menu>
         <div class="services-menu">
           <a class="nav-link services-trigger" href="/shop/" data-nav-section="services" aria-haspopup="true">Services <i class="icon" data-lucide="chevron-down"></i></a>
@@ -219,7 +219,7 @@
           <p>Come hang out, ask a question, or tell Moosy what is happening in the playarea.</p>
         </div>
         <div class="chat-page-card">
-          <div class="chat-log" data-chat-log-page>
+          <div class="chat-log" data-chat-log-page role="log" aria-live="polite" aria-label="Conversation with Moosy">
             <div class="message">Moosy: Hey, I’m Moosy. What are you thinking about today?</div>
           </div>
           <p class="form-note" data-ai-status-page>Moosy brain: ready.</p>
@@ -227,6 +227,7 @@
             <label class="field">Message<input type="text" data-chat-input-page placeholder="Say something to Moosy" autocomplete="off"></label>
             <button class="button orange" type="submit"><i class="icon" data-lucide="send"></i>Send</button>
           </form>
+          <button class="button secondary" type="button" data-clear-chat><i class="icon" data-lucide="trash-2"></i>Clear chat</button>
         </div>
       </div>
     </section>
@@ -238,9 +239,17 @@
         <button class="close-button" type="button" data-modal-close aria-label="Close login"><i class="icon" data-lucide="x"></i></button>
       </div>
       <div class="modal-body">
-        <p>Sign in with your Google account. Moosify never asks for your password.</p>
-        <div class="google-login-btn" data-google-login></div>
-        <p class="form-note" data-login-note></p>
+        <div data-login-form>
+          <p>Sign in with your Google account. Moosify never asks for your password.</p>
+          <div class="google-login-btn" data-google-login></div>
+          <p class="form-note" data-login-note></p>
+        </div>
+        <div data-account-panel hidden>
+          <p>Signed in as <strong data-account-email></strong>.</p>
+          <p class="form-note" data-account-saved-note></p>
+          <button class="button secondary" type="button" data-delete-account><i class="icon" data-lucide="trash-2"></i>Delete my account and data</button>
+          <p class="form-note" data-account-note></p>
+        </div>
       </div>
     </div>
   </div>
@@ -276,6 +285,10 @@
         <button class="button full orange" type="submit"><i class="icon" data-lucide="package-check"></i>Finish demo checkout</button>
         <p class="form-note" data-checkout-note></p>
       </form>
+      <div class="modal-body" data-order-history hidden>
+        <h3 class="brand-font">Your orders</h3>
+        <div class="order-list" data-order-list></div>
+      </div>
     </div>
   </div>
 
@@ -317,6 +330,8 @@
   </div>
 
   </main>
+
+  <div class="visually-hidden" role="status" aria-live="polite" data-cart-announcer></div>
 
   <footer class="footer">
     <p>Copyright 2026 Moosify. All rights reserved.</p>

@@ -12,3 +12,11 @@ compatibility_date = "2024-01-01"
 
 [ai]
 binding = "AI"
+
+# Saved accounts (chat, cart, orders). The id is filled in by scripts/setup-d1.sh,
+# which creates the database on first run and applies migrations/.
+[[d1_databases]]
+binding = "DB"
+database_name = "moosify"
+database_id = "abbc6f11-9e65-4dd1-b23c-15d8810d44bb"
+migrations_dir = "migrations"

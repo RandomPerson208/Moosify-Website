@@ -118,6 +118,17 @@ The Worker also uses a Cloudflare Workers AI binding as its primary model path. 
 3. The workflow **`.github/workflows/deploy-worker.yml`** will automatically publish the worker on every push to `main`.
 4. After the workflow finishes, the `API_URL` secret should point at the worker’s URL (the workflow prints the URL in the logs).
 
+### Saved accounts (Cloudflare D1)
+
+Logged-in visitors get their chat, cart and demo orders saved to their account (stored by Google account id, never a password). Guests keep working exactly as before, with everything staying in the browser.
+
+* The data lives in a Cloudflare **D1** database named `moosify`, bound to the Worker as `DB`. The schema is in `migrations/`.
+* `scripts/setup-d1.sh` (also run by the deploy workflow and `npm run deploy`) creates the database if it is missing, writes its id into `wrangler.toml`, and applies new migrations. Your `CF_API_TOKEN` needs the **D1: Edit** permission in addition to Workers edit.
+* Account routes (all need a login): `GET /api/me/data`, `PUT /api/me/cart`, `POST` and `DELETE /api/me/chat`, `GET` and `POST /api/orders`, and `DELETE /api/me` (deletes the account and everything saved to it).
+* Without the `DB` binding, login still works but nothing is saved, and the Account panel says so.
+* Local testing: `npm run db:local` applies the migrations to wrangler's local database; the test suite uses a built-in SQLite stand-in and needs no Cloudflare account.
+* Orders are demo records only. Nothing is ever charged.
+
 If you prefer a traditional VPS or a PaaS (Render, Railway, Fly.io), you can also run `server.mjs` there and set the same `API_URL` secret to that service’s address.
    
 ---

@@ -22,6 +22,14 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
+      - name: Assemble site
+        # Publish only the website, not tests, server code, node_modules or secrets
+        run: |
+          mkdir _site
+          cp -r index.html 404.html google0dc127fce4c14c1e.html CNAME .nojekyll \
+            art.png download.png moosy-ceo-cutout.png \
+            assets Ophones products shop features login chat cart checkout mobile-lab _site/
+
       - name: Configure Moosy connection
         env:
           API_URL: ${{ secrets.API_URL }}
@@ -36,7 +44,7 @@ jobs:
           api_url = json.dumps(os.environ.get("API_URL", ""))
           chat_status = json.dumps(os.environ.get("CHAT_STATUS", "up") or "up")
           google_client_id = json.dumps(os.environ.get("GOOGLE_CLIENT_ID", ""))
-          for path in Path(".").rglob("*.html"):
+          for path in Path("_site").rglob("*.html"):
               html = path.read_text()
               html = html.replace(
                   '"__API_URL_PLACEHOLDER__"',
@@ -56,7 +64,7 @@ jobs:
       - name: Upload website
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
       - name: Deploy website
         id: deployment

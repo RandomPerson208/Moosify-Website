@@ -11,8 +11,10 @@
     "static": "python3 -m http.server 4173",
     "sync-pages": "node scripts/sync-pages.mjs",
     "dev": "npx wrangler dev",
-    "publish": "npx wrangler publish",
+    "publish": "npx wrangler deploy",
     "deploy": "./scripts/deploy.sh",
+    "db:setup": "./scripts/setup-d1.sh",
+    "db:local": "npx wrangler d1 migrations apply moosify --local",
     "test": "node --test tests/*.test.mjs"
   }
 }

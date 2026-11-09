@@ -2,6 +2,7 @@
 // Exported module for Workers runtime (ESM)
 
 import { MOOSY_SYSTEM_PROMPT } from "./moosy-prompt.js";
+import { handleAccountRoute, upsertUser } from "./accounts.js";
 
 const PRODUCTION_ORIGIN = "https://moosify.pizzamonster.org";
 
@@ -9,6 +10,8 @@ const PRODUCTION_ORIGIN = "https://moosify.pizzamonster.org";
 //   GOOGLE_CLIENT_ID – OAuth Client ID from Google Cloud Console
 //   SESSION_SECRET   – random string used to sign Moosify session tokens
 // Without them, /api/login answers 503 and nobody is treated as logged in.
+// Saved chats, carts and orders live in the D1 database bound as DB (see accounts.js).
+// Without that binding, login still works but nothing is saved to the account.
 const SESSION_TTL_SECONDS = 24 * 60 * 60;
 
 const MAX_MESSAGE_LENGTH = 2000;
@@ -20,8 +23,10 @@ const RATE_LIMIT_MAX_REQUESTS = 30;
 // In-memory rate limit store: IP -> { count, windowStart }
 const rateLimitStore = new Map();
 
-// Google OAuth2 public keys cache: { keys, expiresAt }
-const googleCertsCache = { keys: null, expiresAt: 0 };
+// Google OAuth2 public keys cache: { keys, expiresAt, fetchedAt }
+const googleCertsCache = { keys: null, expiresAt: 0, fetchedAt: 0 };
+// Minimum gap between forced refetches when a token names an unknown key.
+const GOOGLE_CERTS_REFETCH_MS = 10_000;
 
 function getClientIp(request) {
   // Cloudflare sets cf-connecting-ip to the actual connecting client IP.
@@ -119,9 +124,9 @@ function base64UrlEncode(bytes) {
   return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-async function fetchGoogleCerts() {
+async function fetchGoogleCerts({ force = false } = {}) {
   const now = Date.now();
-  if (googleCertsCache.keys && now < googleCertsCache.expiresAt) {
+  if (!force && googleCertsCache.keys && now < googleCertsCache.expiresAt) {
     return googleCertsCache.keys;
   }
   try {
@@ -136,8 +141,11 @@ async function fetchGoogleCerts() {
       n: k.n,
       e: k.e
     }));
+    // Honor Google's Cache-Control max-age (default 1h)
+    const maxAge = /max-age=(\d+)/.exec(resp.headers.get("cache-control") || "");
     googleCertsCache.keys = keys;
-    googleCertsCache.expiresAt = now + 24 * 60 * 60 * 1000; // cache 24h
+    googleCertsCache.fetchedAt = now;
+    googleCertsCache.expiresAt = now + (maxAge ? Number(maxAge[1]) * 1000 : 60 * 60 * 1000);
     return keys;
   } catch (e) {
     return googleCertsCache.keys || [];
@@ -187,8 +195,13 @@ async function validateGoogleIdToken(token, clientId) {
   if (!clientId || payload.aud !== clientId) return null;
 
   // Verify signature using Google's public keys
-  const keys = await fetchGoogleCerts();
-  const key = keys.find((k) => k.kid === header.kid);
+  let keys = await fetchGoogleCerts();
+  let key = keys.find((k) => k.kid === header.kid);
+  if (!key && Date.now() - googleCertsCache.fetchedAt >= GOOGLE_CERTS_REFETCH_MS) {
+    // Google may have rotated its keys since we cached them
+    keys = await fetchGoogleCerts({ force: true });
+    key = keys.find((k) => k.kid === header.kid);
+  }
   if (!key || !key.n || !key.e) return null;
 
   try {
@@ -301,7 +314,7 @@ export default {
   async fetch(request, env, ctx) {
     const corsHeaders = {
       "Access-Control-Allow-Origin": PRODUCTION_ORIGIN,
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
       "Access-Control-Allow-Credentials": "true"
     };
@@ -344,7 +357,8 @@ export default {
       return new Response(
         JSON.stringify({
           authenticated: !!user,
-          user: user ? { email: user.email, name: user.name } : null
+          user: user ? { email: user.email, name: user.name } : null,
+          persistence: !!env.DB
         }),
         { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
@@ -381,11 +395,21 @@ export default {
         });
       }
 
+      if (env.DB && user.sub) {
+        try {
+          await upsertUser(env, user);
+        } catch (e) {
+          // Login should still work if the database is briefly unavailable
+          console.error("Could not save user", e);
+        }
+      }
+
       const sessionToken = await makeSessionToken(user, env.SESSION_SECRET);
       return new Response(
         JSON.stringify({
           token: sessionToken,
           user: { email: user.email, name: user.name, picture: user.picture },
+          persistence: !!env.DB,
           expiresIn: SESSION_TTL_SECONDS
         }),
         { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -402,6 +426,28 @@ export default {
       const authResult = await requireAuth(request, env, corsHeaders);
       if (authResult) {
         return authResult;
+      }
+    }
+
+    // ---------------------------------------------------------------------
+    // Account data – saved chat, cart and demo orders (logged-in users only)
+    // ---------------------------------------------------------------------
+    if (pathname === "/api/me" || pathname.startsWith("/api/me/") || pathname === "/api/orders") {
+      const user = await getAuthenticatedUser(request, env);
+      try {
+        const result = await handleAccountRoute({ request, env, pathname, user, readBody: readValidatedBody });
+        if (result) {
+          return new Response(JSON.stringify(result.body), {
+            status: result.status,
+            headers: { "Content-Type": "application/json", ...corsHeaders }
+          });
+        }
+      } catch (e) {
+        console.error("Account route failed", e);
+        return new Response(JSON.stringify({ error: "Could not reach saved data. Try again." }), {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
       }
     }
 
@@ -464,8 +510,8 @@ export default {
       });
     }
 
-    // Maintenance mode – if client explicitly requests down, short‑circuit
-    if (payload.chatStatus && payload.chatStatus === "down") {
+    // Maintenance mode – CHAT_STATUS=down on the Worker, or the client says so
+    if (env.CHAT_STATUS === "down" || payload.chatStatus === "down") {
       return new Response(JSON.stringify({ reply: "Our help desk chat is currently offline for testing. Check back soon!" }), {
         status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders }
@@ -572,7 +618,7 @@ export default {
     }
 
     const fallbackReply = "I’m here to help you with phones, donuts, rockets, flights, cell plans, and support. Ask me about any product or tell me what you’re looking for.";
-    return new Response(JSON.stringify({ reply: fallbackReply, providerAttempts }), {
+    return new Response(JSON.stringify({ reply: fallbackReply, fallback: true, providerAttempts }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders }
     });

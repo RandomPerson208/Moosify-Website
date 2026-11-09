@@ -21,6 +21,8 @@ const mimeTypes = {
   ".ico": "image/x-icon"
 };
 
+// Only these top-level folders/files are part of the website. Everything else
+// (.env, .git, node_modules, server code, tests) must never be served.
 const publicRoots = new Set([
   "index.html", "404.html", "download.png", "art.png", "moosy-ceo-cutout.png",
   "assets", "Ophones", "products", "shop", "features", "login", "chat",
@@ -41,33 +43,12 @@ async function readRequestJson(req) {
   return JSON.parse(body || "{}");
 }
 
-function buildInstructions(payload) {
-  return `
-${payload.personality || "You are Moosy, a playful Moosify shop assistant."}
-
-Product catalog:
-${payload.products || "No product catalog was provided."}
-
-Current department: ${payload.activeDepartment || "Unknown"}
-Current cart: ${JSON.stringify(payload.cart || [])}
-Current cart total: $${payload.total || 0}
-
-Rules:
-- Keep replies under 90 words.
-- Be cheerful, practical, and a little silly.
-- Recommend only products from the catalog.
-- Never ask for passwords, card numbers, or private secrets.
-- Never say payment was charged. This website only has a demo checkout preview.
-- If the user wants to buy, tell them which product to add or to open checkout preview.
-`.trim();
-}
-
 async function handleMoosy(req, res) {
   // Parse incoming JSON payload
   const payload = await readRequestJson(req);
 
-  // Maintenance mode – if client signals down, respond immediately
-  if (payload.chatStatus && payload.chatStatus === "down") {
+  // Maintenance mode – CHAT_STATUS=down on the server, or the client says so
+  if (process.env.CHAT_STATUS === "down" || payload.chatStatus === "down") {
     sendJson(res, 200, { reply: "Our help desk chat is currently offline for testing. Check back soon!" });
     return;
   }
@@ -131,8 +112,7 @@ async function handleMoosy(req, res) {
     }
   }
   const fallbackReply = `I’m here to help you with phones, donuts, flights, rockets, cell plans, and support. Ask me about any product or tell me what you’re looking for.`;
-  sendJson(res, 200, { reply: fallbackReply });
-  return;
+  sendJson(res, 200, { reply: fallbackReply, fallback: true });
 }
 
 
@@ -158,6 +138,9 @@ async function handleStatic(req, res) {
 
   if (!filePath.startsWith(root) || !publicRoots.has(topLevel) || !mimeTypes[ext]) {
     sendNotFound(res);
+    return;
+  }
+
   try {
     const content = await readFile(filePath);
     res.writeHead(200, { "Content-Type": mimeTypes[ext] });
@@ -169,7 +152,9 @@ async function handleStatic(req, res) {
 
 createServer((req, res) => {
   if (req.method === "POST" && req.url === "/api/moosy") {
-    handleMoosy(req, res);
+    handleMoosy(req, res).catch((error) => {
+      sendJson(res, 400, { error: error instanceof SyntaxError ? "Invalid JSON" : error.message });
+    });
     return;
   }
   handleStatic(req, res);
