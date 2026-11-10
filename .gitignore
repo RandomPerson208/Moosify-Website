@@ -7,6 +7,3 @@ node_modules/
 # OS files
 .DS_Store
 shop/.DS_Store
-
-# Site build output
-dist/

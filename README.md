@@ -17,25 +17,6 @@ A GitHub Actions workflow (`.github/workflows/pages.yml`) deploys the static sit
 
 ---
 
-## Host the site on Vercel (private repo)
-
-GitHub Pages only serves public repos on the free plan. To make the repo private, host the static site on Vercel instead. Only the site moves: chat, login and saved accounts stay on the Cloudflare Worker.
-
-`vercel.json` tells Vercel to run `node scripts/build-site.mjs`, which copies just the public site files into `dist/` and fills in the Worker address and Google client ID.
-
-1. In Vercel, open the `moosify-website` project -> **Settings -> Environment Variables** and add, for Production (and Preview if you want working preview links):
-   * `API_URL` - `https://moosify-website.moosify.workers.dev`
-   * `GOOGLE_CLIENT_ID` - the same client ID as the GitHub secret
-   * `CHAT_STATUS` - optional, `up` or `down`
-2. Set the production branch to `main` (Settings -> Git). A production build without `API_URL` fails on purpose, so it can't ship a site with no chat.
-3. Open the deployment's `.vercel.app` address and check the site, a login and chat.
-4. Settings -> Domains: add `moosify.pizzamonster.org`, then change that domain's DNS record from GitHub Pages to the value Vercel shows. Keep this exact address: the Worker's CORS list and Google's Authorized JavaScript origins use it.
-5. Only after the domain works on Vercel: disable the GitHub Pages workflow (delete `.github/workflows/pages.yml` and turn Pages off in repo Settings), remove `CNAME`, then make the repo private.
-
-Try it locally with `API_URL=https://moosify-website.moosify.workers.dev node scripts/build-site.mjs`.
-
----
-
 ## URLs
 - **GitHub Pages site:** https://moosify.pizzamonster.org
 - **Custom domain:** configured through `CNAME`.
