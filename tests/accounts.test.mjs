@@ -203,6 +203,18 @@ describe("Orders", () => {
     assert.strictEqual((await (await call("/api/orders", { token: tokenFor("bob") })).json()).orders.length, 1);
   });
 
+  it("keeps only the newest 100 orders per user", async () => {
+    const token = tokenFor("ann");
+    for (let i = 0; i < 103; i++) {
+      await call("/api/orders", { method: "POST", token, body: { items: [{ ...donut, quantity: (i % 5) + 1 }] } });
+    }
+    assert.strictEqual(DB.rows("SELECT COUNT(*) AS n FROM orders WHERE user_id = 'ann'")[0].n, 100);
+    const oldest = DB.rows("SELECT MIN(id) AS id FROM orders WHERE user_id = 'ann'")[0].id;
+    assert.strictEqual(oldest, 4);
+    await call("/api/orders", { method: "POST", token: tokenFor("bob"), body: { items: [donut] } });
+    assert.strictEqual(DB.rows("SELECT COUNT(*) AS n FROM orders WHERE user_id = 'bob'")[0].n, 1);
+  });
+
   it("rejects an empty or invalid order", async () => {
     const token = tokenFor("ann");
     assert.strictEqual((await call("/api/orders", { method: "POST", token, body: { items: [] } })).status, 400);
@@ -241,10 +253,10 @@ describe("Login creates the user", () => {
     globalThis.fetch = async () =>
       new Response(JSON.stringify({ keys: [jwk] }), { headers: { "Content-Type": "application/json", "Cache-Control": "max-age=3600" } });
 
-    const googleToken = (name) => {
+    const googleToken = (name, overrides = {}) => {
       const now = Math.floor(Date.now() / 1000);
       const head = b64url({ alg: "RS256", kid: "acct-key", typ: "JWT" });
-      const body = b64url({ iss: "https://accounts.google.com", aud: "test-client-id", sub: "g-123", email: "ann@moosify.com", name, picture: "https://img/a.png", exp: now + 3600 });
+      const body = b64url({ iss: "https://accounts.google.com", aud: "test-client-id", sub: "g-123", email: "ann@moosify.com", name, picture: "https://img/a.png", exp: now + 3600, ...overrides });
       const sig = createSign("RSA-SHA256").update(`${head}.${body}`).sign(privateKey, "base64url");
       return `${head}.${body}.${sig}`;
     };
@@ -263,6 +275,10 @@ describe("Login creates the user", () => {
       rows = DB.rows("SELECT * FROM users");
       assert.strictEqual(rows.length, 1);
       assert.strictEqual(rows[0].name, "Ann Renamed");
+
+      // A correctly signed Google token with no expiry must be refused
+      const noExp = await call("/api/login", { method: "POST", body: { credential: googleToken("Ann", { exp: undefined }) } });
+      assert.strictEqual(noExp.status, 401);
 
       // The token we just got works on the account routes
       const me = await call("/api/me/data", { token: data.token });
