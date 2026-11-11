@@ -137,8 +137,8 @@ describe("Auth gate", () => {
     assert.strictEqual(authed.status, 200);
   });
 
-  it("requires login for /api/prompt", async () => {
-    const resp = await call("/api/prompt", { method: "POST", body: { prompt: "hi" } });
+  it("requires login for every non-chat API route", async () => {
+    const resp = await call("/api/anything", { method: "POST", body: { prompt: "hi" } });
     assert.strictEqual(resp.status, 401);
     const body = await resp.json();
     assert.ok(body.error.includes("Authentication required"));

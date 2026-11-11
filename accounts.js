@@ -8,6 +8,7 @@ const MAX_CHAT_BATCH = 10;
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_CART_ITEMS = 50;
 const MAX_ORDERS_RETURNED = 50;
+const MAX_ORDERS_STORED = 100;
 
 function ok(body, status = 200) {
   return { status, body };
@@ -170,7 +171,13 @@ export async function handleAccountRoute({ request, env, pathname, user, readBod
     const results = await env.DB.batch([
       env.DB.prepare("INSERT INTO orders (user_id, total_cents, items_json, created_at) VALUES (?, ?, ?, ?)")
         .bind(userId, totalCents, JSON.stringify(items), Date.now()),
-      env.DB.prepare("DELETE FROM cart_items WHERE user_id = ?").bind(userId)
+      env.DB.prepare("DELETE FROM cart_items WHERE user_id = ?").bind(userId),
+      // Keep only the newest orders so one account cannot grow without limit.
+      env.DB.prepare(
+        `DELETE FROM orders WHERE user_id = ? AND id NOT IN (
+           SELECT id FROM orders WHERE user_id = ? ORDER BY id DESC LIMIT ${MAX_ORDERS_STORED}
+         )`
+      ).bind(userId, userId)
     ]);
     return ok({ order: { id: results[0].meta.last_row_id, total: totalCents / 100, items } }, 201);
   }
