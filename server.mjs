@@ -111,7 +111,7 @@ async function handleMoosy(req, res) {
       continue;
     }
   }
-  const fallbackReply = `I’m here to help you with phones, donuts, flights, rockets, cell plans, and support. Ask me about any product or tell me what you’re looking for.`;
+  const fallbackReply = `I’m here to help you with phones, donuts, flights, rockets, and cell plans. Ask me about any product or tell me what you’re looking for.`;
   sendJson(res, 200, { reply: fallbackReply, fallback: true });
 }
 

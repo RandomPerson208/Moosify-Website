@@ -586,7 +586,7 @@ export default {
       }
     }
 
-    const fallbackReply = "I’m here to help you with phones, donuts, rockets, flights, cell plans, and support. Ask me about any product or tell me what you’re looking for.";
+    const fallbackReply = "I’m here to help you with phones, donuts, rockets, flights, and cell plans. Ask me about any product or tell me what you’re looking for.";
     return new Response(JSON.stringify({ reply: fallbackReply, fallback: true, providerAttempts }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders }

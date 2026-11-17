@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 506" role="img" aria-label="Moosify OPhone shelf">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bfeeff"/>
+      <stop offset="1" stop-color="#fff6dc"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="506" fill="url(#sky)"/>
+  <!-- soft clouds -->
+  <g fill="#ffffff" opacity="0.85">
+    <ellipse cx="150" cy="90" rx="70" ry="28"/><ellipse cx="190" cy="78" rx="48" ry="34"/>
+    <ellipse cx="720" cy="120" rx="80" ry="30"/><ellipse cx="770" cy="104" rx="50" ry="36"/>
+  </g>
+  <!-- back wall of shelves -->
+  <rect x="90" y="120" width="720" height="250" rx="18" fill="#7a4a2a"/>
+  <rect x="110" y="140" width="680" height="10" rx="5" fill="#a86b3c"/>
+  <rect x="110" y="250" width="680" height="10" rx="5" fill="#a86b3c"/>
+  <rect x="110" y="360" width="680" height="10" rx="5" fill="#a86b3c"/>
+  <!-- phones on shelves (orange) -->
+  <g>
+    <rect x="150" y="170" width="70" height="80" rx="12" fill="#f48b2a"/>
+    <rect x="160" y="182" width="50" height="56" rx="6" fill="#fff8e9"/>
+    <rect x="250" y="170" width="70" height="80" rx="12" fill="#f48b2a"/>
+    <rect x="260" y="182" width="50" height="56" rx="6" fill="#fff8e9"/>
+    <rect x="350" y="170" width="70" height="80" rx="12" fill="#f48b2a"/>
+    <rect x="360" y="182" width="50" height="56" rx="6" fill="#fff8e9"/>
+    <rect x="530" y="280" width="78" height="80" rx="13" fill="#f48b2a"/>
+    <rect x="540" y="292" width="58" height="58" rx="7" fill="#fff8e9"/>
+    <rect x="630" y="280" width="78" height="80" rx="13" fill="#f48b2a"/>
+    <rect x="640" y="292" width="58" height="58" rx="7" fill="#fff8e9"/>
+  </g>
+  <!-- counter with a stitched edge -->
+  <rect x="90" y="370" width="720" height="70" rx="10" fill="#6b4226"/>
+  <path d="M110 392 H790" stroke="#fff8e9" stroke-width="3" stroke-dasharray="10 8" opacity="0.7"/>
+  <!-- price tags -->
+  <g font-family="DM Sans, Arial, sans-serif" font-weight="800" font-size="20" fill="#172033">
+    <rect x="152" y="265" width="66" height="30" rx="6" fill="#ffffff"/><text x="185" y="287" text-anchor="middle">$199</text>
+    <rect x="252" y="265" width="66" height="30" rx="6" fill="#ffffff"/><text x="285" y="287" text-anchor="middle">$249</text>
+    <rect x="352" y="265" width="66" height="30" rx="6" fill="#ffffff"/><text x="385" y="287" text-anchor="middle">$299</text>
+  </g>
+  <!-- moose sign on counter -->
+  <g>
+    <circle cx="450" cy="400" r="30" fill="#f6dfb9"/>
+    <ellipse cx="418" cy="380" rx="12" ry="8" fill="#6b4226"/>
+    <ellipse cx="482" cy="380" rx="12" ry="8" fill="#6b4226"/>
+    <circle cx="438" cy="398" r="4" fill="#172033"/>
+    <circle cx="462" cy="398" r="4" fill="#172033"/>
+    <ellipse cx="450" cy="412" rx="9" ry="6" fill="#6b4226"/>
+  </g>
+  <text x="450" y="460" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="30" font-weight="700" fill="#fff8e9">OPhone Shelf</text>
+</svg>

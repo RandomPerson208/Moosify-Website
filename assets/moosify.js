@@ -2,7 +2,7 @@ const services = {
   phones: {
     title: "Orange Phone Shop",
     copy: "Browse bright orange phones, matching cases, and friendly setup help. Moosify partnered with Orange for OPhone sales, setup, and service. Open the online phone trial before checkout to try apps and see each model's real limitations.",
-    image: "url('https://images.pexels.com/photos/11297769/pexels-photo-11297769.jpeg?auto=compress&cs=tinysrgb&w=1400')",
+    image: "url('/assets/phone-shop.svg')",
     products: [
       { id: "ophone-o1", name: "OPhone O1", description: "Classic Orange-partnered phone supporting PineappleOS 1 through 3.", price: 199 },
       { id: "ophone-o2", name: "OPhone O2", description: "Compact OPhone with Orange setup and pocket-sized power.", price: 249 },
@@ -39,7 +39,7 @@ const services = {
     products: [
       { id: "air-cloud", name: "Cloud Hopper Ticket", description: "One cozy round-trip pretend flight.", price: 59 },
       { id: "air-snack", name: "Snack Class Upgrade", description: "Extra legroom, juice box, and plush blanket.", price: 29 },
-      { id: "air-world", name: "World Tour Pass", description: "A full playroom itinerary with souvenir sticker.", price: 149 }
+      { id: "air-world", name: "World Tour Pass", description: "A full itinerary with souvenir sticker.", price: 149 }
     ]
   },
   cellplans: {
@@ -49,17 +49,7 @@ const services = {
     products: [
       { id: "cell-tiny", name: "Tiny Text Plan", description: "Calls, texts, and tiny messages for one plush.", price: 12 },
       { id: "cell-unlimited", name: "Unlimited Moose 5G", description: "Unlimited data for memes, maps, and shelf calls.", price: 35 },
-      { id: "cell-family", name: "Playroom Family Plan", description: "Five lines, shared data, and free setup.", price: 89 }
-    ]
-  },
-  support: {
-    title: "Moosify Support",
-    copy: "Get help with orders, account questions, plans, and anything else that needs a calm answer from the friendliest desk in the company.",
-    image: "url('moosy-ceo-cutout.png')",
-    products: [
-      { id: "support-quick", name: "Quick Help Ticket", description: "A friendly answer for one small question.", price: 5 },
-      { id: "support-setup", name: "Shelf Setup Session", description: "Help setting up phones, plans, or donut orders.", price: 25 },
-      { id: "support-vip", name: "Moosy VIP Support", description: "Priority support with extra cheerful updates.", price: 49 }
+      { id: "cell-family", name: "Family Plan", description: "Five lines, shared data, and free setup.", price: 89 }
     ]
   }
 };
@@ -328,7 +318,7 @@ function hidePrimaryViews() {
 function renderRoutePages() {
   const allProducts = document.querySelector("[data-all-products]");
   const shopGrid = document.querySelector("[data-shop-grid]");
-  const iconNames = { phones: "smartphone", donuts: "circle-dot", space: "rocket", airlines: "plane", cellplans: "radio-tower", support: "headphones" };
+  const iconNames = { phones: "smartphone", donuts: "circle-dot", space: "rocket", airlines: "plane", cellplans: "radio-tower" };
 
   allProducts.innerHTML = Object.entries(services).map(([serviceKey, service]) => `
     <section class="catalog-group">
@@ -342,12 +332,12 @@ function renderRoutePages() {
     </section>
   `).join("");
 
-  const servicePaths = { phones: "phones", donuts: "donuts", space: "space", airlines: "airlines", cellplans: "cell-plans", support: "support" };
+  const servicePaths = { phones: "phones", donuts: "donuts", space: "space", airlines: "airlines", cellplans: "cell-plans" };
   shopGrid.innerHTML = Object.entries(services).map(([serviceKey, service]) => {
     const image = service.image.replace(/^url\(['"]?|['"]?\)$/g, "");
     return `
       <a class="service-card" href="/shop/${servicePaths[serviceKey]}/">
-        <img class="service-photo${serviceKey === "support" ? " mascot-photo" : ""}" src="${image}" alt="${service.title}">
+        <img class="service-photo" src="${image}" alt="${service.title}">
         <span class="service-content">
           <span class="service-icon"><i class="icon" data-lucide="${iconNames[serviceKey]}"></i></span>
           <h3>${service.title}</h3>
@@ -648,7 +638,6 @@ function updatePageIdentity(route) {
     "shop/space": "Rockets & Space | Moosify",
     "shop/airlines": "Airlines | Moosify",
     "shop/cell-plans": "Cell Plans | Moosify",
-    "shop/support": "Support | Moosify"
   };
   document.title = titles[route] || "Moosify";
 
@@ -797,8 +786,7 @@ function showPath(path, replace = false) {
     "shop/donuts": "donuts",
     "shop/space": "space",
     "shop/airlines": "airlines",
-    "shop/cell-plans": "cellplans",
-    "shop/support": "support"
+    "shop/cell-plans": "cellplans"
   };
   if (departmentRoutes[route]) return openService(departmentRoutes[route]);
   const modalRoutes = { login: "login", cart: "cart", checkout: "checkout", "mobile-lab": "device-tester" };
