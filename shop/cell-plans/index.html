@@ -9,7 +9,7 @@
   <link rel="icon" href="download.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Fraunces:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
   <link rel="stylesheet" href="/assets/moosify.css">
 </head>
@@ -26,21 +26,19 @@
       <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-navigation"><i class="icon" data-lucide="menu"></i>Menu <span class="nav-toggle-count" data-cart-count-toggle aria-label="items in cart" hidden>0</span></button>
       <div class="nav-actions" id="site-navigation" data-nav-menu>
         <div class="services-menu">
-          <a class="nav-link services-trigger" href="/shop/" data-nav-section="services" aria-haspopup="true">Services <i class="icon" data-lucide="chevron-down"></i></a>
-          <div class="services-popover" aria-label="Moosify services">
+          <a class="nav-link services-trigger" href="/shop/" data-nav-section="services" aria-haspopup="true">Shop <i class="icon" data-lucide="chevron-down"></i></a>
+          <div class="services-popover" aria-label="Moosify shops">
             <a href="/shop/phones/"><i class="icon" data-lucide="smartphone"></i>OPhones</a>
             <a href="/shop/donuts/"><i class="icon" data-lucide="circle-dot"></i>Donuts</a>
             <a href="/shop/space/"><i class="icon" data-lucide="rocket"></i>Rockets & Space</a>
             <a href="/shop/airlines/"><i class="icon" data-lucide="plane"></i>Airlines</a>
             <a href="/shop/cell-plans/"><i class="icon" data-lucide="radio-tower"></i>Cell Plans</a>
+            <a href="/products/" data-nav-section="products"><i class="icon" data-lucide="list"></i>All products</a>
           </div>
         </div>
-        <a class="nav-link" href="/products/" data-nav-section="products">Products</a>
-        <a class="nav-link" href="/shop/" data-nav-section="shop">Shop</a>
-        <a class="nav-link" href="/features/" data-nav-section="features">Features</a>
-        <a class="button secondary" href="/login/" data-nav-section="login"><i class="icon" data-lucide="user"></i><span class="button-label">Login</span></a>
-        <a class="button" href="/chat/" data-nav-section="chat"><i class="icon" data-lucide="message-circle"></i><span class="button-label">Moosy Chat</span></a>
-        <a class="button secondary" href="/mobile-lab/" data-nav-section="mobile-lab"><i class="icon" data-lucide="smartphone"></i><span class="button-label">OPhone Lab</span></a>
+        <a class="nav-link" href="/mobile-lab/" data-nav-section="mobile-lab">OPhone Lab</a>
+        <a class="nav-link" href="/chat/" data-nav-section="chat">Moosy Chat</a>
+        <a class="nav-link" href="/login/" data-nav-section="login"><i class="icon" data-lucide="user"></i><span class="button-label">Login</span></a>
         <a class="button orange" href="/cart/" data-nav-section="cart"><i class="icon" data-lucide="shopping-cart"></i><span class="button-label">Cart</span> <span data-cart-count>0</span></a>
       </div>
     </nav>
@@ -50,7 +48,7 @@
     <div id="home" class="view" data-view="home">
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
-          <h1 id="hero-title" class="brand-font">Welcome to Moosify.</h1>
+          <h1 id="hero-title" class="brand-font">Welcome to <span class="swash">Moosify.</span></h1>
           <p class="hero-lede">Phones, donuts, rocket seats, flights and cell plans, all in one shop.</p>
         <div class="hero-actions">
             <a class="button orange" href="#services"><i class="icon" data-lucide="sparkles"></i>Explore services</a>
