@@ -17,7 +17,7 @@ const services = {
     copy: "Order glazed classics, rainbow sprinkles, and the Triple Chocolate Shelf Special. The form is intentionally simple because donuts should not require a committee.",
     image: "url('https://images.pexels.com/photos/1191639/pexels-photo-1191639.jpeg?auto=compress&cs=tinysrgb&w=1400')",
     products: [
-      { id: "donut-sprinkle", name: "Rainbow Sprinkle Box", description: "Six soft donuts for the whole playarea.", price: 18 },
+      { id: "donut-sprinkle", name: "Rainbow Sprinkle Box", description: "Six soft donuts to share.", price: 18 },
       { id: "donut-chocolate", name: "Triple Chocolate Stack", description: "Rich chocolate donuts for serious snack missions.", price: 22 },
       { id: "donut-party", name: "Shelf Party Dozen", description: "Twelve assorted donuts with extra napkins.", price: 34 }
     ]
