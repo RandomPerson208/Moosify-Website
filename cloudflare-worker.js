@@ -1,7 +1,7 @@
 // Cloudflare Worker for Moosify chat with multi‑provider failover
 // Exported module for Workers runtime (ESM)
 
-import { MOOSY_SYSTEM_PROMPT } from "./moosy-prompt.js";
+import { MOOSY_SYSTEM_PROMPT, transcriptFromHistory } from "./moosy-prompt.js";
 import { handleAccountRoute, upsertUser } from "./accounts.js";
 
 const PRODUCTION_ORIGIN = "https://moosify.pizzamonster.org";
@@ -16,7 +16,7 @@ const SESSION_TTL_SECONDS = 24 * 60 * 60;
 
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_HISTORY_ENTRIES = 50;
-// The client history is not trusted, so only the most recent turns reach the model.
+// The client history is not trusted: only the most recent turns reach the model, as labelled text.
 const MAX_FORWARDED_HISTORY = 10;
 const MAX_REQUEST_BODY_BYTES = 20_000;
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -501,9 +501,8 @@ export default {
 
     const userMessage = payload.message || "";
     const messages = [{ role: "system", content: MOOSY_SYSTEM_PROMPT }];
-    if (Array.isArray(payload.history) && payload.history.length) {
-      messages.push(...payload.history.slice(-MAX_FORWARDED_HISTORY));
-    }
+    const earlier = Array.isArray(payload.history) ? transcriptFromHistory(payload.history, MAX_FORWARDED_HISTORY) : null;
+    if (earlier) messages.push({ role: "user", content: earlier });
     messages.push({ role: "user", content: userMessage });
 
     const providers = [

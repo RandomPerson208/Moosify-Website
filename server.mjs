@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { MOOSY_SYSTEM_PROMPT } from "./moosy-prompt.js";
+import { MOOSY_SYSTEM_PROMPT, transcriptFromHistory } from "./moosy-prompt.js";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
 const port = Number(process.env.PORT || 4173);
@@ -80,9 +80,8 @@ async function handleMoosy(req, res) {
     try {
 // Build the messages array, preserving any prior conversation history
         const messages = [{ role: "system", content: MOOSY_SYSTEM_PROMPT }];
-        if (Array.isArray(payload.history) && payload.history.length) {
-          messages.push(...payload.history.slice(-10));
-        }
+        const earlier = Array.isArray(payload.history) ? transcriptFromHistory(payload.history, 10) : null;
+        if (earlier) messages.push({ role: "user", content: earlier });
         messages.push({ role: "user", content: userMessage });
         const body = {
           model: p.model,
