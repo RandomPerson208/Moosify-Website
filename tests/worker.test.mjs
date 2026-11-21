@@ -1,5 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
+import { validateChatPayload } from "../cloudflare-worker.js";
 
 // Tests for Cloudflare Worker responses
 // These tests simulate the Worker's fetch handler logic.
@@ -40,29 +41,6 @@ function isRateLimited(ip) {
   return false;
 }
 
-function validateHistory(history) {
-  if (!Array.isArray(history)) return false;
-  if (history.length > MAX_HISTORY_ENTRIES) return false;
-  for (const entry of history) {
-    if (!entry || typeof entry !== "object") return false;
-    if (typeof entry.role !== "string" || !["user", "assistant"].includes(entry.role)) return false;
-    if (typeof entry.content !== "string" || entry.content.length > MAX_MESSAGE_LENGTH) return false;
-    if (entry.content.length === 0) return false;
-  }
-  return true;
-}
-
-function validateChatPayload(payload) {
-  if (!payload || typeof payload !== "object") {
-    throw new Error("Invalid payload");
-  }
-  if (payload.message !== undefined && (typeof payload.message !== "string" || payload.message.length > MAX_MESSAGE_LENGTH)) {
-    throw new Error("Message must be a string under 2000 characters");
-  }
-  if (payload.history !== undefined && !validateHistory(payload.history)) {
-    throw new Error("History must be an array of {role, content} entries (max 50)");
-  }
-}
 
 describe("Worker - rate limiting", () => {
   it("allows requests under the rate limit", () => {
@@ -128,8 +106,10 @@ describe("Worker - payload validation", () => {
     assert.throws(() => validateChatPayload(null), /Invalid payload/);
   });
 
-  it("accepts payload without message or history", () => {
-    assert.doesNotThrow(() => validateChatPayload({}));
+  it("requires a non-empty message", () => {
+    assert.throws(() => validateChatPayload({}), /Message is required/);
+    assert.throws(() => validateChatPayload({ message: "" }), /Message is required/);
+    assert.throws(() => validateChatPayload({ message: "   " }), /Message is required/);
   });
 });
 

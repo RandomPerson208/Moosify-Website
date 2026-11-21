@@ -124,6 +124,13 @@ describe("Auth gate", () => {
     assert.ok(data.reply);
   });
 
+  it("refuses an empty chat message before calling any AI", async () => {
+    const resp = await call("/api/moosy", { method: "POST", body: { message: "   " } });
+    assert.strictEqual(resp.status, 400);
+    const data = await resp.json();
+    assert.match(data.error, /Message is required/);
+  });
+
   it("lets anyone chat on the Worker root path", async () => {
     const resp = await call("/", { method: "POST", body: { message: "hi" } });
     assert.strictEqual(resp.status, 200);
