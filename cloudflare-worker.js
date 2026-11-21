@@ -185,7 +185,7 @@ async function validateGoogleIdToken(token, clientId) {
   }
 
   // Check expiry
-  if (payload.exp && Date.now() >= payload.exp * 1000) return null;
+  if (typeof payload.exp !== "number" || Date.now() >= payload.exp * 1000) return null;
 
   // Check issuer
   const expectedIssuer = "https://accounts.google.com";
@@ -449,37 +449,6 @@ export default {
           headers: { "Content-Type": "application/json", ...corsHeaders }
         });
       }
-    }
-
-    // ---------------------------------------------------------------------
-    // 3️⃣ Prompt endpoint – demonstrates secret handling & permission check
-    // ---------------------------------------------------------------------
-    if (request.method === "POST" && pathname === "/api/prompt") {
-      const secret = await env.MY_SECRET;
-      if (!secret) {
-        return new Response(JSON.stringify({ error: "Missing required secret" }), {
-          status: 500,
-          headers: { "Content-Type": "application/json", ...corsHeaders }
-        });
-      }
-      let payload;
-      try {
-        payload = await readValidatedBody(request);
-        validateChatPayload(payload);
-      } catch (e) {
-        return new Response(JSON.stringify({ error: e.message }), {
-          status: 400,
-          headers: { "Content-Type": "application/json", ...corsHeaders }
-        });
-      }
-      const result = {
-        prompt: payload.prompt,
-        reply: `You sent: "${payload.prompt}" – (mock reply)`
-      };
-      return new Response(JSON.stringify(result), {
-        status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders }
-      });
     }
 
     // ---------------------------------------------------------------------

@@ -118,8 +118,13 @@ function loadCart() {
   }
 }
 
-let savedCart = loadCart();
-const cart = new Map(savedCart.map((item) => [item.id, item]));
+// Rebuild the saved cart from the catalog so prices are today's prices and names are
+// ours, never whatever was sitting in localStorage. Unknown products are dropped.
+const cart = new Map();
+for (const saved of loadCart()) {
+  const product = findProduct(saved.id);
+  if (product) cart.set(product.id, { ...product, quantity: saved.quantity });
+}
 
 // ---------------------------------------------------------------------------
 // Saved account data. When someone is logged in and the Worker has its
