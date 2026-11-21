@@ -669,6 +669,10 @@ async function updateNavAuthUI({ mergeGuest = false } = {}) {
       headers: sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {}
     });
     const data = await resp.json();
+    if (data.token) {
+      // The Worker renewed an older session; keep using the fresh token
+      try { localStorage.setItem(SESSION_KEY, data.token); } catch {}
+    }
     const authenticated = data.authenticated === true;
     const email = data.user?.email || "";
     if (!authenticated && sessionToken) {
