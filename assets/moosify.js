@@ -751,6 +751,10 @@ function signOutLocally() {
     localStorage.removeItem("moosify-cart");
     localStorage.removeItem("moosify-chat-history");
   } catch {}
+  // Redraw what showed the old account, so nothing stays on screen until a reload
+  renderCart();
+  if (pageChatLog) pageChatLog.innerHTML = '<div class="message">Moosy: Hey, I’m Moosy. What are you thinking about today?</div>';
+  renderOrderHistory([]);
   window.google?.accounts?.id?.disableAutoSelect();
   setNavAuthState(false, "");
   showHome();

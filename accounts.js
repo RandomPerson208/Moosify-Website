@@ -97,6 +97,10 @@ export async function handleAccountRoute({ request, env, pathname, user, readBod
   if (!env.DB) return fail(503, "Saved accounts are not set up on this server");
   if (!user?.sub) return fail(401, "Authentication required. Please log in.");
   const userId = user.sub;
+  // A token stays valid for 24 hours, so after DELETE /api/me it must not be able to
+  // write rows for an account that no longer exists.
+  const account = await env.DB.prepare("SELECT id FROM users WHERE id = ?").bind(userId).first();
+  if (!account) return fail(401, "Account not found. Please log in again.");
 
   if (method === "GET" && pathname === "/api/me/data") {
     const [chat, cart] = await Promise.all([loadChat(env, userId), loadCart(env, userId)]);
