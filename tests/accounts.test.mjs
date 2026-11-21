@@ -40,9 +40,12 @@ function call(path, { method = "GET", token, body, rawBody } = {}, useEnv = env)
 const phone = { id: "o1", name: "OPhone O1", price: 399, quantity: 2 };
 const donut = { id: "donut-box", name: "Donut box", price: 12.5, quantity: 1 };
 
-beforeEach(() => {
+beforeEach(async () => {
   DB = createFakeD1();
   env = { SESSION_SECRET: SECRET, GOOGLE_CLIENT_ID: "test-client-id", DB };
+  for (const id of ["ann", "bob"]) {
+    await DB.prepare("INSERT INTO users (id, created_at, last_login_at) VALUES (?, 1, 1)").bind(id).run();
+  }
 });
 
 describe("Account routes need a login", () => {
@@ -219,9 +222,6 @@ describe("Delete account", () => {
       await call("/api/me/chat", { method: "POST", token, body: { messages: [{ role: "user", content: "hi" }] } });
       await call("/api/orders", { method: "POST", token, body: { items: [donut] } });
     }
-    await DB.prepare("INSERT INTO users (id, created_at, last_login_at) VALUES (?, 1, 1)").bind("ann").run();
-    await DB.prepare("INSERT INTO users (id, created_at, last_login_at) VALUES (?, 1, 1)").bind("bob").run();
-
     const resp = await call("/api/me", { method: "DELETE", token: tokenFor("ann") });
     assert.strictEqual(resp.status, 200);
     for (const table of ["chat_messages", "cart_items", "orders"]) {
@@ -230,6 +230,20 @@ describe("Delete account", () => {
     assert.strictEqual(DB.rows("SELECT COUNT(*) AS n FROM users WHERE id = 'ann'")[0].n, 0);
     assert.strictEqual(DB.rows("SELECT COUNT(*) AS n FROM users WHERE id = 'bob'")[0].n, 1);
     assert.strictEqual(DB.rows("SELECT COUNT(*) AS n FROM orders WHERE user_id = 'bob'")[0].n, 1);
+  });
+
+  it("a deleted account's still-valid token cannot write data back", async () => {
+    const token = tokenFor("ann");
+    await call("/api/me", { method: "DELETE", token });
+    const cart = await call("/api/me/cart", { method: "PUT", token, body: { items: [phone] } });
+    const chat = await call("/api/me/chat", { method: "POST", token, body: { messages: [{ role: "user", content: "hi" }] } });
+    const order = await call("/api/orders", { method: "POST", token, body: { items: [donut] } });
+    assert.strictEqual(cart.status, 401);
+    assert.strictEqual(chat.status, 401);
+    assert.strictEqual(order.status, 401);
+    assert.strictEqual(DB.rows("SELECT COUNT(*) AS n FROM cart_items WHERE user_id = 'ann'")[0].n, 0);
+    assert.strictEqual(DB.rows("SELECT COUNT(*) AS n FROM chat_messages WHERE user_id = 'ann'")[0].n, 0);
+    assert.strictEqual(DB.rows("SELECT COUNT(*) AS n FROM orders WHERE user_id = 'ann'")[0].n, 0);
   });
 });
 
@@ -254,13 +268,13 @@ describe("Login creates the user", () => {
       assert.strictEqual(resp.status, 200);
       const data = await resp.json();
       assert.strictEqual(data.persistence, true);
-      let rows = DB.rows("SELECT * FROM users");
+      let rows = DB.rows("SELECT * FROM users WHERE id = 'g-123'");
       assert.strictEqual(rows.length, 1);
       assert.strictEqual(rows[0].id, "g-123");
       assert.strictEqual(rows[0].name, "Ann");
 
       await call("/api/login", { method: "POST", body: { credential: googleToken("Ann Renamed") } });
-      rows = DB.rows("SELECT * FROM users");
+      rows = DB.rows("SELECT * FROM users WHERE id = 'g-123'");
       assert.strictEqual(rows.length, 1);
       assert.strictEqual(rows[0].name, "Ann Renamed");
 
