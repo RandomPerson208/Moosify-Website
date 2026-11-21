@@ -155,8 +155,25 @@ async function accountFetch(path, { method = "GET", body } = {}) {
     },
     body: body !== undefined ? JSON.stringify(body) : undefined
   });
+  if (response.status === 401) {
+    expireSession();
+    throw new Error("Session ended");
+  }
   if (!response.ok) throw new Error(`Account request failed (${response.status})`);
   return response.json();
+}
+
+// The session ran out while this page was open. Stop syncing, forget the token, and show
+// "Sign in again" so the visitor knows changes now stay on this device.
+let sessionExpired = false;
+
+function expireSession() {
+  accountSync = false;
+  clearTimeout(cartSyncTimer);
+  try { localStorage.removeItem(SESSION_KEY); } catch {}
+  sessionExpired = true;
+  setNavAuthState(false, "");
+  announceCart("Your session ended. Changes are saved on this device only. Sign in again to keep saving.");
 }
 
 function cartPayload() {
@@ -705,6 +722,7 @@ function setNavAuthState(authenticated, email) {
   label.className = "button-label";
 
   if (authenticated) {
+    sessionExpired = false;
     icon.dataset.lucide = "log-out";
     label.textContent = email;
     loginLink.setAttribute("data-action", "logout");
@@ -716,7 +734,7 @@ function setNavAuthState(authenticated, email) {
     };
   } else {
     icon.dataset.lucide = "user";
-    label.textContent = "Login";
+    label.textContent = sessionExpired ? "Sign in again" : "Login";
     loginLink.removeAttribute("data-action");
     loginLink.removeAttribute("aria-label");
     loginLink.href = "/login/";
@@ -746,6 +764,7 @@ async function handleLogout() {
 
 // Forget the session and the account's data on this device (shared computers).
 function signOutLocally() {
+  sessionExpired = false;
   try { localStorage.removeItem(SESSION_KEY); } catch {}
   accountSync = false;
   clearTimeout(cartSyncTimer);
