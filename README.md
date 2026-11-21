@@ -54,20 +54,17 @@ Set the two provider API keys on the server (they are read from the environment,
 
 ```bash
 # .env (do NOT commit this file)
-# Install dependencies first:
-#   npm install
 CEREBRAS_API_KEY="your_cerebras_key"
 GROQ_API_KEY="your_groq_key"
 # API_URL is the full endpoint for the Moosy backend (e.g., https://my-backend.workers.dev). Omit if you want to use the built‑in local fallback.
 API_URL="https://my-backend.workers.dev"
 # You may omit both keys – the server will then use a built‑in local fallback (completely free).
-# Optional: choose a different model for the OpenAI fallback (if you still keep it)
-OPENAI_MODEL="gpt-5.5"
 ```
 
-Start the server:
+Install the dependencies once, then start the server:
 
 ```bash
+npm install
 npm start
 ```
 

@@ -34,6 +34,15 @@ describe("Moosy prompt", () => {
     assert.deepStrictEqual(sentMessages.slice(1), [...history, { role: "user", content: "sell me" }]);
   });
 
+  it("forwards only the most recent 10 history entries to the model", async () => {
+    const history = Array.from({ length: 30 }, (_, i) => ({ role: i % 2 ? "assistant" : "user", content: `turn ${i}` }));
+    const { resp, sentMessages } = await chatWithStubbedAI({ message: "latest", history });
+    assert.strictEqual(resp.status, 200);
+    assert.strictEqual(sentMessages.length, 1 + 10 + 1);
+    assert.deepStrictEqual(sentMessages.slice(1, 11), history.slice(-10));
+    assert.strictEqual(sentMessages.at(-1).content, "latest");
+  });
+
   it("says Moosy is 2-legged and both kids are boys", () => {
     assert.match(MOOSY_SYSTEM_PROMPT, /2-legged stuffed moose/);
     assert.match(MOOSY_SYSTEM_PROMPT, /Ishaan and Little Moosy\. Both are boys/);

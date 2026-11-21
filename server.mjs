@@ -53,7 +53,11 @@ async function handleMoosy(req, res) {
     return;
   }
 
-  const userMessage = payload.message || "";
+  if (typeof payload.message !== "string" || payload.message.trim() === "") {
+    sendJson(res, 400, { error: "Message is required" });
+    return;
+  }
+  const userMessage = payload.message.slice(0, 2000);
 
   const providers = [
     {
@@ -77,7 +81,7 @@ async function handleMoosy(req, res) {
 // Build the messages array, preserving any prior conversation history
         const messages = [{ role: "system", content: MOOSY_SYSTEM_PROMPT }];
         if (Array.isArray(payload.history) && payload.history.length) {
-          messages.push(...payload.history);
+          messages.push(...payload.history.slice(-10));
         }
         messages.push({ role: "user", content: userMessage });
         const body = {

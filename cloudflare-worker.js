@@ -16,6 +16,8 @@ const SESSION_TTL_SECONDS = 24 * 60 * 60;
 
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_HISTORY_ENTRIES = 50;
+// The client history is not trusted, so only the most recent turns reach the model.
+const MAX_FORWARDED_HISTORY = 10;
 const MAX_REQUEST_BODY_BYTES = 20_000;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 30;
@@ -56,7 +58,7 @@ function isRateLimited(ip) {
   return false;
 }
 
-function validateHistory(history) {
+export function validateHistory(history) {
   if (!Array.isArray(history)) return false;
   if (history.length > MAX_HISTORY_ENTRIES) return false;
   for (const entry of history) {
@@ -97,11 +99,20 @@ async function readValidatedBody(request) {
   }
 }
 
-function validateChatPayload(payload) {
+export function validateChatPayload(payload) {
   if (!payload || typeof payload !== "object") {
     throw new Error("Invalid payload");
   }
-  if (payload.message !== undefined && (typeof payload.message !== "string" || payload.message.length > MAX_MESSAGE_LENGTH)) {
+  if (payload.message === undefined) {
+    throw new Error("Message is required");
+  }
+  if (typeof payload.message !== "string") {
+    throw new Error("Message must be a string");
+  }
+  if (payload.message.trim() === "") {
+    throw new Error("Message is required");
+  }
+  if (payload.message.length > MAX_MESSAGE_LENGTH) {
     throw new Error("Message must be a string under 2000 characters");
   }
   if (payload.history !== undefined && !validateHistory(payload.history)) {
@@ -491,7 +502,7 @@ export default {
     const userMessage = payload.message || "";
     const messages = [{ role: "system", content: MOOSY_SYSTEM_PROMPT }];
     if (Array.isArray(payload.history) && payload.history.length) {
-      messages.push(...payload.history);
+      messages.push(...payload.history.slice(-MAX_FORWARDED_HISTORY));
     }
     messages.push({ role: "user", content: userMessage });
 
