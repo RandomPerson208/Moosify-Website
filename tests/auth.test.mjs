@@ -56,6 +56,27 @@ describe("Session tokens", () => {
     assert.strictEqual(data.user.email, "moosy@moosify.com");
   });
 
+  it("renews a session that is more than a day old, with a fresh 30-day lifetime", async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const oldToken = signToken(validPayload({ iat: now - 2 * 86400, exp: now + 28 * 86400 }));
+    const resp = await call("/api/auth-status", { token: oldToken });
+    const data = await resp.json();
+    assert.strictEqual(data.authenticated, true);
+    assert.ok(data.token, "expected a renewed token");
+    const claims = JSON.parse(Buffer.from(data.token.split(".")[1], "base64url").toString());
+    assert.ok(Math.abs(claims.exp - claims.iat - 30 * 86400) <= 2, "lifetime should be 30 days");
+    assert.strictEqual(claims.email, "moosy@moosify.com");
+    const again = await (await call("/api/auth-status", { token: data.token })).json();
+    assert.strictEqual(again.authenticated, true);
+    assert.strictEqual(again.token, undefined, "a fresh token is not renewed again");
+  });
+
+  it("does not renew a session that is less than a day old", async () => {
+    const data = await (await call("/api/auth-status", { token: signToken(validPayload()) })).json();
+    assert.strictEqual(data.authenticated, true);
+    assert.strictEqual(data.token, undefined);
+  });
+
   it("rejects an unsigned placeholder token", async () => {
     const forged = `${b64url({ alg: "HS256" })}.${b64url(validPayload())}.placeholder`;
     const data = await authStatus(forged);

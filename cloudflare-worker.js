@@ -12,7 +12,11 @@ const PRODUCTION_ORIGIN = "https://moosify.pizzamonster.org";
 // Without them, /api/login answers 503 and nobody is treated as logged in.
 // Saved chats, carts and orders live in the D1 database bound as DB (see accounts.js).
 // Without that binding, login still works but nothing is saved to the account.
-const SESSION_TTL_SECONDS = 24 * 60 * 60;
+// A session lasts 30 days from sign-in. Each visit (auth-status) that finds it older than
+// a day gets a fresh token, so people who keep visiting stay signed in, and an idle
+// session still expires. A token that never expired would stay valid forever if stolen.
+const SESSION_TTL_SECONDS = 30 * 24 * 60 * 60;
+const SESSION_RENEW_AFTER_SECONDS = 24 * 60 * 60;
 
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_HISTORY_ENTRIES = 50;
@@ -297,7 +301,7 @@ async function getAuthenticatedUser(request, env) {
     if (!valid) return null;
     const payload = JSON.parse(new TextDecoder().decode(base64UrlDecode(parts[1])));
     if (typeof payload.exp !== "number" || Date.now() >= payload.exp * 1000) return null;
-    return { email: payload.email, name: payload.name, sub: payload.sub };
+    return { email: payload.email, name: payload.name, sub: payload.sub, iat: payload.iat };
   } catch {
     return null;
   }
@@ -365,11 +369,17 @@ export default {
     // ---------------------------------------------------------------------
     if (request.method === "GET" && pathname === "/api/auth-status") {
       const user = await getAuthenticatedUser(request, env);
+      // Renew a session that is more than a day old, so regular visitors stay signed in
+      let renewed = null;
+      if (user && typeof user.iat === "number" && Date.now() / 1000 - user.iat > SESSION_RENEW_AFTER_SECONDS) {
+        renewed = await makeSessionToken(user, env.SESSION_SECRET);
+      }
       return new Response(
         JSON.stringify({
           authenticated: !!user,
           user: user ? { email: user.email, name: user.name } : null,
-          persistence: !!env.DB
+          persistence: !!env.DB,
+          ...(renewed ? { token: renewed, expiresIn: SESSION_TTL_SECONDS } : {})
         }),
         { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
