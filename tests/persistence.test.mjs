@@ -180,8 +180,7 @@ function updatePageIdentity(route) {
     "shop/donuts": "Ishaan's Donuts | Moosify",
     "shop/space": "Rockets & Space | Moosify",
     "shop/airlines": "Airlines | Moosify",
-    "shop/cell-plans": "Cell Plans | Moosify",
-    "shop/support": "Support | Moosify"
+    "shop/cell-plans": "Cell Plans | Moosify"
   };
   return titles[route] || "Moosify";
 }
@@ -198,8 +197,7 @@ function resolveRoute(path) {
     "shop/donuts": "donuts",
     "shop/space": "space",
     "shop/airlines": "airlines",
-    "shop/cell-plans": "cellplans",
-    "shop/support": "support"
+    "shop/cell-plans": "cellplans"
   };
 
   if (route === "chat") return { view: "chat", type: "page" };
@@ -233,7 +231,6 @@ describe("Routes", () => {
   it("resolves department detail routes", () => {
     assert.deepStrictEqual(resolveRoute("/shop/phones/"), { view: "phones", type: "detail" });
     assert.deepStrictEqual(resolveRoute("/shop/donuts/"), { view: "donuts", type: "detail" });
-    assert.deepStrictEqual(resolveRoute("/shop/support/"), { view: "support", type: "detail" });
   });
 
   it("resolves modal routes", () => {

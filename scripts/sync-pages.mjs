@@ -16,8 +16,7 @@ const pages = {
   "shop/donuts/index.html": "Ishaan's Donuts | Moosify",
   "shop/space/index.html": "Rockets & Space | Moosify",
   "shop/airlines/index.html": "Airlines | Moosify",
-  "shop/cell-plans/index.html": "Cell Plans | Moosify",
-  "shop/support/index.html": "Support | Moosify"
+  "shop/cell-plans/index.html": "Cell Plans | Moosify"
 };
 
 for (const [relativePath, title] of Object.entries(pages)) {
